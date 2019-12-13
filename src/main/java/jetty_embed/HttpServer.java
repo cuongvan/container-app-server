@@ -5,6 +5,7 @@
  */
 package jetty_embed;
 
+import common.Conf;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.servlet.*;
 import org.glassfish.jersey.logging.LoggingFeature;
@@ -22,7 +23,7 @@ public class HttpServer {
         Server server = new Server();
         ServerConnector connector = new ServerConnector(server);
         connector.setHost("0.0.0.0");
-        connector.setPort(common.Conf.HTTP_PORT);
+        connector.setPort(Conf.Inst.HTTP_PORT);
         server.setConnectors(new Connector[]{connector});
         
         ResourceConfig conf = new ResourceConfig();

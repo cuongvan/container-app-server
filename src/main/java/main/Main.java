@@ -30,14 +30,14 @@ public class Main {
     }
     
     public static void createAppBuildDirs(){
-        if (Files.notExists(Paths.get(Conf.APP_BUILD_DIR))) {
-            new File(Conf.APP_BUILD_DIR).mkdirs();
-            logger.info("App build directory {} created", Conf.APP_BUILD_DIR);
+        if (Files.notExists(Paths.get(Conf.Inst.APP_BUILD_DIR))) {
+            new File(Conf.Inst.APP_BUILD_DIR).mkdirs();
+            logger.info("App build directory {} created", Conf.Inst.APP_BUILD_DIR);
         }
         
-        if (Files.notExists(Paths.get(Conf.APP_BUILD_FAILED_DIR))) {
-            new File(Conf.APP_BUILD_FAILED_DIR).mkdirs();
-            logger.info("Failed app builds directory {} created", Conf.APP_BUILD_FAILED_DIR);
+        if (Files.notExists(Paths.get(Conf.Inst.APP_BUILD_FAILED_DIR))) {
+            new File(Conf.Inst.APP_BUILD_FAILED_DIR).mkdirs();
+            logger.info("Failed app builds directory {} created", Conf.Inst.APP_BUILD_FAILED_DIR);
         }
     }
 }

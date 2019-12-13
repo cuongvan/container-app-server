@@ -32,14 +32,11 @@ public class ImageBuildingWorker {
         Runnable r = () -> {
             try {
                 logger.info("Build app started: {}", appName);
-//                String dockerfileName = language.name().toLowerCase() + ".Dockerfile";
-//                File dockerfile = new File("Dockerfiles", dockerfileName);
-//                FileUtils.copyFile(dockerfile, new File(buildDir, "Dockerfile"));
                 Path dockerBuildFilesDir = Paths.get("docker_build_files", language.name().toLowerCase());
                 FileUtils.copyDirectory(dockerBuildFilesDir.toFile(), buildDir);
                 DockerUtils.buildImage(buildDir.toString(), appName);
                 logger.info("Build app done: {}", appName);
-//                FileUtils.deleteDirectory(buildDir);
+                FileUtils.deleteDirectory(buildDir);
                 
                 // TODO notify CKAN
             } catch (Exception e) {
@@ -52,7 +49,7 @@ public class ImageBuildingWorker {
                     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                     LocalDateTime now = LocalDateTime.now();
                     String newFolderName = String.format("%s-%s-%s", appName, language, dtf.format(now));
-                    FileUtils.moveDirectory(buildDir, new File(Conf.APP_BUILD_FAILED_DIR, newFolderName));
+                    FileUtils.moveDirectory(buildDir, new File(Conf.Inst.APP_BUILD_FAILED_DIR, newFolderName));
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }

@@ -8,13 +8,13 @@ package workers;
 import com.github.dockerjava.api.DockerClient;
 import common.RunningContainer;
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerjava.core.DockerClientBuilder;
 import common.Conf;
 import common.DockerClientPool;
 import java.util.concurrent.*;
 
 public class PollingContainerStatusWorker {
 
+    // TODO remove RunningContainer queue?
     private static ConcurrentLinkedQueue<RunningContainer> runningContainers = new ConcurrentLinkedQueue<>();
     private static ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(4);
 
@@ -26,8 +26,8 @@ public class PollingContainerStatusWorker {
         runningContainers = new ConcurrentLinkedQueue<>();
         scheduledExecutorService = Executors.newScheduledThreadPool(4);
         scheduledExecutorService.scheduleWithFixedDelay(PollingContainerStatusWorker::poll,
-            Conf.COMMAND_STATUS_CHECK_INTERVAL,
-            Conf.COMMAND_STATUS_CHECK_INTERVAL,
+            Conf.Inst.COMMAND_STATUS_CHECK_INTERVAL,
+            Conf.Inst.COMMAND_STATUS_CHECK_INTERVAL,
             TimeUnit.SECONDS);
     }
 

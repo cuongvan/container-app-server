@@ -20,9 +20,9 @@ public class DBConnectionPool {
     public static void init() {
         dataSource = new BasicDataSource();
         dataSource.setUrl(
-            String.format("jdbc:postgresql://%s/%s", Conf.POSTGRES_HOST, Conf.POSTGRES_DATABASE));
-        dataSource.setUsername(Conf.POSTGRES_USER);
-        dataSource.setPassword(Conf.POSTGRES_PASS);
+            String.format("jdbc:postgresql://%s/%s", Conf.Inst.POSTGRES_HOST, Conf.Inst.POSTGRES_DATABASE));
+        dataSource.setUsername(Conf.Inst.POSTGRES_USER);
+        dataSource.setPassword(Conf.Inst.POSTGRES_PASS);
         dataSource.setMinIdle(1);
         dataSource.setMaxIdle(1); // only 1 thread do the insert
         dataSource.setMaxOpenPreparedStatements(1);

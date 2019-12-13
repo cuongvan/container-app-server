@@ -56,7 +56,7 @@ public class AppEndpoint {
         // BONUS: prevent concurrent creating same app name (HARD)
         
         // unzip code, incase fileStream closed() after returning response
-        java.nio.file.Path tempDir = Files.createTempDirectory(Paths.get(Conf.APP_BUILD_DIR), "");
+        java.nio.file.Path tempDir = Files.createTempDirectory(Paths.get(Conf.Inst.APP_BUILD_DIR), "");
         File codeDir = tempDir.resolve("code").toFile();
         codeDir.mkdir();
         MFileUtils.unzipStreamToDir(fileStream, codeDir);
