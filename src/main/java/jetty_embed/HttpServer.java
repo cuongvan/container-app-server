@@ -22,7 +22,7 @@ public class HttpServer {
         Server server = new Server();
         ServerConnector connector = new ServerConnector(server);
         connector.setHost("0.0.0.0");
-        connector.setPort(Conf.PORT);
+        connector.setPort(common.Conf.HTTP_PORT);
         server.setConnectors(new Connector[]{connector});
         
         ResourceConfig conf = new ResourceConfig();

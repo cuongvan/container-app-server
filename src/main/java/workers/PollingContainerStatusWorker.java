@@ -3,12 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package docker;
+package workers;
 
+import com.github.dockerjava.api.DockerClient;
 import common.RunningContainer;
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import static docker.DockerUtils.COMMAND_STATUS_CHECK_INTERVAL_SEC;
-import static docker.DockerUtils.dockerClient;
+import com.github.dockerjava.core.DockerClientBuilder;
+import common.Conf;
+import common.DockerClientPool;
 import java.util.concurrent.*;
 
 public class PollingContainerStatusWorker {
@@ -24,24 +26,29 @@ public class PollingContainerStatusWorker {
         runningContainers = new ConcurrentLinkedQueue<>();
         scheduledExecutorService = Executors.newScheduledThreadPool(4);
         scheduledExecutorService.scheduleWithFixedDelay(PollingContainerStatusWorker::poll,
-                COMMAND_STATUS_CHECK_INTERVAL_SEC,
-                COMMAND_STATUS_CHECK_INTERVAL_SEC,
-                TimeUnit.SECONDS);
+            Conf.COMMAND_STATUS_CHECK_INTERVAL,
+            Conf.COMMAND_STATUS_CHECK_INTERVAL,
+            TimeUnit.SECONDS);
     }
 
     private static void poll() {
-        int toCheck = runningContainers.size();
-        for (int i = 0; i < toCheck; i++) {
-            RunningContainer container = runningContainers.poll();
-            InspectContainerResponse inspect
+        DockerClient dockerClient = DockerClientPool.Instance.getClient();
+        try {
+            int toCheck = runningContainers.size();
+            for (int i = 0; i < toCheck; i++) {
+                RunningContainer container = runningContainers.poll();
+                InspectContainerResponse inspect
                     = dockerClient.inspectContainerCmd(container.callId).exec();
 
-            // Finished container
-            if (inspect.getState().getRunning() == true) {
-                runningContainers.offer(container);
-            } else {
-                ContainerFinishHandler.submitFinishContainer(container.appName, container.callId, inspect);
+                // Finished container
+                if (inspect.getState().getRunning() == true) {
+                    runningContainers.offer(container);
+                } else {
+                    ContainerFinishWorker.submitFinishContainer(container.appName, container.callId, inspect);
+                }
             }
+        } finally {
+            DockerClientPool.Instance.returnClient(dockerClient);
         }
     }
 }

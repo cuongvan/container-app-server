@@ -13,6 +13,7 @@ import com.github.dockerjava.api.command.*;
 import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.*;
 import com.github.dockerjava.core.command.*;
+import common.DockerClientPool;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.*;
@@ -26,20 +27,15 @@ import org.slf4j.*;
 public class DockerUtils {
 
     private static Logger logger = LoggerFactory.getLogger(DockerUtils.class);
-
-    static final int COMMAND_STATUS_CHECK_INTERVAL_SEC = 5;
-
-    static DockerClient dockerClient = DockerClientBuilder.getInstance().build();
-
     private static Set<String> appNames;
-
-    private static String TAG_POSTFIX = "v1";
+    private static final String TAG_POSTFIX = "v1";
 
     public static boolean appExists(String appName) {
         return appNames.contains(appName);
     }
 
     public static ContainerLog getContainerLog(String containerId) {
+        DockerClient dockerClient = DockerClientPool.Instance.getClient();
         try {
             StringBuilder stdoutBuilder = new StringBuilder();
             StringBuilder stderrBuilder = new StringBuilder();
@@ -60,20 +56,33 @@ public class DockerUtils {
             return new ContainerLog(stdoutBuilder.toString(), stderrBuilder.toString());
         } catch (InterruptedException e) {
             throw new RuntimeException("Should not happend");
+        } finally {
+            DockerClientPool.Instance.returnClient(dockerClient);
         }
     }
-    
+
     public static void deleteContainer(String containerId) {
-        dockerClient.removeContainerCmd(containerId);
+        DockerClient dockerClient = DockerClientPool.Instance.getClient();
+        try {
+            dockerClient.removeContainerCmd(containerId);
+        } finally {
+            DockerClientPool.Instance.returnClient(dockerClient);
+        }
     }
 
     public static void init() {
-        appNames = dockerClient.listImagesCmd().exec().stream()
-            .flatMap(image -> Stream.of(image.getRepoTags()))
-            .filter(name -> name.endsWith(TAG_POSTFIX))
-            .map(name -> name.substring(0, name.length() - TAG_POSTFIX.length() - 1))
-            .collect(Collectors.toCollection(() -> ConcurrentHashMap.newKeySet()));
-        logger.info("apps: {}", appNames);
+        DockerClient dockerClient = DockerClientPool.Instance.getClient();
+        try {
+            appNames = dockerClient.listImagesCmd().exec().stream()
+                .flatMap(image -> Stream.of(image.getRepoTags()))
+                .filter(name -> name.endsWith(TAG_POSTFIX))
+                .map(name -> name.substring(0, name.length() - TAG_POSTFIX.length() - 1))
+                .collect(Collectors.toCollection(() -> ConcurrentHashMap.newKeySet()));
+            logger.info("Initial apps: {}", appNames);
+        } finally {
+            DockerClientPool.Instance.returnClient(dockerClient);
+        }
+
     }
 
     public static String newCallId() {
@@ -86,16 +95,22 @@ public class DockerUtils {
     }
 
     public static RunningContainer startContainer(String appName, String callId, String input) {
-        CreateContainerResponse container = dockerClient.createContainerCmd(appNameToImageName(appName))
-            .withName(callId)
-            .withEnv("INPUT=" + input)
-            .exec();
-        dockerClient.startContainerCmd(container.getId()).exec();
+        DockerClient dockerClient = DockerClientPool.Instance.getClient();
+        try {
+            CreateContainerResponse container = dockerClient.createContainerCmd(appNameToImageName(appName))
+                .withName(callId)
+                .withEnv("INPUT=" + input)
+                .exec();
+            dockerClient.startContainerCmd(container.getId()).exec();
 
-        return new RunningContainer(appName, callId);
+            return new RunningContainer(appName, callId);
+        } finally {
+            DockerClientPool.Instance.returnClient(dockerClient);
+        }
     }
 
     public static void buildImage(String path, String appName) {
+        DockerClient dockerClient = DockerClientPool.Instance.getClient();
         try {
             dockerClient.buildImageCmd()
                 .withDockerfile(new File(path, "Dockerfile"))
@@ -104,14 +119,17 @@ public class DockerUtils {
                     // DEBUG
                     @Override
                     public void onNext(BuildResponseItem item) {
-                        if (item.getStream() != null)
+                        if (item.getStream() != null) {
                             System.out.println(item.getStream().trim());
+                        }
                     }
                 })
                 .awaitCompletion();
             appNames.add(appName);
         } catch (InterruptedException ex) {
             ex.printStackTrace();
+        } finally {
+            DockerClientPool.Instance.returnClient(dockerClient);
         }
     }
 }

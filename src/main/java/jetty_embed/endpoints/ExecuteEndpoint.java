@@ -5,11 +5,12 @@
  */
 package jetty_embed.endpoints;
 
+import workers.PollingContainerStatusWorker;
 import docker.*;
 import common.RunningContainer;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import jetty_embed.jerseycomponents.Debugging;
+import jetty_embed.Debugging;
 
 /**
  *

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package jetty_embed.jerseycomponents;
+package jetty_embed;
 
 import javax.ws.rs.core.*;
 import javax.ws.rs.ext.*;

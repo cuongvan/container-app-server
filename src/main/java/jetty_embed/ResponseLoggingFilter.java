@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package jetty_embed.jerseycomponents;
+package jetty_embed;
 
 import java.io.IOException;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author cuong
  */
-@Debugging
+//@Debugging
 @Provider
 public class ResponseLoggingFilter implements ContainerResponseFilter {
     static Logger logger = LoggerFactory.getLogger(ResponseLoggingFilter.class);

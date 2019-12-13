@@ -3,11 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package docker;
+package workers;
 
-import common.DBPool;
+import common.DBConnectionPool;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import common.ContainerLog;
+import docker.DockerUtils;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -21,10 +22,14 @@ import org.slf4j.*;
  *
  * @author cuong
  */
-public class ContainerFinishHandler {
+public class ContainerFinishWorker {
 
-    private static Logger logger = LoggerFactory.getLogger(ContainerFinishHandler.class);
-    private static ExecutorService executor = Executors.newFixedThreadPool(5);
+    private static Logger logger = LoggerFactory.getLogger(ContainerFinishWorker.class);
+    private static ExecutorService executor;
+    
+    public static void init() {
+        executor = Executors.newFixedThreadPool(5);
+    }
 
     public static void submitFinishContainer(String appName, String callId, InspectContainerResponse inspect) {
         executor.submit(() -> {
@@ -35,13 +40,15 @@ public class ContainerFinishHandler {
             Instant t2 = Instant.parse(inspect.getState().getFinishedAt());
             long duration = Duration.between(t1, t2).getSeconds();
 
-            // get container's output
-//            logger.info("{} => {}", callId, log);
+            logger.info("Finished container: {}", callId);
 
             // write database
-            logger.warn("NOT IMPLEMENTED: Write output to database");
-            try (Connection conn = DBPool.getConn(); PreparedStatement stmt = conn.prepareStatement(
-                "INSERT INTO application_result(call_id, duration, stdout, stderr) VALUES (?, ?, ?, ?)")) {
+            try (
+                Connection conn = DBConnectionPool.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(
+                "INSERT INTO application_result(call_id, duration, stdout, stderr) VALUES (?, ?, ?, ?)")
+             ) {
+                logger.info("Got connection");
                 stmt.setString(1, callId);
                 stmt.setLong(2, duration);
                 stmt.setString(3, log.stdout);
@@ -54,13 +61,12 @@ public class ContainerFinishHandler {
                     logger.warn("Failed to insert data to database: {}", callId);
                 }
             } catch (SQLException ex) {
+                logger.warn("SQL exception for call: {}", callId);
                 ex.printStackTrace();
             }
 
             // notify user
             logger.warn("NOT IMPLEMENTED: Notify CKAN");
-
-            // delete container
         });
     }
 }

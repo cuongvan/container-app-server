@@ -36,4 +36,7 @@ dependencies {
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
     
     compile group: 'org.postgresql', name: 'postgresql', version: '42.2.9'
+    compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.4'
+    
+    compile group: 'org.apache.commons', name: 'commons-pool2', version: '2.0'
 }
