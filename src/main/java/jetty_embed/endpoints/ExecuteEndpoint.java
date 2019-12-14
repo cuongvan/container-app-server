@@ -5,12 +5,18 @@
  */
 package jetty_embed.endpoints;
 
+import common.Conf;
 import workers.PollingContainerStatusWorker;
 import docker.*;
 import common.RunningContainer;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import jetty_embed.Debugging;
+import org.apache.commons.io.IOUtils;
 
 /**
  *
@@ -38,13 +44,18 @@ public class ExecuteEndpoint {
     
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public MResponse execute(@PathParam("appName") String appName, String input) {
+    public MResponse execute(@PathParam("appName") String appName, InputStream body) throws FileNotFoundException, IOException {
         if (!DockerUtils.appExists(appName)) {
             return new MResponse("app not exists", "");
         }
         
         String callId = DockerUtils.newCallId();
-        RunningContainer rc = DockerUtils.startContainer(appName, callId, input);
+        String inputFile = Conf.Inst.APP_INPUT_FILES_DIR + "/" + callId;
+        try (FileOutputStream file = new FileOutputStream(inputFile)) {
+            IOUtils.copy(body, file);
+        }
+        
+        RunningContainer rc = DockerUtils.startContainer(appName, callId, inputFile);
         PollingContainerStatusWorker.submitNewRunningContainer(rc);
         return new MResponse("", callId);
     }

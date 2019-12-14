@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package docker;
 
 import common.RunningContainer;
@@ -11,10 +6,10 @@ import com.fasterxml.uuid.Generators;
 import com.github.dockerjava.api.*;
 import com.github.dockerjava.api.command.*;
 import com.github.dockerjava.api.model.*;
-import com.github.dockerjava.core.*;
 import com.github.dockerjava.core.command.*;
 import common.DockerClientPool;
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.*;
@@ -94,12 +89,15 @@ public class DockerUtils {
         return appName + ":" + TAG_POSTFIX;
     }
 
-    public static RunningContainer startContainer(String appName, String callId, String input) {
+    public static RunningContainer startContainer(String appName, String callId, String inputFile) {
+        inputFile = Paths.get(inputFile).toAbsolutePath().toString();
         DockerClient dockerClient = DockerClientPool.Instance.getClient();
         try {
+            Volume vol = new Volume("/input"); // container's path
             CreateContainerResponse container = dockerClient.createContainerCmd(appNameToImageName(appName))
                 .withName(callId)
-                .withEnv("INPUT=" + input)
+                .withVolumes(vol)
+                .withBinds(new Bind(inputFile, vol))
                 .exec();
             dockerClient.startContainerCmd(container.getId()).exec();
 

@@ -9,6 +9,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import jetty_embed.HttpServer;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.*;
 import workers.ContainerFinishWorker;
 
@@ -32,12 +33,14 @@ public class Main {
     public static void createAppBuildDirs(){
         if (Files.notExists(Paths.get(Conf.Inst.APP_BUILD_DIR))) {
             new File(Conf.Inst.APP_BUILD_DIR).mkdirs();
-            logger.info("App build directory {} created", Conf.Inst.APP_BUILD_DIR);
         }
         
         if (Files.notExists(Paths.get(Conf.Inst.APP_BUILD_FAILED_DIR))) {
             new File(Conf.Inst.APP_BUILD_FAILED_DIR).mkdirs();
-            logger.info("Failed app builds directory {} created", Conf.Inst.APP_BUILD_FAILED_DIR);
+        }
+        
+        if (Files.notExists(Paths.get(Conf.Inst.APP_INPUT_FILES_DIR))) {
+            new File(Conf.Inst.APP_INPUT_FILES_DIR).mkdirs();
         }
     }
 }

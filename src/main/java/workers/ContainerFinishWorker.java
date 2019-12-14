@@ -7,8 +7,11 @@ package workers;
 
 import common.DBConnectionPool;
 import com.github.dockerjava.api.command.InspectContainerResponse;
+import common.Conf;
 import common.ContainerLog;
 import docker.DockerUtils;
+import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -16,6 +19,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.*;
 
 /**
@@ -35,6 +39,12 @@ public class ContainerFinishWorker {
         executor.submit(() -> {
             ContainerLog log = DockerUtils.getContainerLog(inspect.getId());
             DockerUtils.deleteContainer(callId);
+            try {
+                FileUtils.forceDelete(new File(Conf.Inst.APP_INPUT_FILES_DIR, callId));
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                logger.warn("Fail to delete input file for call {}", callId);
+            }
 
             Instant t1 = Instant.parse(inspect.getState().getStartedAt());
             Instant t2 = Instant.parse(inspect.getState().getFinishedAt());

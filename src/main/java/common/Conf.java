@@ -17,8 +17,9 @@ public class Conf {
     public static final Conf Inst = readConfigFile();
     public final int HTTP_PORT;
 
-    public final String APP_BUILD_DIR = "./app_builds";
-    public final String APP_BUILD_FAILED_DIR = "./app_builds/_failed";
+    public final String APP_BUILD_DIR = "./tmp/builds";
+    public final String APP_BUILD_FAILED_DIR = "./tmp/builds-failed";
+    public final String APP_INPUT_FILES_DIR = "./tmp/input-files";
 
     public final long COMMAND_STATUS_CHECK_INTERVAL = 1;
 
