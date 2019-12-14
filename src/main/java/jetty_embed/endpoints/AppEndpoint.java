@@ -5,6 +5,9 @@
  */
 package jetty_embed.endpoints;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import common.SupportLanguage;
 import common.Conf;
 import docker.DockerUtils;
@@ -22,21 +25,27 @@ import utils.MFileUtils;
 
 @Path("/app")
 public class AppEndpoint {
-    
-    
+
     public static class NewAppRequest {
+
         public String appName;
         public SupportLanguage programmingLanguage;
+
+        public static NewAppRequest fromJson(String jsonString) throws IOException {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
+            return objectMapper.readValue(jsonString, NewAppRequest.class);
+        }
     }
-    
+
     public static class MResponse {
+
         public String error; // no error means accepted
 
         public MResponse(String error) {
             this.error = error;
         }
     }
-    
 
     @Path("/new")
     @POST
@@ -44,28 +53,27 @@ public class AppEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     public MResponse newApp(
         @FormDataParam("codeFile") InputStream fileStream,
-        @FormDataParam("body") FormDataBodyPart jsonRequest) throws IOException
-    {
+        @FormDataParam("body") FormDataBodyPart jsonRequest) throws IOException {
         jsonRequest.setMediaType(MediaType.APPLICATION_JSON_TYPE);
-        NewAppRequest request = jsonRequest.getValueAs(NewAppRequest.class);
-        
+        String requestStr = jsonRequest.getValueAs(String.class);
+        NewAppRequest request = NewAppRequest.fromJson(requestStr);
+
         if (DockerUtils.appExists(request.appName)) {
             return new MResponse("app name already exists");
         }
-        
+
         // BONUS: prevent concurrent creating same app name (HARD)
-        
         // unzip code, incase fileStream closed() after returning response
         java.nio.file.Path tempDir = Files.createTempDirectory(Paths.get(Conf.Inst.APP_BUILD_DIR), "");
         File codeDir = tempDir.resolve("code").toFile();
         codeDir.mkdir();
         MFileUtils.unzipStreamToDir(fileStream, codeDir);
-        
+
         // send build image to executors
         ImageBuildingWorker.submitBuildTask(request.appName, request.programmingLanguage, tempDir.toFile());
-        
+
         return new MResponse("");
     }
-    
+
     // TODO GET, DELETE
 }
