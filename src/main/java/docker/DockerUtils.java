@@ -7,6 +7,7 @@ import com.github.dockerjava.api.*;
 import com.github.dockerjava.api.command.*;
 import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.command.*;
+import common.Conf;
 import common.DockerClientPool;
 import java.io.File;
 import java.nio.file.Paths;
@@ -15,10 +16,6 @@ import java.util.concurrent.*;
 import java.util.stream.*;
 import org.slf4j.*;
 
-/**
- *
- * @author cuong
- */
 public class DockerUtils {
 
     private static Logger logger = LoggerFactory.getLogger(DockerUtils.class);
@@ -55,7 +52,7 @@ public class DockerUtils {
             DockerClientPool.Instance.returnClient(dockerClient);
         }
     }
-
+    
     public static void deleteContainer(String containerId) {
         DockerClient dockerClient = DockerClientPool.Instance.getClient();
         try {
@@ -89,12 +86,14 @@ public class DockerUtils {
         return appName + ":" + TAG_POSTFIX;
     }
 
+    private static final Map<String, String> labelMap = Collections.singletonMap(Conf.Inst.CKAN_APP_CONTAINER_LABEL, "");
     public static RunningContainer startContainer(String appName, String callId, String inputFile) {
         inputFile = Paths.get(inputFile).toAbsolutePath().toString();
         DockerClient dockerClient = DockerClientPool.Instance.getClient();
         try {
             Volume vol = new Volume("/input"); // container's path
             CreateContainerResponse container = dockerClient.createContainerCmd(appNameToImageName(appName))
+                .withLabels(labelMap)
                 .withName(callId)
                 .withVolumes(vol)
                 .withBinds(new Bind(inputFile, vol))
@@ -118,7 +117,7 @@ public class DockerUtils {
                     @Override
                     public void onNext(BuildResponseItem item) {
                         if (item.getStream() != null) {
-                            System.out.println(item.getStream().trim());
+//                            System.out.println(item.getStream().trim());
                         }
                     }
                 })

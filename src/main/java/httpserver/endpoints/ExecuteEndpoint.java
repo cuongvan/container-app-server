@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package jetty_embed.endpoints;
+package httpserver.endpoints;
 
 import common.Conf;
-import workers.PollingContainerStatusWorker;
+import workers.WatchingContainerWorker;
 import docker.*;
 import common.RunningContainer;
 import java.io.FileNotFoundException;
@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import jetty_embed.Debugging;
+import httpserver.Debugging;
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -56,7 +56,7 @@ public class ExecuteEndpoint {
         }
         
         RunningContainer rc = DockerUtils.startContainer(appName, callId, inputFile);
-        PollingContainerStatusWorker.submitNewRunningContainer(rc);
+        WatchingContainerWorker.Singleton.submitNewRunningContainer(callId);
         return new MResponse("", callId);
     }
 }

@@ -1,7 +1,7 @@
 package common;
-
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.DockerClientBuilder;
+import common.ThrowingConsumer;
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
@@ -12,9 +12,6 @@ public class DockerClientPool extends GenericObjectPool<DockerClient> {
     
     public DockerClientPool() {
         super(new DockerClientPoolFactory());
-    }
-    
-    public static void init() {
     }
     
     public DockerClient getClient() {
@@ -28,6 +25,18 @@ public class DockerClientPool extends GenericObjectPool<DockerClient> {
     
     public void returnClient(DockerClient client) {
         super.returnObject(client);
+    }
+    
+    public void useClient(ThrowingConsumer<DockerClient> consumer) throws Exception {
+        DockerClient client = null;
+        try {
+            client = borrowObject();
+            consumer.acceptThrows(client);
+        } finally {
+            if (client != null)
+                returnClient(client);
+        }
+        
     }
 
     public static class DockerClientPoolFactory extends BasePooledObjectFactory<DockerClient> {

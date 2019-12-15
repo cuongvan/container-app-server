@@ -9,6 +9,7 @@ import common.DBConnectionPool;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import common.Conf;
 import common.ContainerLog;
+import common.DockerClientPool;
 import docker.DockerUtils;
 import java.io.File;
 import java.io.IOException;
@@ -35,8 +36,21 @@ public class ContainerFinishWorker {
         executor = Executors.newFixedThreadPool(5);
     }
 
-    public static void submitFinishContainer(String appName, String callId, InspectContainerResponse inspect) {
+    public static void submitFinishContainer(String callId) {
         executor.submit(() -> {
+            InspectContainerResponse[] inspects = new InspectContainerResponse[1];
+            try {
+                DockerClientPool.Instance.useClient(client -> {
+                    // can inspect container id or name. use name here
+                    inspects[0] = client.inspectContainerCmd(callId).exec();
+                });
+            } catch (Exception ex) {
+                logger.warn("?");
+                ex.printStackTrace();
+                return;
+            }
+            
+            InspectContainerResponse inspect = inspects[0];
             ContainerLog log = DockerUtils.getContainerLog(inspect.getId());
             DockerUtils.deleteContainer(callId);
             try {
@@ -58,7 +72,6 @@ public class ContainerFinishWorker {
                 PreparedStatement stmt = conn.prepareStatement(
                 "INSERT INTO application_result(call_id, duration, stdout, stderr) VALUES (?, ?, ?, ?)")
              ) {
-                logger.info("Got connection");
                 stmt.setString(1, callId);
                 stmt.setLong(2, duration);
                 stmt.setString(3, log.stdout);

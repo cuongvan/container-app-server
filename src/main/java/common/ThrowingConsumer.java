@@ -3,16 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package jetty_embed;
+package common;
 
-import java.lang.annotation.*;
-import javax.ws.rs.NameBinding;
+import java.util.function.Consumer;
 
 /**
  *
  * @author cuong
  */
-@NameBinding
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD})
-public @interface Debugging { }
+@FunctionalInterface
+public interface ThrowingConsumer<T> {
+    void acceptThrows(T elem) throws Exception;
+}

@@ -21,7 +21,8 @@ public class Conf {
     public final String APP_BUILD_FAILED_DIR = "./tmp/builds-failed";
     public final String APP_INPUT_FILES_DIR = "./tmp/input-files";
 
-    public final long COMMAND_STATUS_CHECK_INTERVAL = 1;
+    // use to filter containers related to this server
+    public final String CKAN_APP_CONTAINER_LABEL = "ckanapp";
 
     public final String POSTGRES_HOST;
     public final String POSTGRES_USER;
@@ -40,10 +41,6 @@ public class Conf {
         
     }
     
-    public static void main(String[] args) {
-        readConfigFile();
-    }
-
     private static Conf readConfigFile() {
         try (InputStream input = Conf.class.getClassLoader().getResourceAsStream("config.properties")) {
             Properties prop = new Properties();

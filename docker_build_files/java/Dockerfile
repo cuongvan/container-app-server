@@ -1,8 +1,10 @@
 FROM gradle:6.0-jdk8
 COPY extract.sh /
 RUN chmod +x /extract.sh
-RUN mkdir /app
 WORKDIR /app
+COPY code/build.gradle .
+RUN gradle --no-daemon dependencies
+
 COPY code/ /app/
 RUN gradle --no-daemon distTar
 WORKDIR /app/build/distributions
