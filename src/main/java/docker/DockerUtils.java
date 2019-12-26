@@ -20,7 +20,7 @@ public class DockerUtils {
 
     private static Logger logger = LoggerFactory.getLogger(DockerUtils.class);
     private static Set<String> appNames;
-    private static final String TAG_POSTFIX = "v1";
+    private static final String TAG_POSTFIX = "ckanapp";
 
     public static boolean appExists(String appName) {
         return appNames.contains(appName);
