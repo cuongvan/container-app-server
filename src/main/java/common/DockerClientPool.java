@@ -14,12 +14,12 @@ public class DockerClientPool extends GenericObjectPool<DockerClient> {
         super(new DockerClientPoolFactory());
     }
     
-    public DockerClient getClient() {
+    public DockerClient borrowClient() {
         try {
             return super.borrowObject();
         } catch (Exception ex) {
             ex.printStackTrace();
-            throw new RuntimeException("Fail to get a DockerClient object");
+            throw new IllegalStateException("Fail to get a DockerClient object");
         }
     }
     

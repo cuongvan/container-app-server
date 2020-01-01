@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package common;
+package notifications;
 
 /**
  *
  * @author cuong
  */
-public enum SupportLanguage {
-    Python, Java, JavaScript, DockerImage;
+public enum Status {
+    Started, Success, Fail
 }

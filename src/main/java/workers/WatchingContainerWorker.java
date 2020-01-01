@@ -5,9 +5,6 @@
  */
 package workers;
 
-import com.github.dockerjava.api.DockerClient;
-import common.RunningContainer;
-import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Event;
 import com.github.dockerjava.core.command.EventsResultCallback;
 import common.Conf;
@@ -22,14 +19,13 @@ public class WatchingContainerWorker {
     public static final WatchingContainerWorker Singleton = new WatchingContainerWorker();
 
     // TODO remove RunningContainer queue?
-    private final Set<String> runningContainersNames;
     private final Executor executor;
-
 
     public WatchingContainerWorker() {
         executor = Executors.newSingleThreadExecutor();
-        runningContainersNames = ConcurrentHashMap.newKeySet();
-        
+    }
+    
+    public void startWatching() {
         executor.execute(() -> {
             while (true) {
                 try {
@@ -42,24 +38,16 @@ public class WatchingContainerWorker {
         });
     }
     
-    public void submitNewRunningContainer(String callId) {
-        runningContainersNames.add(callId);
-    }
-    
     private void watchForever() throws Exception {
-        final String STOP_EVENT = "die";
         DockerClientPool.Instance.useClient(client -> {
             client.eventsCmd()
-                .withEventFilter(STOP_EVENT) // container complete
-                .withLabelFilter(Conf.Inst.CKAN_APP_CONTAINER_LABEL)
+                .withEventFilter("die") // container complete
                 .exec(new EventsResultCallback() {
                     @Override
                     public void onNext(Event item) {
-                        String cname = item.getActor().getAttributes().get("name");
-                        if (runningContainersNames.remove(cname)) {
-                            ContainerFinishWorker.submitFinishContainer(cname);
-                            logger.info("Container finised: {}", cname);
-                        }
+                        // String cname = item.getActor().getAttributes().get("name");
+                        ContainerFinishWorker.submitFinishContainer(item.getId());
+                        logger.info("Container finished: {}", item.getId());
                     }
                 }).awaitCompletion();
         });

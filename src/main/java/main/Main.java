@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import httpserver.HttpServer;
 import org.slf4j.*;
 import workers.ContainerFinishWorker;
+import workers.WatchingContainerWorker;
 
 /**
  *
@@ -19,6 +20,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         DockerUtils.init();
         DBConnectionPool.init();
+        WatchingContainerWorker.Singleton.startWatching();
         ContainerFinishWorker.init();
         
         createAppBuildDirs();

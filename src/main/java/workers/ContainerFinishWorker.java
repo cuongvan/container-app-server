@@ -5,23 +5,29 @@
  */
 package workers;
 
+import com.github.dockerjava.api.DockerClient;
 import common.DBConnectionPool;
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import common.Conf;
 import common.ContainerLog;
+import common.DBHelper;
 import common.DockerClientPool;
 import docker.DockerUtils;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import notifications.Event;
+import notifications.EventType;
+import notifications.Status;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.*;
+import utils.HttpUtil;
 
 /**
  *
@@ -29,67 +35,103 @@ import org.slf4j.*;
  */
 public class ContainerFinishWorker {
 
-    private static Logger logger = LoggerFactory.getLogger(ContainerFinishWorker.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(ContainerFinishWorker.class);
     private static ExecutorService executor;
     
     public static void init() {
         executor = Executors.newFixedThreadPool(5);
     }
 
-    public static void submitFinishContainer(String callId) {
-        executor.submit(() -> {
-            InspectContainerResponse[] inspects = new InspectContainerResponse[1];
-            try {
-                DockerClientPool.Instance.useClient(client -> {
-                    // can inspect container id or name. use name here
-                    inspects[0] = client.inspectContainerCmd(callId).exec();
-                });
-            } catch (Exception ex) {
-                logger.warn("?");
-                ex.printStackTrace();
-                return;
+    public static void submitFinishContainer(String containerId) {
+        executor.submit(() -> handleFinishContainer(containerId));
+    }
+    public static void handleFinishContainer(String containerId) {
+        DockerClient docker =  DockerClientPool.Instance.borrowClient();
+        InspectContainerResponse inspect;
+        
+        try {
+            inspect = docker.inspectContainerCmd(containerId).exec();
+        } finally {
+            DockerClientPool.Instance.returnObject(docker);
+        }
+        
+        // delete all mounted input files
+        inspect.getMounts()
+            .stream()
+            .map(mount -> mount.getSource())
+            .map(path -> new File(path))
+            .forEach(inputFile -> {
+                try {
+                    FileUtils.forceDelete(inputFile);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    LOGGER.warn("Fail to delete input file for call {}", containerId);
+                }
+            });
+        
+        int exitCode = inspect.getState().getExitCode();
+        String callStatus = exitCode == 0 ? "Success" : "Fail";
+            
+        
+        // get logs
+        ContainerLog log = DockerUtils.getContainerLog(inspect.getId());
+        DockerUtils.deleteContainer(containerId);
+        
+        Instant t1 = Instant.parse(inspect.getState().getStartedAt());
+        Instant t2 = Instant.parse(inspect.getState().getFinishedAt());
+        long duration = Duration.between(t1, t2).getSeconds();
+
+        LOGGER.info("Finished container: {}", containerId);
+        
+        String callId = null;
+        
+        // write database
+        try (Connection conn = DBConnectionPool.getConnection()) {
+            
+            // get the call_id to notify CKAN
+            try (PreparedStatement stmt = conn.prepareStatement(
+                "SELECT call_id FROM app_call WHERE container_id = ?"))
+            {
+//                stmt.setString(1, DBHelper.APP_CALL_TABLE);
+                stmt.setString(1, containerId);
+                try (ResultSet r = stmt.executeQuery()) {
+                    if (!r.next()) {
+                        throw new IllegalStateException("Cannot find call_id");
+                    }
+                }
             }
             
-            InspectContainerResponse inspect = inspects[0];
-            ContainerLog log = DockerUtils.getContainerLog(inspect.getId());
-            DockerUtils.deleteContainer(callId);
-            try {
-                FileUtils.forceDelete(new File(Conf.Inst.APP_INPUT_FILES_DIR, callId));
-            } catch (IOException ex) {
-                ex.printStackTrace();
-                logger.warn("Fail to delete input file for call {}", callId);
-            }
-
-            Instant t1 = Instant.parse(inspect.getState().getStartedAt());
-            Instant t2 = Instant.parse(inspect.getState().getFinishedAt());
-            long duration = Duration.between(t1, t2).getSeconds();
-
-            logger.info("Finished container: {}", callId);
-
-            // write database
-            try (
-                Connection conn = DBConnectionPool.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(
-                "INSERT INTO application_result(call_id, duration, stdout, stderr) VALUES (?, ?, ?, ?)")
-             ) {
-                stmt.setString(1, callId);
-                stmt.setLong(2, duration);
+            // update app output & delete container_id
+            try (PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE app_call SET duration = ?, status = ?, stdout = ?, stderr = ?, container_id = NULL WHERE container_id = ?"))
+            {
+//                stmt.setString(1, DBHelper.APP_CALL_TABLE);
+                stmt.setLong(1, duration);
+                stmt.setString(2, callStatus);
                 stmt.setString(3, log.stdout);
                 stmt.setString(4, log.stderr);
+                stmt.setString(5, containerId);
                 int nrows = stmt.executeUpdate();
                 if (nrows == 1) {
-                    logger.info("Inserted result: {}", callId);
+                    LOGGER.info("Inserted result: {}", containerId);
+                } else {
+                    LOGGER.warn("Failed to insert data to database: {}. Container not belongs to CKAN", containerId);
                 }
-                if (nrows != 1) {
-                    logger.warn("Failed to insert data to database: {}", callId);
-                }
-            } catch (SQLException ex) {
-                logger.warn("SQL exception for call: {}", callId);
-                ex.printStackTrace();
             }
-
-            // notify user
-            logger.warn("NOT IMPLEMENTED: Notify CKAN");
-        });
+            
+        } catch (SQLException ex) {
+            LOGGER.warn("SQL exception for call: {}", containerId);
+            ex.printStackTrace();
+        }
+        
+        // notify CKAN
+        if (callId != null) {
+            try {
+                HttpUtil.post("http://localhost:5000/notify/batch/" + callId, new Event(EventType.Execute, Status.Success));
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                LOGGER.error("Fail to notify CKAN, call_id = {}", callId);
+            }
+        }
     }
 }

@@ -22,7 +22,7 @@ public class Conf {
     public final String APP_INPUT_FILES_DIR = "./tmp/input-files";
 
     // use to filter containers related to this server
-    public final String CKAN_APP_CONTAINER_LABEL = "ckanapp";
+//    public final String CKAN_APP_CONTAINER_LABEL = "ckanapp";
 
     public final String POSTGRES_HOST;
     public final String POSTGRES_USER;

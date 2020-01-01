@@ -24,8 +24,8 @@ public class DBConnectionPool {
         dataSource.setUsername(Conf.Inst.POSTGRES_USER);
         dataSource.setPassword(Conf.Inst.POSTGRES_PASS);
         dataSource.setMinIdle(1);
-        dataSource.setMaxIdle(1); // only 1 thread do the insert
-        dataSource.setMaxOpenPreparedStatements(1);
+        dataSource.setMaxIdle(5); // only 1 thread do the insert
+        dataSource.setMaxOpenPreparedStatements(10);
     }
     public static Connection getConnection() throws SQLException {
         return dataSource.getConnection();
