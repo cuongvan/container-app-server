@@ -43,4 +43,5 @@ dependencies {
     compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.4'
     
     compile group: 'org.apache.commons', name: 'commons-pool2', version: '2.0'
+    compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.2.18'
 }

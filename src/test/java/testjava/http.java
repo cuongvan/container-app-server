@@ -12,7 +12,7 @@ import utils.HttpUtil;
  *
  * @author cuong
  */
-public class test_http_post {
+public class http {
     public static class Req {
         public final String name = "Ye Mo";
         public final int age = 999;

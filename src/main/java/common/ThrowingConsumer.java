@@ -5,8 +5,6 @@
  */
 package common;
 
-import java.util.function.Consumer;
-
 /**
  *
  * @author cuong

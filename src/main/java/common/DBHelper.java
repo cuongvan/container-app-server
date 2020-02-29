@@ -9,7 +9,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  *
@@ -20,39 +19,25 @@ public class DBHelper {
     public static final String APP_CALL_TABLE = "app_call";
     
     public static BatchAppInfo retrieveBatchAppInfo(String appId) throws SQLException {
-        String query = String.format(
-            "SELECT * FROM app_info", 
-//            AppType.Batch.name(), 
-            appId);
-//        System.out.println(query);
-        String imageName = null;
-        String language = null;
+        String query = "SELECT image, language FROM app_info WHERE type = ? AND app_id = ?";
         try (
             Connection conn = DBConnectionPool.getConnection();
-//            PreparedStatement stmt = conn.prepareStatement(query);
-            Statement stmt = conn.createStatement();
+            PreparedStatement stmt = conn.prepareStatement(query);
         ){
-//            stmt.setString(1, DBHelper.APP_INFO_TABLE);
-//            stmt.setString(1, AppType.Batch.name());
-//            stmt.setString(2, appId);
-//            try (ResultSet r = stmt.executeQuery()) {
-            try (ResultSet r = stmt.executeQuery(query)) {
-                while (r.next()) {
-                    if (r.getString("app_id").equals(appId)) {
-                        imageName = r.getString("image");
-                        language = r.getString("language");
-                    }
+            stmt.setString(1, AppType.Batch.name());
+            stmt.setString(2, appId);
+            try (ResultSet r = stmt.executeQuery()) {
+                if (!r.next()) {
+                    return null;
+                } else {
+                    return new BatchAppInfo(
+                        appId,
+                        r.getString("image"),
+                        SupportLanguage.valueOf(r.getString("language"))
+                    );
                 }
             }
         }
-        if (imageName != null)
-            return new BatchAppInfo(
-                appId,
-                imageName,
-                SupportLanguage.valueOf(language)
-            );
-        else 
-            return null;
     }
     
     public static AppCallInfo.ServerAppCallInfo retrieveServerAppInfo(String appId) throws SQLException {

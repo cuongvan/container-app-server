@@ -5,6 +5,7 @@
  */
 package httpserver.endpoints;
 
+import httpserver.common.BasicResponse;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import common.AppCallInfo;

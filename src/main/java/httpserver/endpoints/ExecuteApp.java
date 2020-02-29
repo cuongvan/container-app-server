@@ -5,6 +5,7 @@
  */
 package httpserver.endpoints;
 
+import httpserver.common.BasicResponse;
 import common.AppCallInfo.*;
 import common.Conf;
 import common.DBConnectionPool;

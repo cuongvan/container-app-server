@@ -10,5 +10,5 @@ package common;
  * @author cuong
  */
 public enum SupportLanguage {
-    Python, Java, JavaScript, DockerImage;
+    Python, Java;
 }

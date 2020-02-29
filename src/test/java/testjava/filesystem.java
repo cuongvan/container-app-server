@@ -13,7 +13,7 @@ import java.nio.file.*;
  *
  * @author cuong
  */
-public class temp_dir {
+public class filesystem {
     public static final String APP_BUILD_DIR = "./app_builds";
     public static void main(String[] args) throws IOException {
         if (Files.notExists(Paths.get(APP_BUILD_DIR))) {
