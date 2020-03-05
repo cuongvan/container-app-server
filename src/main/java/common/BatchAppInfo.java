@@ -10,13 +10,25 @@ package common;
  * @author cuong
  */
 public class BatchAppInfo {
-    public final String appId;
-    public final String imageName;
-    public final SupportLanguage language;
+    private final String appId;
+    private final String imageName;
+    private final SupportLanguage language;
 
     public BatchAppInfo(String appId, String imageName, SupportLanguage language) {
         this.appId = appId;
         this.imageName = imageName;
         this.language = language;
+    }
+
+    public String getAppId() {
+        return appId;
+    }
+
+    public String getImageName() {
+        return imageName;
+    }
+
+    public SupportLanguage getLanguage() {
+        return language;
     }
 }

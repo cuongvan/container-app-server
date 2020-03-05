@@ -21,14 +21,14 @@ public class BuildAppHandler {
     private DockerAdapter docker;
 
     public Completable buildApp(BatchAppInfo appInfo, byte[] codeZipFile) throws IOException {
-        String templateDir = Paths.get("docker_build_files", appInfo.language.name().toLowerCase()).toString();
+        String templateDir = Paths.get("docker_build_files", appInfo.getLanguage().name().toLowerCase()).toString();
         
         return Single
             .fromCallable(() -> createRandomDirAt(Consts.APP_BUILD_DIR))
             .doOnSuccess(dir -> MyFileUtils.unzipBytesToDir(codeZipFile, dir))
             .doOnSuccess(dir -> MyFileUtils.copyDirectory(templateDir, dir))
             .flatMapCompletable(dir -> Completable
-                .fromAction(() -> docker.buildImage(dir, appInfo.imageName))
+                .fromAction(() -> docker.buildImage(dir, appInfo.getImageName()))
                 .doOnComplete(() -> MyFileUtils.deleteDirectory(dir))
                 .doOnError(err -> moveBuildFailBuildDir(appInfo, dir))
             )
@@ -47,7 +47,7 @@ public class BuildAppHandler {
     private void moveBuildFailBuildDir(BatchAppInfo appInfo, String dir) throws IOException {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
-        String newFolderName = String.format("%s-%s-%s", appInfo.imageName, appInfo.language, dtf.format(now));
+        String newFolderName = String.format("%s-%s-%s", appInfo.getImageName(), appInfo.getLanguage(), dtf.format(now));
         Path dest = Paths.get(Consts.APP_BUILD_FAILED_DIR, newFolderName);
         MyFileUtils.moveDirectory(dir, dest.toString());
     }

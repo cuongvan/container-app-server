@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import workers.ScheduleAppWorker;
+import externalapi.appinfo.BatchAppInfoDAO;
 
 @Path("/app/new")
 public class BuildApp {
@@ -28,6 +29,9 @@ public class BuildApp {
     
     @Inject
     private BuildAppHandler buildAppHandler;
+    
+    @Inject
+    private BatchAppInfoDAO appInfoDAO;
     
     public static class NewAppRequest {
         public String appName;
@@ -49,7 +53,7 @@ public class BuildApp {
     ) throws IOException, SQLException
     {
         Single
-            .fromCallable(() -> DBHelper.retrieveBatchAppInfo(appId))
+            .fromCallable(() -> appInfoDAO.getById(appId))
             .flatMapCompletable(appInfo -> buildAppHandler.buildApp(appInfo, codeFile))
             .blockingAwait();
         return BasicResponse.OK;

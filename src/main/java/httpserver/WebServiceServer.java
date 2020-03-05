@@ -7,6 +7,8 @@ package httpserver;
 
 import common.DBConnectionPool;
 import docker.DockerAdapter;
+import externalapi.appinfo.DBAppInfoClient;
+import handlers.BuildAppHandler;
 import main.Main;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.servlet.*;
@@ -15,6 +17,7 @@ import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.*;
 import org.glassfish.jersey.servlet.*;
 import org.slf4j.*;
+import externalapi.appinfo.BatchAppInfoDAO;
 
 /**
  *
@@ -44,7 +47,7 @@ public class WebServiceServer {
     
     public static class MyApplication extends ResourceConfig {
         public MyApplication() {
-            packages(true, WebServiceServer.class.getPackage().toString());
+            packages(true, "httpserver");
             register(new JerseyInjection());
             
             register(LoggingFeature.class);
@@ -57,8 +60,10 @@ public class WebServiceServer {
     public static class JerseyInjection extends AbstractBinder {
         @Override
         protected void configure() {
-            bind(new DockerAdapter()).to(DockerAdapter.class);
+            bind(DockerAdapter.class).to(DockerAdapter.class);
             bind(Main.singletonDBConnectionPool()).to(DBConnectionPool.class);
+            bind(BuildAppHandler.class).to(BuildAppHandler.class);
+            bind(DBAppInfoClient.class).to(BatchAppInfoDAO.class);
         }
     }
 }
