@@ -9,9 +9,7 @@ import com.github.dockerjava.api.DockerClient;
 import common.DBConnectionPool;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import common.ContainerLog;
-import common.DBHelper;
-import common.DockerClientPool;
-import docker.DockerUtils;
+import docker.DockerAdapter;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -22,6 +20,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javax.inject.Inject;
 import notifications.Event;
 import notifications.EventType;
 import notifications.Status;
@@ -36,24 +35,29 @@ import utils.HttpUtil;
 public class ContainerFinishWorker {
 
     private static Logger LOGGER = LoggerFactory.getLogger(ContainerFinishWorker.class);
-    private static ExecutorService executor;
     
-    public static void init() {
+    private DockerAdapter dockerAdapter;
+    private ExecutorService executor;
+    private DBConnectionPool dbPool;
+
+    @Inject
+    public ContainerFinishWorker(DockerAdapter dockerApi, DBConnectionPool dbPool) {
+        this.dockerAdapter = dockerApi;
+        this.dbPool = dbPool;
         executor = Executors.newFixedThreadPool(5);
     }
 
-    public static void submitFinishContainer(String containerId) {
-        executor.submit(() -> handleFinishContainer(containerId));
+    public void submitFinishContainer(String containerId) {
+        executor.submit(() -> {
+            try {
+                handleFinishContainer(containerId);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
     }
-    public static void handleFinishContainer(String containerId) {
-        DockerClient docker =  DockerClientPool.Instance.borrowClient();
-        InspectContainerResponse inspect;
-        
-        try {
-            inspect = docker.inspectContainerCmd(containerId).exec();
-        } finally {
-            DockerClientPool.Instance.returnObject(docker);
-        }
+    public void handleFinishContainer(String containerId) throws IOException {
+        InspectContainerResponse inspect = dockerAdapter.inspectContainer(containerId);
         
         // delete all mounted input files
         inspect.getMounts()
@@ -74,8 +78,8 @@ public class ContainerFinishWorker {
             
         
         // get logs
-        ContainerLog log = DockerUtils.getContainerLog(inspect.getId());
-        DockerUtils.deleteContainer(containerId);
+        ContainerLog log = dockerAdapter.getContainerLog(inspect.getId());
+        dockerAdapter.deleteContainer(containerId);
         
         Instant t1 = Instant.parse(inspect.getState().getStartedAt());
         Instant t2 = Instant.parse(inspect.getState().getFinishedAt());
@@ -86,7 +90,7 @@ public class ContainerFinishWorker {
         String callId = null;
         
         // write database
-        try (Connection conn = DBConnectionPool.getConnection()) {
+        try (Connection conn = dbPool.getConnection()) {
             
             // get the call_id to notify CKAN
             try (PreparedStatement stmt = conn.prepareStatement(

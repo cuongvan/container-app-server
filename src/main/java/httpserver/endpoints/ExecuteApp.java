@@ -7,7 +7,7 @@ package httpserver.endpoints;
 
 import httpserver.common.BasicResponse;
 import common.AppCallInfo.*;
-import common.Conf;
+import common.AppConfig;
 import common.DBConnectionPool;
 import common.DBHelper;
 import docker.*;
@@ -21,6 +21,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import javax.inject.Inject;
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -32,9 +33,12 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 @Path("/execute")
 @Debugging
 public class ExecuteApp {
+    
+    @Inject DockerAdapter docker;
+    @Inject DBConnectionPool connectionPool;
+    
     @Path("/batch/{callId}")
     @POST
-//    @Consumes(MediaType.WILDCARD)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     public Response execute(
@@ -48,7 +52,7 @@ public class ExecuteApp {
         // prepare input files to mount to container
         String jsonFile = null;
         if (callInfo.hasJsonInput && jsonInput != null) {
-            File temp = File.createTempFile("aaa", "bbb", new File(Conf.Inst.APP_INPUT_FILES_DIR));
+            File temp = File.createTempFile("aaa", "bbb", new File(AppConfig.Inst.APP_INPUT_FILES_DIR));
             try (FileOutputStream jsonStream = new FileOutputStream(temp)) {
                 IOUtils.copy(jsonInput, jsonStream);
             }
@@ -56,7 +60,7 @@ public class ExecuteApp {
         }
         String binFile = null;
         if (callInfo.hasBinaryInput && binaryInput != null) {
-            File temp = File.createTempFile("aaa", "bbb", new File(Conf.Inst.APP_INPUT_FILES_DIR));
+            File temp = File.createTempFile("aaa", "bbb", new File(AppConfig.Inst.APP_INPUT_FILES_DIR));
             try (FileOutputStream binStream = new FileOutputStream(temp)) {
                 IOUtils.copy(binaryInput, binStream);
             }
@@ -64,12 +68,12 @@ public class ExecuteApp {
         }
 
         // really start container
-        String containerId = DockerUtils.startBatchApp(callInfo.image, jsonFile, binFile);
+        String containerId = docker.startBatchApp(callInfo.image, jsonFile, binFile);
         System.out.println("Started, container_id = " + containerId);
 
         // update call status
         try (
-            Connection conn = DBConnectionPool.getConnection();
+            Connection conn = connectionPool.getConnection();
             PreparedStatement stmt = conn.prepareStatement(
                 "UPDATE app_call SET status = ?, container_id = ? WHERE call_id = ?");
         ){

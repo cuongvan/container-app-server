@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import main.Main;
 
 /**
  *
@@ -21,7 +22,7 @@ public class DBHelper {
     public static BatchAppInfo retrieveBatchAppInfo(String appId) throws SQLException {
         String query = "SELECT image, language FROM app_info WHERE type = ? AND app_id = ?";
         try (
-            Connection conn = DBConnectionPool.getConnection();
+            Connection conn = Main.singletonDBConnectionPool().getConnection();
             PreparedStatement stmt = conn.prepareStatement(query);
         ){
             stmt.setString(1, AppType.Batch.name());
@@ -42,7 +43,7 @@ public class DBHelper {
     
     public static AppCallInfo.ServerAppCallInfo retrieveServerAppInfo(String appId) throws SQLException {
         try (
-            Connection conn = DBConnectionPool.getConnection();
+            Connection conn = Main.singletonDBConnectionPool().getConnection();
             PreparedStatement stmt = conn.prepareStatement(
                 "SELECT image, port2port FROM app_info WHERE type = ? AND app_id = ?");
         ){
@@ -63,7 +64,7 @@ public class DBHelper {
     
     public static AppCallInfo.BatchAppCallInfo retrieveBatchCallInfo(String callId) throws SQLException {
         try (
-            Connection conn = DBConnectionPool.getConnection();
+            Connection conn = Main.singletonDBConnectionPool().getConnection();
             PreparedStatement stmt = conn.prepareStatement(
                 "SELECT image, json_input, binary_input FROM app_info, app_call "
                     + "WHERE call_id = ? AND app_info.app_id = app_call.app_id");

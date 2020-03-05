@@ -5,23 +5,25 @@
  */
 package workers;
 
+import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.Event;
 import com.github.dockerjava.core.command.EventsResultCallback;
-import common.Conf;
-import common.DockerClientPool;
-import java.util.Set;
+import docker.DockerAdapter;
 import java.util.concurrent.*;
+import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WatchingContainerWorker {
     private static Logger logger = LoggerFactory.getLogger(WatchingContainerWorker.class);
-    public static final WatchingContainerWorker Singleton = new WatchingContainerWorker();
-
+    
     // TODO remove RunningContainer queue?
+    private ContainerFinishWorker containerFinishWorker;
     private final Executor executor;
 
-    public WatchingContainerWorker() {
+    @Inject
+    public WatchingContainerWorker(ContainerFinishWorker containerFinishWorker) {
+        this.containerFinishWorker = containerFinishWorker;
         executor = Executors.newSingleThreadExecutor();
     }
     
@@ -39,17 +41,17 @@ public class WatchingContainerWorker {
     }
     
     private void watchForever() throws Exception {
-        DockerClientPool.Instance.useClient(client -> {
-            client.eventsCmd()
+        try (DockerClient docker = DockerAdapter.newClient()) {
+            docker.eventsCmd()
                 .withEventFilter("die") // container complete
                 .exec(new EventsResultCallback() {
                     @Override
                     public void onNext(Event item) {
                         // String cname = item.getActor().getAttributes().get("name");
-                        ContainerFinishWorker.submitFinishContainer(item.getId());
+                        containerFinishWorker.submitFinishContainer(item.getId());
                         logger.info("Container finished: {}", item.getId());
                     }
                 }).awaitCompletion();
-        });
+        }
     }
 }

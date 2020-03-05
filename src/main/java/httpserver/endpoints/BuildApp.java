@@ -11,9 +11,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import common.AppCallInfo;
 import common.BatchAppInfo;
 import common.SupportLanguage;
-import common.Conf;
+import common.AppConfig;
 import common.DBHelper;
-import docker.DockerUtils;
+import docker.DockerAdapter;
 import workers.BuildImageWorker;
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import utils.MFileUtils;
@@ -28,6 +29,11 @@ import workers.ScheduleAppWorker;
 
 @Path("/app/new")
 public class BuildApp {
+    @Inject
+    private DockerAdapter docker;
+    
+    @Inject
+    private BuildImageWorker buildImageWorker;
 
     public static class NewAppRequest {
         public String appName;
@@ -53,13 +59,13 @@ public class BuildApp {
             return new BasicResponse("app_id not found");
         
         // unzip code immediately, in case fileStream closed() after returning response
-        java.nio.file.Path tempDir = Files.createTempDirectory(Paths.get(Conf.Inst.APP_BUILD_DIR), "");
+        java.nio.file.Path tempDir = Files.createTempDirectory(Paths.get(AppConfig.Inst.APP_BUILD_DIR), "");
         File codeDir = tempDir.resolve("code").toFile();
         codeDir.mkdir();
         MFileUtils.unzipStreamToDir(codeFile, codeDir);
         
         // send build image to executors
-        BuildImageWorker.submitBuildTask(app, tempDir.toFile());
+        buildImageWorker.submitBuildTask(app, tempDir.toFile());
 
         return BasicResponse.OK;
     }
@@ -70,9 +76,14 @@ public class BuildApp {
     public BasicResponse newServerApp(@PathParam("appId") String appId) throws SQLException
     {
         AppCallInfo.ServerAppCallInfo app = DBHelper.retrieveServerAppInfo(appId);
-        ScheduleAppWorker.Instance.submit(
-            app,
-            () -> DockerUtils.startServerApp(app.image, app.outsidePort, app.imagePort));
+        ScheduleAppWorker.Instance.submit(app,
+            () -> {
+            try {
+                docker.startServerApp(app.image, app.outsidePort, app.imagePort);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
         return BasicResponse.OK;
     }
 }

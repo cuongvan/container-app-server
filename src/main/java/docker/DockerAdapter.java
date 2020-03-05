@@ -1,30 +1,24 @@
 package docker;
 
 import common.ContainerLog;
-import com.fasterxml.uuid.Generators;
 import com.github.dockerjava.api.*;
 import com.github.dockerjava.api.command.*;
 import com.github.dockerjava.api.model.*;
+import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.command.*;
-import common.DockerClientPool;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
-import org.slf4j.*;
 
-public class DockerUtils {
-
-    private static Logger logger = LoggerFactory.getLogger(DockerUtils.class);
-    private static Set<String> appNames;
-//    private static final String TAG_POSTFIX = "ckanapp";
-
-    public static boolean appExists(String appName) {
-        return appNames.contains(appName);
+public class DockerAdapter {
+    
+    public static DockerClient newClient() {
+        return DockerClientBuilder.getInstance().build();
     }
-
-    public static ContainerLog getContainerLog(String containerId) {
-        DockerClient dockerClient = DockerClientPool.Instance.borrowClient();
-        try {
+    
+    public ContainerLog getContainerLog(String containerId) throws IOException {
+        try (DockerClient dockerClient = newClient()) {
             StringBuilder stdoutBuilder = new StringBuilder();
             StringBuilder stderrBuilder = new StringBuilder();
             dockerClient.logContainerCmd(containerId)
@@ -42,58 +36,26 @@ public class DockerUtils {
                     }
                 }).awaitCompletion();
             return new ContainerLog(stdoutBuilder.toString(), stderrBuilder.toString());
-        } catch (InterruptedException e) {
-            throw new IllegalThreadStateException("Should not happend");
-        } finally {
-            DockerClientPool.Instance.returnClient(dockerClient);
+        } catch (InterruptedException ignore) {
+            throw new IllegalStateException("Should not happend");
         }
     }
 
-    public static void deleteContainer(String containerId) {
-        DockerClient dockerClient = DockerClientPool.Instance.borrowClient();
-        try {
+    public void deleteContainer(String containerId) throws IOException {
+        try (DockerClient dockerClient = newClient()) {
             dockerClient.removeContainerCmd(containerId).exec();
-        } finally {
-            DockerClientPool.Instance.returnClient(dockerClient);
         }
     }
-
-    public static void init() {
-        DockerClient dockerClient = DockerClientPool.Instance.borrowClient();
-        try {
-//            appNames = dockerClient.listImagesCmd().exec().stream()
-//                .flatMap(image -> Stream.of(image.getRepoTags()))
-//                .filter(name -> name.endsWith(TAG_POSTFIX))
-//                .map(name -> name.substring(0, name.length() - TAG_POSTFIX.length() - 1))
-//                .collect(Collectors.toCollection(() -> ConcurrentHashMap.newKeySet()));
-            logger.info("Initial apps: {}", appNames);
-        } finally {
-            DockerClientPool.Instance.returnClient(dockerClient);
-        }
-
-    }
-
-    public static String newCallId() {
-        UUID uuidv11 = Generators.timeBasedGenerator().generate();
-        return uuidv11.toString();
-    }
-
-//    private static String appNameToImageName(String appName) {
-//        return appName + ":" + TAG_POSTFIX;
-//    }
-
-//    private static final Map<String, String> labelMap = Collections.singletonMap(Conf.Inst.CKAN_APP_CONTAINER_LABEL, "");
 
     /**
      * @return container's id
      */
-    public static String startBatchApp(
+    public String startBatchApp(
         String imageName,
         String jsonInputPath,
         String binaryInputPath
-    ) {
-        DockerClient docker = DockerClientPool.Instance.borrowClient();
-        try {
+    ) throws IOException {
+        try (DockerClient docker = newClient()) {
             List<Volume> volumes = new ArrayList<>();
             List<Bind> binds = new ArrayList<>();
             if (jsonInputPath != null) {
@@ -128,15 +90,11 @@ public class DockerUtils {
             CreateContainerResponse container = cmd.exec();
             docker.startContainerCmd(container.getId()).exec();
             return container.getId();
-        } finally {
-            DockerClientPool.Instance.returnClient(docker);
         }
     }
 
-    public static void startServerApp(
-        String imageName, int hostPort, int imagePort) {
-        DockerClient dockerClient = DockerClientPool.Instance.borrowClient();
-        try {
+    public void startServerApp(String imageName, int hostPort, int imagePort) throws IOException {
+        try (DockerClient dockerClient = newClient()) {
             ExposedPort exposedPort = ExposedPort.tcp(imagePort);
             Ports portBindings = new Ports();
             portBindings.bind(exposedPort, Ports.Binding.bindPort(hostPort));
@@ -147,14 +105,11 @@ public class DockerUtils {
                 .withPortBindings(portBindings)
                 .exec();
             dockerClient.startContainerCmd(container.getId()).exec();
-        } finally {
-            DockerClientPool.Instance.returnClient(dockerClient);
         }
     }
 
-    public static void buildImage(String path, String imageName) {
-        DockerClient dockerClient = DockerClientPool.Instance.borrowClient();
-        try {
+    public void buildImage(String path, String imageName) throws IOException {
+        try (DockerClient dockerClient = newClient()) {
             dockerClient.buildImageCmd()
                 .withDockerfile(new File(path, "Dockerfile"))
                 .withTag(imageName)
@@ -171,14 +126,11 @@ public class DockerUtils {
 //            appNames.add(imageName);
         } catch (InterruptedException ex) {
             ex.printStackTrace();
-        } finally {
-            DockerClientPool.Instance.returnClient(dockerClient);
         }
     }
     
-    public static void pullImage(String image) {
-        DockerClient dockerClient = DockerClientPool.Instance.borrowClient();
-        try {
+    public void pullImage(String image) throws IOException {
+        try (DockerClient dockerClient = newClient()) {
 //            PullImageCmd pull = dockerClient
 //                .pullImageCmd(image)
 //                .exec(new PullImageResultCallback() {
@@ -193,8 +145,12 @@ public class DockerUtils {
 //                    }
 //
 //                });
-        } finally {
-            DockerClientPool.Instance.returnClient(dockerClient);
+        }
+    }
+    
+    public InspectContainerResponse inspectContainer(String containerId) throws IOException {
+        try (DockerClient docker = DockerAdapter.newClient()) {
+            return docker.inspectContainerCmd(containerId).exec();
         }
     }
 }

@@ -6,8 +6,8 @@
 package workers;
 
 import common.BatchAppInfo;
-import common.Conf;
-import docker.DockerUtils;
+import common.AppConfig;
+import docker.DockerAdapter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Executor;
+import javax.inject.Inject;
 import notifications.Event;
 import notifications.EventType;
 import notifications.Status;
@@ -26,15 +27,18 @@ import utils.HttpUtil;
 
 public class BuildImageWorker {
     private static Logger logger = LoggerFactory.getLogger(BuildImageWorker.class);
-    private static Executor executor = ExecutorUtil.newExecutor(0, 3);
+    private Executor executor = ExecutorUtil.newExecutor(0, 3);
     
-    public static void submitBuildTask(BatchAppInfo app, File buildDir) {
+    @Inject
+    private DockerAdapter docker;
+    
+    public void submitBuildTask(BatchAppInfo app, File buildDir) {
         Runnable r = () -> {
             try {
                 logger.info("Build app started: {}", app.image);
                 Path dockerBuildFilesDir = Paths.get("docker_build_files", app.language.name().toLowerCase());
                 FileUtils.copyDirectory(dockerBuildFilesDir.toFile(), buildDir);
-                DockerUtils.buildImage(buildDir.toString(), app.image);
+                docker.buildImage(buildDir.toString(), app.image);
                 logger.info("Build app done: {}", app.image);
 //                FileUtils.deleteDirectory(buildDir);
                 HttpUtil.post("http://localhost:5000/notify/batch/" + app.appId,
@@ -49,7 +53,7 @@ public class BuildImageWorker {
                     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                     LocalDateTime now = LocalDateTime.now();
                     String newFolderName = String.format("%s-%s-%s", app.image, app.language, dtf.format(now));
-                    FileUtils.moveDirectory(buildDir, new File(Conf.Inst.APP_BUILD_FAILED_DIR, newFolderName));
+                    FileUtils.moveDirectory(buildDir, new File(AppConfig.Inst.APP_BUILD_FAILED_DIR, newFolderName));
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }

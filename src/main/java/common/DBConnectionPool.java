@@ -3,6 +3,8 @@ package common;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.commons.dbcp.BasicDataSource;
 
 /*
@@ -15,19 +17,22 @@ import org.apache.commons.dbcp.BasicDataSource;
  *
  * @author cuong
  */
+@Singleton
 public class DBConnectionPool {
-    private static BasicDataSource dataSource;
-    public static void init() {
+    private BasicDataSource dataSource;
+    
+    @Inject
+    public DBConnectionPool(AppConfig appConfig) {
         dataSource = new BasicDataSource();
         dataSource.setUrl(
-            String.format("jdbc:postgresql://%s/%s", Conf.Inst.POSTGRES_HOST, Conf.Inst.POSTGRES_DATABASE));
-        dataSource.setUsername(Conf.Inst.POSTGRES_USER);
-        dataSource.setPassword(Conf.Inst.POSTGRES_PASS);
+            String.format("jdbc:postgresql://%s/%s", appConfig.POSTGRES_HOST, appConfig.POSTGRES_DATABASE));
+        dataSource.setUsername(appConfig.POSTGRES_USER);
+        dataSource.setPassword(appConfig.POSTGRES_PASS);
         dataSource.setMinIdle(1);
         dataSource.setMaxIdle(5); // only 1 thread do the insert
         dataSource.setMaxOpenPreparedStatements(10);
     }
-    public static Connection getConnection() throws SQLException {
+    public Connection getConnection() throws SQLException {
         return dataSource.getConnection();
     }
 }

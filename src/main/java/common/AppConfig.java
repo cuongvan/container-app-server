@@ -13,8 +13,8 @@ import java.util.Properties;
  *
  * @author cuong
  */
-public class Conf {
-    public static final Conf Inst = readConfigFile();
+public class AppConfig {
+    public static final AppConfig Inst = readConfigFile();
     public final int HTTP_PORT;
 
     public final String APP_BUILD_DIR = "./tmp/builds";
@@ -29,7 +29,7 @@ public class Conf {
     public final String POSTGRES_PASS;
     public final String POSTGRES_DATABASE;
 
-    public Conf(int HTTP_PORT, String POSTGRES_HOST, String POSTGRES_USER, String POSTGRES_PASS, String POSTGRES_DATABASE) {
+    public AppConfig(int HTTP_PORT, String POSTGRES_HOST, String POSTGRES_USER, String POSTGRES_PASS, String POSTGRES_DATABASE) {
         this.HTTP_PORT = HTTP_PORT;
         this.POSTGRES_HOST = POSTGRES_HOST;
         this.POSTGRES_USER = POSTGRES_USER;
@@ -41,8 +41,8 @@ public class Conf {
         
     }
     
-    private static Conf readConfigFile() {
-        try (InputStream input = Conf.class.getClassLoader().getResourceAsStream("config.properties")) {
+    private static AppConfig readConfigFile() {
+        try (InputStream input = AppConfig.class.getClassLoader().getResourceAsStream("config.properties")) {
             Properties prop = new Properties();
             if (input == null) {
                 throw new RuntimeException("config.properties not found");
@@ -50,7 +50,7 @@ public class Conf {
 
             prop.load(input);
             
-            return new Conf(
+            return new AppConfig(
                 Integer.parseInt(prop.getProperty("http.port")),
                 prop.getProperty("postgres.host"),
                 prop.getProperty("postgres.user"),

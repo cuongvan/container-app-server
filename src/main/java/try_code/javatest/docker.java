@@ -1,4 +1,4 @@
-package testjava;
+package try_code.javatest;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -8,14 +8,12 @@ import com.github.dockerjava.api.model.Event;
 import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.command.EventsResultCallback;
-import common.DockerClientPool;
+import docker.DockerAdapter;
 import java.io.IOException;
-import org.junit.Test;
 
 public class docker {
-    @Test
     public void mount() throws InterruptedException, IOException {
-        DockerClient docker = DockerClientPool.Instance.borrowClient();
+        DockerClient docker = DockerAdapter.newClient();
         InspectContainerResponse inspect = docker.inspectContainerCmd("3e1918db6a23757f7936f9cdbba3a4bf9b92b85873aa0714263154e67d2ab5ed").exec();
         inspect.getMounts().stream()
             .map(mount -> mount.getSource())
@@ -23,7 +21,6 @@ public class docker {
         docker.close();
     }
     
-    @Test
     public void events() throws InterruptedException, IOException {
         System.out.println("started");
         DockerClient client = DockerClientBuilder.getInstance().build();
@@ -37,7 +34,6 @@ public class docker {
             }
         }).awaitCompletion().close();
     }
-    @Test
     public void docker_attach_stdin() {
         DockerClient docker = DockerClientBuilder.getInstance().build();
         Volume inputFileVol = new Volume("/inputfile");
