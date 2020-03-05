@@ -1,4 +1,4 @@
-package try_code.jersey.application_object;
+package test_lib.jersey.all;
 
 class MyData {
 

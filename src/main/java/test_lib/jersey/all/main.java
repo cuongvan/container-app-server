@@ -1,4 +1,4 @@
-package try_code.jersey.application_object;
+package test_lib.jersey.all;
 
 import java.net.URI;
 import javax.ws.rs.core.UriBuilder;
@@ -26,8 +26,7 @@ public class main {
     static class MyApplicationBinder extends AbstractBinder {
         @Override
         protected void configure() {
-            bind(MyData.class).to(MyData.class);
-            bind("Cuong").to(String.class);
+            bind(new SingletonData()).to(SingletonData.class);
         }
     }
 }

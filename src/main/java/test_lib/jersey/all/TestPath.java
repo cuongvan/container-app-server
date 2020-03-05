@@ -1,17 +1,16 @@
-package try_code.jersey.application_object;
+package test_lib.jersey.all;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
 
 @Path("/")
 public class TestPath {
-    @Inject MyData data;
-    @Inject String data2;
+    @Inject SingletonData data;
     
     
     @GET
     @Produces("text/plain")
     public String get() {
-        return "Data: " + data.toString() + " - " + data2;
+        return "Data: " + data.toString();
     }
 }

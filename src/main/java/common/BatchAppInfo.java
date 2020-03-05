@@ -11,12 +11,12 @@ package common;
  */
 public class BatchAppInfo {
     public final String appId;
-    public final String image;
+    public final String imageName;
     public final SupportLanguage language;
 
-    public BatchAppInfo(String appId, String image, SupportLanguage language) {
+    public BatchAppInfo(String appId, String imageName, SupportLanguage language) {
         this.appId = appId;
-        this.image = image;
+        this.imageName = imageName;
         this.language = language;
     }
 }

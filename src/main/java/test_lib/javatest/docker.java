@@ -1,4 +1,4 @@
-package try_code.javatest;
+package test_lib.javatest;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;

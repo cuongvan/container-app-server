@@ -5,6 +5,7 @@
  */
 package utils;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,13 +15,33 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 /**
  *
  * @author cuong
  */
-public class MFileUtils {
+public class MyFileUtils {
+    public static void copyDirectory(String source, String dest) throws IOException {
+        FileUtils.copyDirectory(new File(source), new File(dest));
+    }
+    
+    public static void moveDirectory(String source, String dest) throws IOException {
+        FileUtils.moveDirectory(new File(source), new File(dest));
+    }
+    
+    public static void deleteDirectory(String dir) throws IOException {
+        FileUtils.deleteDirectory(new File(dir));
+    }
+    
+    
+    
+    public static void unzipBytesToDir(byte[] in, String dest) throws IOException {
+        ByteArrayInputStream is = new ByteArrayInputStream(in);
+        unzipStreamToDir(is, new File(dest));
+    }
+    
     public static void unzipStreamToDir(InputStream input, File destDir) throws IOException {
         try (ZipInputStream zis = new ZipInputStream(input)) {
             ZipEntry entry = zis.getNextEntry();
