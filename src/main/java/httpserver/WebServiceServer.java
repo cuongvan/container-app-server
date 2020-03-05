@@ -5,27 +5,28 @@
  */
 package httpserver;
 
-import common.DBConnectionPool;
-import docker.DockerAdapter;
-import externalapi.appinfo.DBAppInfoClient;
-import handlers.BuildAppHandler;
-import main.Main;
+import com.google.inject.Injector;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.servlet.*;
-import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.*;
 import org.glassfish.jersey.servlet.*;
-import org.slf4j.*;
-import externalapi.appinfo.BatchAppInfoDAO;
+import httpserver.helpers.SetupGuiceHK2Bridge;
+import org.glassfish.hk2.api.ServiceLocator;
+import org.jvnet.hk2.guice.bridge.api.GuiceIntoHK2Bridge;
 
 /**
  *
  * @author cuong
  */
 public class WebServiceServer {
-    static Logger logger = LoggerFactory.getLogger(WebServiceServer.class);
-    public static Server start() throws Exception {
+    private Injector guiceInjector;
+
+    public WebServiceServer(Injector guiceInjector) {
+        this.guiceInjector = guiceInjector;
+    }
+    
+    public void start() throws Exception {
         Server server = new Server();
         {
             ServerConnector connector = new ServerConnector(server);
@@ -36,34 +37,25 @@ public class WebServiceServer {
         
         {
             ServletContextHandler ctx = new ServletContextHandler();
-            ctx.addServlet(new ServletHolder(new ServletContainer(new MyApplication())), "/*");
+            ctx.addServlet(new ServletHolder(new ServletContainer(new MyApplication(guiceInjector))), "/*");
             server.setHandler(ctx);
         }
         
         server.start();
-        logger.info("HTTP server started");
-        return server;
     }
     
     public static class MyApplication extends ResourceConfig {
-        public MyApplication() {
+        public MyApplication(Injector guiceInjector) {
             packages(true, "httpserver");
-            register(new JerseyInjection());
-            
             register(LoggingFeature.class);
             register(org.glassfish.jersey.jackson.JacksonFeature.class);
             register(org.glassfish.jersey.media.multipart.MultiPartFeature.class);
+            register(new SetupGuiceHK2Bridge(guiceInjector));
         }
-    }
-    
-    // dependency injection
-    public static class JerseyInjection extends AbstractBinder {
-        @Override
-        protected void configure() {
-            bind(DockerAdapter.class).to(DockerAdapter.class);
-            bind(Main.singletonDBConnectionPool()).to(DBConnectionPool.class);
-            bind(BuildAppHandler.class).to(BuildAppHandler.class);
-            bind(DBAppInfoClient.class).to(BatchAppInfoDAO.class);
+        
+        public void tieInjectorToLocator(ServiceLocator aServiceLocator, Injector guiceInjector) {
+            GuiceIntoHK2Bridge guiceBridge = aServiceLocator.getService(GuiceIntoHK2Bridge.class);
+            guiceBridge.bridgeGuiceInjector(guiceInjector);
         }
     }
 }

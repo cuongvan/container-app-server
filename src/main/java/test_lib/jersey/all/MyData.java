@@ -1,9 +1,7 @@
 package test_lib.jersey.all;
 
-class MyData {
+import javax.inject.Singleton;
 
-    @Override
-    public String toString() {
-        return "hello";
-    }
+//@Singleton
+class MyData {
 }

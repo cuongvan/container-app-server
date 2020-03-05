@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import httpserver.Debugging;
+import httpserver.providers.Debugging;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

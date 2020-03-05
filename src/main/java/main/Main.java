@@ -5,6 +5,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import common.AppConfig;
 import common.DBConnectionPool;
+import externalapi.appinfo.BatchAppInfoDAO;
+import externalapi.appinfo.DBAppInfoClient;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -26,7 +28,8 @@ public class Main {
         }
         
         createAppBuildDirs();
-        WebServiceServer.start();
+        WebServiceServer server = new WebServiceServer(injector);
+        server.start();
     }
     
     private static Injector initialize() {
@@ -35,12 +38,13 @@ public class Main {
     }
     
     // dependency injection
-    private static class AppModule extends AbstractModule {
+    public static class AppModule extends AbstractModule {
         @Override
         protected void configure() {
             AppConfig config = AppConfig.Inst;
             bind(AppConfig.class).toProvider(() -> config);
             bind(DBConnectionPool.class).toProvider(() -> singletonDBConnectionPool());
+            bind(BatchAppInfoDAO.class).to(DBAppInfoClient.class);
         }
     }
     
