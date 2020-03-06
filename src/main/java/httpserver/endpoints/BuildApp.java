@@ -13,14 +13,12 @@ import common.SupportLanguage;
 import common.DBHelper;
 import docker.DockerAdapter;
 import handlers.BuildAppHandler;
-import io.reactivex.rxjava3.core.Single;
 import java.io.IOException;
 import java.sql.SQLException;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import io.reactivex.rxjava3.core.Completable;
-import externalapi.AppCallDAO;
 
 @Path("/app/new")
 public class BuildApp {
@@ -30,8 +28,6 @@ public class BuildApp {
     @Inject
     private BuildAppHandler buildAppHandler;
     
-    @Inject
-    private AppCallDAO appInfoDAO;
     
     public static class NewAppRequest {
         public String appName;
@@ -52,9 +48,8 @@ public class BuildApp {
         byte[] codeFile
     ) throws IOException, SQLException
     {
-        Single
-            .fromCallable(() -> appInfoDAO.getById(appId))
-            .flatMapCompletable(appInfo -> buildAppHandler.buildApp(appInfo, codeFile))
+        buildAppHandler
+            .buildApp(appId, codeFile)
             .blockingAwait();
         return BasicResponse.OK;
     }

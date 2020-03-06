@@ -5,7 +5,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import common.AppConfig;
 import common.DBConnectionPool;
-import externalapi.DBAppInfoClient;
+import externalapi.db.DBAppInfoClient;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;

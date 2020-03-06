@@ -3,6 +3,7 @@ package handlers;
 import externalapi.models.BatchAppInfo;
 import common.Consts;
 import docker.DockerAdapter;
+import externalapi.AppCallDAO;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import java.io.File;
@@ -17,10 +18,22 @@ import utils.MyFileUtils;
 
 public class BuildAppHandler {
     
-    @Inject
     private DockerAdapter docker;
+    private AppCallDAO appInfoDAO;
+    
+    @Inject
+    public BuildAppHandler(DockerAdapter docker, AppCallDAO appInfoDAO) {
+        this.docker = docker;
+        this.appInfoDAO = appInfoDAO;
+    }
+    
+    public Completable buildApp(String appId, byte[] codeZipFile) {
+        return Single
+            .fromCallable(() -> appInfoDAO.getById(appId))
+            .flatMapCompletable(appInfo -> buildApp(appInfo, codeZipFile));
+    }
 
-    public Completable buildApp(BatchAppInfo appInfo, byte[] codeZipFile) throws IOException {
+    private Completable buildApp(BatchAppInfo appInfo, byte[] codeZipFile) throws IOException {
         String templateDir = Paths.get("docker_build_files", appInfo.getLanguage().name().toLowerCase()).toString();
         
         return Single
@@ -34,6 +47,7 @@ public class BuildAppHandler {
             )
             ;
     }
+
     
     private String createRandomDirAt(String root) throws IOException {
         Path tempDir = Files.createTempDirectory(Paths.get(root), "");

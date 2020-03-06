@@ -85,6 +85,4 @@ public class WatchingContainerWorker {
         ContainerLog log = docker.getContainerLog(inspect.getId());
         return new AppCallResult(containerId, true, duration, log.stdout, log.stderr);
     }
-    
-    
 }

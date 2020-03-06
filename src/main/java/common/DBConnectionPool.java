@@ -5,7 +5,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -31,8 +31,16 @@ public class DBConnectionPool {
         dataSource.setMinIdle(1);
         dataSource.setMaxIdle(5); // only 1 thread do the insert
         dataSource.setMaxOpenPreparedStatements(10);
+        dataSource.setDefaultAutoCommit(true);
+        dataSource.setEnableAutoCommitOnReturn(true);
     }
     public Connection getConnection() throws SQLException {
         return dataSource.getConnection();
+    }
+    
+    public Connection getNonAutoCommitConnection() throws SQLException {
+        Connection connection = dataSource.getConnection();
+        connection.setAutoCommit(false);
+        return connection;
     }
 }
