@@ -19,8 +19,8 @@ import java.sql.SQLException;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import workers.ScheduleAppWorker;
-import externalapi.appinfo.BatchAppInfoDAO;
+import io.reactivex.rxjava3.core.Completable;
+import externalapi.AppCallDAO;
 
 @Path("/app/new")
 public class BuildApp {
@@ -31,7 +31,7 @@ public class BuildApp {
     private BuildAppHandler buildAppHandler;
     
     @Inject
-    private BatchAppInfoDAO appInfoDAO;
+    private AppCallDAO appInfoDAO;
     
     public static class NewAppRequest {
         public String appName;
@@ -65,14 +65,10 @@ public class BuildApp {
     public BasicResponse newServerApp(@PathParam("appId") String appId) throws SQLException
     {
         AppCallInfo.ServerAppCallInfo app = DBHelper.retrieveServerAppInfo(appId);
-        ScheduleAppWorker.Instance.submit(app,
-            () -> {
-            try {
-                docker.startServerApp(app.image, app.outsidePort, app.imagePort);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        });
+        Completable
+            .fromAction(() -> docker.startServerApp(app.image, app.outsidePort, app.imagePort))
+            .blockingAwait()
+            ;
         return BasicResponse.OK;
     }
 }

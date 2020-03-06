@@ -5,53 +5,86 @@
  */
 package workers;
 
-import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Event;
-import com.github.dockerjava.core.command.EventsResultCallback;
+import common.ContainerLog;
 import docker.DockerAdapter;
-import java.util.concurrent.*;
+import externalapi.AppCallDAO;
+import externalapi.models.AppCallResult;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import javax.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.inject.Singleton;
+import org.apache.commons.io.FileUtils;
 
+@Singleton
 public class WatchingContainerWorker {
-    private static Logger logger = LoggerFactory.getLogger(WatchingContainerWorker.class);
+    private DockerAdapter docker;
+    private AppCallDAO appCallDAO;
     
-    // TODO remove RunningContainer queue?
-    private ContainerFinishWorker containerFinishWorker;
-    private final Executor executor;
-
     @Inject
-    public WatchingContainerWorker(ContainerFinishWorker containerFinishWorker) {
-        this.containerFinishWorker = containerFinishWorker;
-        executor = Executors.newSingleThreadExecutor();
+    public WatchingContainerWorker(DockerAdapter dockerAdapter, AppCallDAO appCallDAO) {
+        this.docker = dockerAdapter;
+        this.appCallDAO = appCallDAO;
     }
     
-    public void startWatching() {
-        executor.execute(() -> {
-            while (true) {
+    public Completable runForever() {
+        return docker.watchFinishedContainers()
+            .map(Event::getId) // container id
+            .subscribeOn(Schedulers.io()) // runs in a dedicated thread
+            .observeOn(Schedulers.io())
+            .retry()  // retry when exception occurs
+            .flatMapCompletable(this::handleFinishedContainer)
+            ;
+    }
+    
+    private Completable handleFinishedContainer(String containerId) {
+        return Single
+            .fromCallable(() -> docker.inspectContainer(containerId))
+            .doOnSuccess(this::deleteAllMounted)
+            .flatMap(inspect -> Single
+                .just(gatherCallResultInfo(inspect, containerId))
+                .doOnSuccess(r -> System.out.println("Done: " + r))
+                .doOnSuccess(r -> docker.deleteContainer(containerId))
+                .doOnSuccess(r -> System.out.println("Deleted"))
+                .doOnSuccess(appCallDAO::setCallResult)
+                .doOnSuccess(r -> System.out.println("Save to DB"))
+            )
+            // NOTIFY to CKAN
+            .flatMapCompletable(x -> Completable.complete())
+            ;
+    }
+    
+    private void deleteAllMounted(InspectContainerResponse inspect) {
+        inspect.getMounts()
+            .stream()
+            .map(mount -> mount.getSource())
+            .map(path -> new File(path))
+            .forEach(inputFile -> {
                 try {
-                    watchForever();
-                } catch (Exception ex) {
+                    FileUtils.forceDelete(inputFile);
+                } catch (IOException ex) {
                     ex.printStackTrace();
-                    logger.info("Retrying...");
                 }
-            }
-        });
+            });
+    }
+
+    private AppCallResult gatherCallResultInfo(InspectContainerResponse inspect, String containerId) throws IOException {
+        int exitCode = inspect.getState().getExitCode();
+        boolean success = (exitCode == 0);
+        
+        Instant t1 = Instant.parse(inspect.getState().getStartedAt());
+        Instant t2 = Instant.parse(inspect.getState().getFinishedAt());
+        long duration = Duration.between(t1, t2).getSeconds();
+        
+        ContainerLog log = docker.getContainerLog(inspect.getId());
+        return new AppCallResult(containerId, true, duration, log.stdout, log.stderr);
     }
     
-    private void watchForever() throws Exception {
-        try (DockerClient docker = DockerAdapter.newClient()) {
-            docker.eventsCmd()
-                .withEventFilter("die") // container complete
-                .exec(new EventsResultCallback() {
-                    @Override
-                    public void onNext(Event item) {
-                        // String cname = item.getActor().getAttributes().get("name");
-                        containerFinishWorker.submitFinishContainer(item.getId());
-                        logger.info("Container finished: {}", item.getId());
-                    }
-                }).awaitCompletion();
-        }
-    }
+    
 }

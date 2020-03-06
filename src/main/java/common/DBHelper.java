@@ -19,28 +19,6 @@ public class DBHelper {
     public static final String APP_INFO_TABLE = "app_info";
     public static final String APP_CALL_TABLE = "app_call";
     
-    public static BatchAppInfo retrieveBatchAppInfo(String appId) throws SQLException {
-        String query = "SELECT image, language FROM app_info WHERE type = ? AND app_id = ?";
-        try (
-            Connection conn = Main.singletonDBConnectionPool().getConnection();
-            PreparedStatement stmt = conn.prepareStatement(query);
-        ){
-            stmt.setString(1, AppType.Batch.name());
-            stmt.setString(2, appId);
-            try (ResultSet r = stmt.executeQuery()) {
-                if (!r.next()) {
-                    return null;
-                } else {
-                    return new BatchAppInfo(
-                        appId,
-                        r.getString("image"),
-                        SupportLanguage.valueOf(r.getString("language"))
-                    );
-                }
-            }
-        }
-    }
-    
     public static AppCallInfo.ServerAppCallInfo retrieveServerAppInfo(String appId) throws SQLException {
         try (
             Connection conn = Main.singletonDBConnectionPool().getConnection();

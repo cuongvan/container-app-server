@@ -10,7 +10,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
+import io.reactivex.rxjava3.core.Observable;
+import javax.inject.Singleton;
 
+
+@Singleton
 public class DockerAdapter {
     
     public static DockerClient newClient() {
@@ -44,6 +48,15 @@ public class DockerAdapter {
     public void deleteContainer(String containerId) throws IOException {
         try (DockerClient dockerClient = newClient()) {
             dockerClient.removeContainerCmd(containerId).exec();
+        }
+    }
+    
+    public String startContainer(String image) throws IOException {
+        try (DockerClient docker = newClient()) {
+            CreateContainerCmd cmd = docker.createContainerCmd(image);
+            CreateContainerResponse container = cmd.exec();
+            docker.startContainerCmd(container.getId()).exec();
+            return container.getId();
         }
     }
 
@@ -152,5 +165,27 @@ public class DockerAdapter {
         try (DockerClient docker = DockerAdapter.newClient()) {
             return docker.inspectContainerCmd(containerId).exec();
         }
+    }
+    
+    public Observable<Event> watchFinishedContainers() {
+        return watchEvents("die") // die = complete
+            ;
+    }
+    
+    public Observable<Event> watchEvents(String... filters) {
+        return Observable
+            .<Event>create(emitter -> {
+                try (DockerClient docker = DockerAdapter.newClient()) {
+                    docker
+                        .eventsCmd()
+                        .withEventFilter(filters)
+                        .exec(new EventsResultCallback() {
+                            @Override
+                            public void onNext(Event item) {
+                                emitter.onNext(item);
+                            }
+                        }).awaitCompletion();
+                }
+            });
     }
 }

@@ -5,14 +5,14 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import common.AppConfig;
 import common.DBConnectionPool;
-import externalapi.appinfo.BatchAppInfoDAO;
-import externalapi.appinfo.DBAppInfoClient;
+import externalapi.DBAppInfoClient;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import httpserver.WebServiceServer;
 import org.slf4j.*;
 import workers.WatchingContainerWorker;
+import externalapi.AppCallDAO;
 
 /**
  *
@@ -24,7 +24,7 @@ public class Main {
         Injector injector = initialize();
         {
             WatchingContainerWorker watchingContainerWorker = injector.getInstance(WatchingContainerWorker.class);
-            watchingContainerWorker.startWatching();
+            watchingContainerWorker.runForever().subscribe();
         }
         
         createAppBuildDirs();
@@ -44,7 +44,7 @@ public class Main {
             AppConfig config = AppConfig.Inst;
             bind(AppConfig.class).toProvider(() -> config);
             bind(DBConnectionPool.class).toProvider(() -> singletonDBConnectionPool());
-            bind(BatchAppInfoDAO.class).to(DBAppInfoClient.class);
+            bind(AppCallDAO.class).to(DBAppInfoClient.class);
         }
     }
     

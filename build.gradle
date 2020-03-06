@@ -38,6 +38,8 @@ dependencies {
     // unzip to directory
     compile group: 'net.lingala.zip4j', name: 'zip4j', version: '2.2.7'
     testCompile 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:3.3.0'
+
     
     // write input stream to files
     compile group: 'commons-io', name: 'commons-io', version: '2.6'

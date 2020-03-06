@@ -1,6 +1,6 @@
 package handlers;
 
-import common.BatchAppInfo;
+import externalapi.models.BatchAppInfo;
 import common.Consts;
 import docker.DockerAdapter;
 import io.reactivex.rxjava3.core.Completable;
