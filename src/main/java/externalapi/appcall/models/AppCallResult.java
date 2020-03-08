@@ -1,4 +1,4 @@
-package externalapi.models;
+package externalapi.appcall.models;
 
 public class AppCallResult {
     private String containerId;

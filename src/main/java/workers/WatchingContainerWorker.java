@@ -9,8 +9,8 @@ import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Event;
 import common.ContainerLog;
 import docker.DockerAdapter;
-import externalapi.AppCallDAO;
-import externalapi.models.AppCallResult;
+import externalapi.appcall.AppCallDAO;
+import externalapi.appcall.models.AppCallResult;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -52,7 +52,7 @@ public class WatchingContainerWorker {
                 .doOnSuccess(r -> System.out.println("Done: " + r))
                 .doOnSuccess(r -> docker.deleteContainer(containerId))
                 .doOnSuccess(r -> System.out.println("Deleted"))
-                .doOnSuccess(appCallDAO::setCallResult)
+                .doOnSuccess(appCallDAO::updateFinishedAppCall)
                 .doOnSuccess(r -> System.out.println("Save to DB"))
             )
             // NOTIFY to CKAN

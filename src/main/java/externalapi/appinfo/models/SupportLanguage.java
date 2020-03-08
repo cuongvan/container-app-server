@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package common;
+package externalapi.appinfo.models;
 
 /**
  *
  * @author cuong
  */
 public enum SupportLanguage {
-    Python, Java;
+    PYTHON, JAVA;
 }

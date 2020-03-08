@@ -6,11 +6,14 @@ import com.github.dockerjava.api.command.*;
 import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.command.*;
+import common.Consts;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.*;
 import io.reactivex.rxjava3.core.Observable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
 import javax.inject.Singleton;
 
 
@@ -60,47 +63,24 @@ public class DockerAdapter {
         }
     }
 
-    /**
-     * @return container's id
-     */
-    public String startBatchApp(
-        String imageName,
-        String jsonInputPath,
-        String binaryInputPath
-    ) throws IOException {
+    //TODO environment variables map
+    public String createAndStartContainer(String imageName, Map<String /*local path*/, String /*container path*/> mounts) throws IOException {
+        List<Volume> volumes = new ArrayList<>();
+        List<Bind> binds = new ArrayList<>();
+        mounts.forEach((localPath, containerPath) -> {
+            Volume vol = new Volume(containerPath);
+            Bind bind = new Bind(localPath, vol, true);
+            volumes.add(vol);
+            binds.add(bind);
+        });
+        
         try (DockerClient docker = newClient()) {
-            List<Volume> volumes = new ArrayList<>();
-            List<Bind> binds = new ArrayList<>();
-            if (jsonInputPath != null) {
-                jsonInputPath = Paths.get(jsonInputPath).toAbsolutePath().toString();
-                Volume volJson = new Volume("/inputJson");
-                volumes.add(volJson);
-                Bind bind = new Bind(jsonInputPath, volJson);
-                binds.add(bind);
-            }
-            if (binaryInputPath != null) {
-                binaryInputPath = Paths.get(binaryInputPath).toAbsolutePath().toString();
-                Volume volBin = new Volume("/inputBinary");
-                volumes.add(volBin);
-                Bind bind = new Bind(binaryInputPath, volBin);
-                binds.add(bind);
-            }
-            
-            
-            CreateContainerCmd cmd = docker
-                .createContainerCmd(imageName);
-//                .withLabels(labelMap);
-                
-            cmd = cmd
+            CreateContainerResponse container = docker
+                .createContainerCmd(imageName)
                 .withVolumes(volumes)
-                .withBinds(binds);
+                .withBinds(binds)
+                .exec();
                 
-//                .withVolumes(volJson)
-//                .withBinds(new Bind(jsonInputPath, volJson))
-//                .withBinds(new Bind(binaryInputPath, volBin))
-//                .exec();
-                
-            CreateContainerResponse container = cmd.exec();
             docker.startContainerCmd(container.getId()).exec();
             return container.getId();
         }

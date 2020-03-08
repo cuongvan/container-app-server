@@ -4,4 +4,6 @@ public class Consts {
     public static final String APP_BUILD_DIR = "./tmp/builds";
     public static final String APP_BUILD_FAILED_DIR = "./tmp/builds-failed";
     public static final String APP_INPUT_FILES_DIR = "./tmp/input-files";
+    public static final String JSON_MOUNT_PATH = "/inputJson";
+    public static final String FILE_MOUNT_PATH = "/inputBinary";
 }

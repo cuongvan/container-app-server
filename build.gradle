@@ -54,3 +54,22 @@ dependencies {
     implementation 'io.reactivex.rxjava3:rxjava:3.0.0'
     implementation 'com.google.inject:guice:4.2.2'
 }
+
+//tasks.withType(JavaCompile).each {
+//    it.options.compilerArgs.add('--enable-preview')
+//}
+//
+test {
+    testLogging {
+        exceptionFormat = 'full'
+    }
+}
+
+//
+//tasks.withType(JavaExec) {
+//    jvmArgs += '--enable-preview'
+//}
+//
+
+//run.jvmArgs(['--enable-preview'])
+//run.single.jvmArgs(['--enable-preview'])

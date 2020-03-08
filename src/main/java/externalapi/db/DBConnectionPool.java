@@ -1,6 +1,7 @@
-package common;
+package externalapi.db;
 
 
+import common.AppConfig;
 import java.sql.Connection;
 import java.sql.SQLException;
 import javax.inject.Inject;
@@ -34,6 +35,7 @@ public class DBConnectionPool {
         dataSource.setDefaultAutoCommit(true);
         dataSource.setEnableAutoCommitOnReturn(true);
     }
+    
     public Connection getConnection() throws SQLException {
         return dataSource.getConnection();
     }
@@ -42,5 +44,13 @@ public class DBConnectionPool {
         Connection connection = dataSource.getConnection();
         connection.setAutoCommit(false);
         return connection;
+    }
+    
+    public void close() {
+        try {
+            dataSource.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 }

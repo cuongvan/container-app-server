@@ -6,7 +6,7 @@
 package workers.tests;
 
 import docker.DockerAdapter;
-import externalapi.AppCallDAO;
+import externalapi.appcall.AppCallDAO;
 import java.io.IOException;
 import workers.WatchingContainerWorker;
 

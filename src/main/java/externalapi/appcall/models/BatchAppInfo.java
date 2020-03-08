@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package externalapi.models;
+package externalapi.appcall.models;
 
-import common.SupportLanguage;
+import externalapi.appinfo.models.SupportLanguage;
 
 /**
  *

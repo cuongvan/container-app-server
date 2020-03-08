@@ -1,9 +1,9 @@
 package handlers;
 
-import externalapi.models.BatchAppInfo;
+import externalapi.appcall.models.BatchAppInfo;
 import common.Consts;
 import docker.DockerAdapter;
-import externalapi.AppCallDAO;
+import externalapi.appcall.AppCallDAO;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import java.io.File;
@@ -29,7 +29,7 @@ public class BuildAppHandler {
     
     public Completable buildApp(String appId, byte[] codeZipFile) {
         return Single
-            .fromCallable(() -> appInfoDAO.getById(appId))
+            .fromCallable(() -> appInfoDAO.getAppInfoByAppId(appId))
             .flatMapCompletable(appInfo -> buildApp(appInfo, codeZipFile));
     }
 

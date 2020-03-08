@@ -14,7 +14,7 @@ import org.glassfish.jersey.server.spi.ContainerLifecycleListener;
 import org.jvnet.hk2.guice.bridge.api.GuiceBridge;
 import org.jvnet.hk2.guice.bridge.api.GuiceIntoHK2Bridge;
 
-public class main {
+public class jersey_main {
 
     public static void main(String[] args) throws Exception {
         Injector injector = Guice.createInjector(new GuiceModule());
@@ -28,7 +28,8 @@ public class main {
     public static class GuiceResourceConfig extends ResourceConfig {
 
         public GuiceResourceConfig(Injector injector) {
-            packages(true, main.class.getPackage().getName());
+            packages(true, jersey_main.class.getPackage().getName());
+            register(org.glassfish.jersey.media.multipart.MultiPartFeature.class);
             register(new SetupGuiceHK2Bridge(injector));
 
         }

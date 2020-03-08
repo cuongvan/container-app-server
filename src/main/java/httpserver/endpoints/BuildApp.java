@@ -8,10 +8,10 @@ package httpserver.endpoints;
 import httpserver.common.BasicResponse;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import common.AppCallInfo;
-import common.SupportLanguage;
+import externalapi.appinfo.models.SupportLanguage;
 import common.DBHelper;
 import docker.DockerAdapter;
+import externalapi.appcall.models.ServerAppCallInfo;
 import handlers.BuildAppHandler;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -59,9 +59,9 @@ public class BuildApp {
     @Produces(MediaType.APPLICATION_JSON)
     public BasicResponse newServerApp(@PathParam("appId") String appId) throws SQLException
     {
-        AppCallInfo.ServerAppCallInfo app = DBHelper.retrieveServerAppInfo(appId);
+        ServerAppCallInfo app = DBHelper.retrieveServerAppInfo(appId);
         Completable
-            .fromAction(() -> docker.startServerApp(app.image, app.outsidePort, app.imagePort))
+            .fromAction(() -> docker.startServerApp(app.getImage(), app.getHostPort(), app.getImagePort()))
             .blockingAwait()
             ;
         return BasicResponse.OK;

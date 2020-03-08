@@ -4,15 +4,15 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import common.AppConfig;
-import common.DBConnectionPool;
-import externalapi.db.DBAppInfoClient;
+import externalapi.db.DBConnectionPool;
+import externalapi.appcall.db.DBAppCallDAO;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import httpserver.WebServiceServer;
 import org.slf4j.*;
 import workers.WatchingContainerWorker;
-import externalapi.AppCallDAO;
+import externalapi.appcall.AppCallDAO;
 
 /**
  *
@@ -21,13 +21,18 @@ import externalapi.AppCallDAO;
 public class Main {
     static Logger logger = LoggerFactory.getLogger(Main.class);
     public static void main(String[] args) throws Exception {
+//        String s = """
+//                   DROP TABLE IF EXISTS app_info;
+//                   DROP TABLE IF EXISTS app_call;
+//                   """;
+//        System.out.println(s);
         Injector injector = initialize();
         {
             WatchingContainerWorker watchingContainerWorker = injector.getInstance(WatchingContainerWorker.class);
             watchingContainerWorker.runForever().subscribe();
         }
         
-        createAppBuildDirs();
+//        createAppBuildDirs();
         WebServiceServer server = new WebServiceServer(injector);
         server.start();
     }
@@ -44,7 +49,7 @@ public class Main {
             AppConfig config = AppConfig.Inst;
             bind(AppConfig.class).toProvider(() -> config);
             bind(DBConnectionPool.class).toProvider(() -> singletonDBConnectionPool());
-            bind(AppCallDAO.class).to(DBAppInfoClient.class);
+            bind(AppCallDAO.class).to(DBAppCallDAO.class);
         }
     }
     
