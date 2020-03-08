@@ -17,11 +17,8 @@ import static org.junit.Assert.*;
  *
  * @author cuong
  */
-public class DBAppInfoClientIT {
+public class DBAppInfoDAOIT {
     DBAppInfoDAO dao = new DBAppInfoDAO(DB.pool);
-    
-    public DBAppInfoClientIT() {
-    }
     
     @BeforeClass
     public static void setUpClass() {
@@ -66,8 +63,9 @@ public class DBAppInfoClientIT {
         
     }
     
-    static AppInfo newApp() {
+    public static AppInfo newApp() {
         return new AppInfo()
+            .setAppId("10000")
             .setAppName("show number of rows in csv resource")
             .setType(AppType.BATCH)
             .setLanguage(SupportLanguage.PYTHON)

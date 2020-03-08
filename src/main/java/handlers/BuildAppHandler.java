@@ -1,9 +1,9 @@
 package handlers;
 
-import externalapi.appcall.models.BatchAppInfo;
 import common.Consts;
 import docker.DockerAdapter;
-import externalapi.appcall.AppCallDAO;
+import externalapi.appinfo.AppInfoDAO;
+import externalapi.appinfo.models.AppInfo;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import java.io.File;
@@ -19,21 +19,21 @@ import utils.MyFileUtils;
 public class BuildAppHandler {
     
     private DockerAdapter docker;
-    private AppCallDAO appInfoDAO;
+    private AppInfoDAO appInfoDAO;
     
     @Inject
-    public BuildAppHandler(DockerAdapter docker, AppCallDAO appInfoDAO) {
+    public BuildAppHandler(DockerAdapter docker, AppInfoDAO appInfoDAO) {
         this.docker = docker;
         this.appInfoDAO = appInfoDAO;
     }
     
     public Completable buildApp(String appId, byte[] codeZipFile) {
         return Single
-            .fromCallable(() -> appInfoDAO.getAppInfoByAppId(appId))
+            .fromCallable(() -> appInfoDAO.getById(appId))
             .flatMapCompletable(appInfo -> buildApp(appInfo, codeZipFile));
     }
 
-    private Completable buildApp(BatchAppInfo appInfo, byte[] codeZipFile) throws IOException {
+    private Completable buildApp(AppInfo appInfo, byte[] codeZipFile) throws IOException {
         String templateDir = Paths.get("docker_build_files", appInfo.getLanguage().name().toLowerCase()).toString();
         
         return Single
@@ -41,7 +41,7 @@ public class BuildAppHandler {
             .doOnSuccess(dir -> MyFileUtils.unzipBytesToDir(codeZipFile, dir))
             .doOnSuccess(dir -> MyFileUtils.copyDirectory(templateDir, dir))
             .flatMapCompletable(dir -> Completable
-                .fromAction(() -> docker.buildImage(dir, appInfo.getImageName()))
+                .fromAction(() -> docker.buildImage(dir, appInfo.getImage()))
                 .doOnComplete(() -> MyFileUtils.deleteDirectory(dir))
                 .doOnError(err -> moveBuildFailBuildDir(appInfo, dir))
             )
@@ -58,10 +58,10 @@ public class BuildAppHandler {
         return tempDir.toString();
     }
     
-    private void moveBuildFailBuildDir(BatchAppInfo appInfo, String dir) throws IOException {
+    private void moveBuildFailBuildDir(AppInfo appInfo, String dir) throws IOException {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
-        String newFolderName = String.format("%s-%s-%s", appInfo.getImageName(), appInfo.getLanguage(), dtf.format(now));
+        String newFolderName = String.format("%s-%s-%s", appInfo.getImage(), appInfo.getLanguage(), dtf.format(now));
         Path dest = Paths.get(Consts.APP_BUILD_FAILED_DIR, newFolderName);
         MyFileUtils.moveDirectory(dir, dest.toString());
     }

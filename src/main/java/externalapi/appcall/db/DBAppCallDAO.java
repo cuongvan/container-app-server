@@ -1,8 +1,5 @@
 package externalapi.appcall.db;
 
-import externalapi.appinfo.models.AppType;
-import externalapi.appcall.models.BatchAppInfo;
-import externalapi.appinfo.models.SupportLanguage;
 import externalapi.appcall.AppCallDAO;
 import externalapi.appcall.models.AppCallResult;
 import externalapi.appcall.models.BatchAppCallInfo;
@@ -21,31 +18,6 @@ public class DBAppCallDAO implements AppCallDAO {
         this.dbPool = dbPool;
     }
     
-    @Override
-    public BatchAppInfo getAppInfoByAppId(String appId) {
-        String query = "SELECT image, language FROM app_info WHERE type = ? AND app_id = ?";
-        try (
-            Connection conn = dbPool.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(query);
-        ){
-            stmt.setString(1, AppType.BATCH.name());
-            stmt.setString(2, appId);
-            try (ResultSet r = stmt.executeQuery()) {
-                if (!r.next()) {
-                    return null;
-                } else {
-                    return new BatchAppInfo(
-                        appId,
-                        r.getString("image"),
-                        SupportLanguage.valueOf(r.getString("language"))
-                    );
-                }
-            }
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
     @Override
     public void updateFinishedAppCall(AppCallResult callResult) {
         String query = "SELECT call_id, duration, status, stdout, stderr, container_id FROM app_call WHERE container_id = ? FOR UPDATE";

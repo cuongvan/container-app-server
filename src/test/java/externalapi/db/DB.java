@@ -24,6 +24,7 @@ public class DB {
         ) {
             use.accept(stmt);
         } catch (SQLException ex) {
+            ex.printStackTrace();
             throw new RuntimeException();
         }
     }
@@ -41,7 +42,8 @@ public class DB {
     
     public static void createTables() {
         useStmt(stmt -> {
-           stmt.executeUpdate("CREATE TABLE IF NOT EXISTS app_info (\n" +
+           stmt.executeUpdate(
+               "CREATE TABLE IF NOT EXISTS app_info (\n" +
                 "	app_id TEXT PRIMARY KEY,\n" +
                 "	app_name TEXT NOT NULL,\n" +
                 "	ava_url TEXT,\n" +
@@ -55,7 +57,8 @@ public class DB {
                 "	language TEXT,\n" +
                 "    status TEXT\n" +
                 ")");
-            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS app_call (\n" +
+            stmt.executeUpdate(
+                "CREATE TABLE IF NOT EXISTS app_call (\n" +
                 "    call_id TEXT PRIMARY KEY,\n" +
                 "    app_id TEXT NOT NULL,\n" +
                 "    user_id TEXT,\n" +
@@ -65,7 +68,16 @@ public class DB {
                 "    container_id TEXT,\n" +
                 "    stdout TEXT,\n" +
                 "    stderr TEXT\n" +
-                ")"); 
+                ")");
+            stmt.executeUpdate(
+                "CREATE TABLE IF NOT EXISTS app_param(\n" +
+                "	app_id TEXT REFERENCES app_info(app_id) ON DELETE CASCADE,\n" +
+                "	name TEXT NOT NULL,\n" +
+                "	type TEXT NOT NULL,\n" +
+                "	label TEXT NOT NULL,\n" +
+                "	description TEXT,\n" +
+                "	PRIMARY KEY(app_id, name)\n" +
+                ");");
         });
     }
     
@@ -73,11 +85,13 @@ public class DB {
         useStmt(stmt -> {
             stmt.executeUpdate("DELETE FROM app_info");
             stmt.executeUpdate("DELETE FROM app_call");
+            stmt.executeUpdate("DELETE FROM app_param");
         });
     }
     
     public static void dropTables() {
         useStmt(stmt -> {
+            stmt.executeUpdate("DROP TABLE IF EXISTS app_param");
             stmt.executeUpdate("DROP TABLE IF EXISTS app_info");
             stmt.executeUpdate("DROP TABLE IF EXISTS app_call");
         });

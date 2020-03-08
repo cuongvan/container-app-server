@@ -11,7 +11,7 @@ import javax.inject.*;
 
 @Singleton
 public class DBAppInfoDAO implements AppInfoDAO {
-    DBConnectionPool dbPool;
+    private DBConnectionPool dbPool;
 
     @Inject
     public DBAppInfoDAO(DBConnectionPool dbPool) {

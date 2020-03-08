@@ -30,7 +30,8 @@ public class WebServiceServer {
         Server server = new Server();
         {
             ServerConnector connector = new ServerConnector(server);
-            connector.setHost("0.0.0.0");
+            //connector.setHost("0.0.0.0"); // all ips: can access from internet
+            connector.setHost("127.0.0.1"); // can only access from same host
             connector.setPort(5001);
             server.setConnectors(new Connector[]{connector});
         }

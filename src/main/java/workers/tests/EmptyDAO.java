@@ -3,15 +3,8 @@ package workers.tests;
 import externalapi.appcall.AppCallDAO;
 import externalapi.appcall.models.AppCallResult;
 import externalapi.appcall.models.BatchAppCallInfo;
-import externalapi.appcall.models.BatchAppInfo;
 
 public class EmptyDAO implements AppCallDAO {
-
-    @Override
-    public BatchAppInfo getAppInfoByAppId(String appId) {
-        return null;
-    }
-
     @Override
     public void updateFinishedAppCall(AppCallResult result) {
         
