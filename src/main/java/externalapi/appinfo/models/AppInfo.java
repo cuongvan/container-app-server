@@ -15,8 +15,6 @@ public class AppInfo {
     private String image;
     private String owner;
     private String description;
-    private int hostPort;
-    private int containerPort;
     private SupportLanguage language;
     private AppStatus status;
     
@@ -95,24 +93,6 @@ public class AppInfo {
         return this;
     }
 
-    public int getHostPort() {
-        return hostPort;
-    }
-
-    public AppInfo setHostPort(int hostPort) {
-        this.hostPort = hostPort;
-        return this;
-    }
-
-    public int getContainerPort() {
-        return containerPort;
-    }
-
-    public AppInfo setContainerPort(int containerPort) {
-        this.containerPort = containerPort;
-        return this;
-    }
-
     public SupportLanguage getLanguage() {
         return language;
     }
@@ -143,12 +123,6 @@ public class AppInfo {
             return false;
         }
         final AppInfo other = (AppInfo) obj;
-        if (this.hostPort != other.hostPort) {
-            return false;
-        }
-        if (this.containerPort != other.containerPort) {
-            return false;
-        }
         if (!Objects.equals(this.appId, other.appId)) {
             return false;
         }

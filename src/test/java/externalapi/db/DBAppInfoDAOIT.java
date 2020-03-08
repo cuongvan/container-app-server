@@ -27,7 +27,7 @@ public class DBAppInfoDAOIT {
     
     @AfterClass
     public static void cleanup() {
-        //DB.dropTables();
+        DB.dropTables();
     }
     
     @Before

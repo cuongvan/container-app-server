@@ -22,8 +22,8 @@ public class DBAppInfoDAO implements AppInfoDAO {
     @Override
     public void createApp(AppInfo app) {
         String query = "INSERT INTO app_info(\n" +
-            "app_id, app_name, ava_url, type, slug_name, image, owner, description, host_port, container_port, language, status)\n" +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            "app_id, app_name, ava_url, type, slug_name, image, owner, description, language, status)\n" +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = dbPool.getConnection();
             PreparedStatement stmt = connection.prepareStatement(query);
         ) {
@@ -35,10 +35,8 @@ public class DBAppInfoDAO implements AppInfoDAO {
             stmt.setString(6, app.getImage());
             stmt.setString(7, app.getOwner());
             stmt.setString(8, app.getDescription());
-            stmt.setInt(9, app.getHostPort());
-            stmt.setInt(10, app.getContainerPort());
-            stmt.setString(11, app.getLanguage().name());
-            stmt.setString(12, AppStatus.CREATED.name());
+            stmt.setString(9, app.getLanguage().name());
+            stmt.setString(10, AppStatus.CREATED.name());
             stmt.executeUpdate();
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
@@ -66,8 +64,6 @@ public class DBAppInfoDAO implements AppInfoDAO {
                     .setImage(rs.getString("image"))
                     .setOwner(rs.getString("owner"))
                     .setDescription(rs.getString("description"))
-                    .setHostPort(rs.getInt("host_port"))
-                    .setContainerPort(rs.getInt("container_port"))
                     .setLanguage(SupportLanguage.valueOf(rs.getString("language")))
                     .setStatus(AppStatus.valueOf(rs.getString("status")))
                     ;
