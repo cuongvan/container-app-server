@@ -28,6 +28,7 @@ public class Main {
     static Logger logger = LoggerFactory.getLogger(Main.class);
     private static Server server;
     private static Injector injector;
+    
     public static void main(String... args) throws Exception {
         DBHelper.createTables();
         injector = initialize();
@@ -42,22 +43,18 @@ public class Main {
     }
     
     public static Injector initialize() {
-        Injector injector = Guice.createInjector(new AppModule());
-        return injector;
+        return Guice.createInjector(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(AppConfig.class).toProvider(() -> AppConfig.Inst);
+                bind(DBConnectionPool.class).toProvider(() -> DBHelper.getPool());
+                bind(AppInfoDAO.class).to(DBAppInfoDAO.class);
+                bind(AppParamDAO.class).to(DBAppParamDAO.class);
+                bind(AppCallDAO.class).to(DBAppCallDAO.class);
+            }
+        });
     }
 
-    // dependency injection
-    public static class AppModule extends AbstractModule {
-        @Override
-        protected void configure() {
-            bind(AppConfig.class).toProvider(() -> AppConfig.Inst);
-            bind(DBConnectionPool.class).toProvider(() -> DBHelper.getPool());
-            bind(AppInfoDAO.class).to(DBAppInfoDAO.class);
-            bind(AppParamDAO.class).to(DBAppParamDAO.class);
-            bind(AppCallDAO.class).to(DBAppCallDAO.class);
-        }
-    }
-    
     public static void stop() throws Exception {
         logger.info("Stop server");
         server.stop();
