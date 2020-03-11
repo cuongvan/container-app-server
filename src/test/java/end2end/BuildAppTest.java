@@ -1,48 +1,40 @@
 package end2end;
 
-import com.google.gson.JsonObject;
-import static end2end.helper.Helper.readJson;
-import end2end.helper.TestApplication;
-import httpserver.endpoints.app.create.*;
+import helpers.TestConstants;
+import static helpers.TestHelper.*;
+import io.restassured.RestAssured;
+import static io.restassured.RestAssured.given;
+import java.io.File;
 import java.io.IOException;
-import static java.lang.String.format;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import org.glassfish.jersey.test.JerseyTest;
-import static org.junit.Assert.assertEquals;
+import main.Main;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class BuildAppTest extends JerseyTest {
-    @Override
-    protected Application configure() {
-        return new TestApplication() {{
-            register(CreateApp.class);
-            register(BuildApp.class);
-        }};
+public class BuildAppTest {
+    @BeforeClass
+    public static void setup() throws Exception {
+        RestAssured.baseURI = TestConstants.BASE_URI;
+        RestAssured.port = TestConstants.PORT;
+        Main.main();
+    }
+    
+    @AfterClass
+    public static void teardown() throws Exception {
+        Main.stop();
     }
     
     @Test
     public void create_and_build_app_returns_202_accepted() throws IOException {
-        String appId = createApp(this);
-        Response response = target(format("/app/%s/build", appId)).request().post(
-            Entity.entity(
-                Files.readAllBytes(Paths.get("./example_apps/python/hello-world/code.zip")),
-                MediaType.APPLICATION_OCTET_STREAM));
-        assertEquals(Response.Status.ACCEPTED.getStatusCode(), response.getStatus());
-        // assert notification
-    }
-    
-    public static String createApp(JerseyTest test) {
-        Response response = test.target("/app/create").request().post(
-            Entity.json("{\n" +
-            "    \"app_name\": \"Test app\",\n" +
-            "    \"language\": \"PYTHON\"\n" +
-            "}"));
-        JsonObject json = readJson(response);
-        return json.get("app_id").getAsString();
+        String appId = createNewApp();
+        
+        given()
+            .contentType("application/octet-stream")
+            .body(new File("./example_apps/python/hello-world/code.zip"))
+        .when()
+            .post("/app/{appId}/build", appId)
+        .then()
+            .statusCode(202)
+        ;
     }
 }

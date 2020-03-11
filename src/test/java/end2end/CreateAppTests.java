@@ -1,6 +1,7 @@
 package end2end;
 
 import common.AppConfig;
+import helpers.TestConstants;
 import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
 import main.Main;
@@ -11,8 +12,8 @@ import org.junit.*;
 public class CreateAppTests {
     @BeforeClass
     public static void setup() throws Exception {
-        RestAssured.baseURI = "http://localhost";
-        RestAssured.port = AppConfig.Inst.HTTP_PORT;
+        RestAssured.baseURI = TestConstants.BASE_URI;
+        RestAssured.port = TestConstants.PORT;
         Main.main();
     }
     
