@@ -9,6 +9,6 @@ import org.junit.runners.Suite;
     DBAppCallDAOTest.class,
     DBAppParamDAOTest.class,
 })
-public class IntegratedTests {
+public class IntegrationTests {
 
 }

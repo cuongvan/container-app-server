@@ -14,7 +14,7 @@ import externalapi.appparam.models.AppParam;
 import externalapi.appparam.models.ParamType;
 import externalapi.appparam.models.db.DBAppParamDAO;
 import helpers.DBHelper;
-import static integration.DBAppInfoDAOIT.newApp;
+import static integration.DBAppInfoDAOTest.newApp;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.*;
@@ -29,19 +29,9 @@ public class DBAppCallDAOTest {
     DBAppParamDAO appParamDao = new DBAppParamDAO(DBHelper.getPool());
     DBAppCallDAO appCallDAO = new DBAppCallDAO(DBHelper.getPool());
     
-    @BeforeClass
-    public static void setupClass() {
-        DBHelper.createTables();
-    }
-    
-    @AfterClass
-    public static void afterClass() {
-        //DB.dropTables();
-    }
-    
     @Before
     public void setUp() {
-        DBHelper.clearAllRows();
+        DBHelper.truncateTables();
     }
 
     @Test
@@ -60,11 +50,12 @@ public class DBAppCallDAOTest {
                 .setLabel("File to anonymize")
         );
         
-        String callId = "9999";
         
-        appInfoDao.createApp(app);
-        appParamDao.updateParams(app.getAppId(), params);
-        appCallDAO.createNewCall(callId, app.getAppId(), DBAppCallDAO.ANONYMOUS_USER,
+        String appId = appInfoDao.createApp(app);
+        appParamDao.updateParams(appId, params);
+        
+        String callId = "9999";
+        appCallDAO.createNewCall(callId, appId, DBAppCallDAO.ANONYMOUS_USER,
             Arrays.asList(new KeyValueParam("algorithm", "k-anonymity")),
             Arrays.asList(new FileParam("file2anonymize", "/tmp/aaa"))
         );

@@ -26,7 +26,6 @@ public class DBAppCallDAO implements AppCallDAO {
     }
 
     @Override
-//    public String createNewCall(String appId, String userId, List<CallParam> params) {
     public void createNewCall(String callId, String appId, String userId, List<KeyValueParam> keyValueParams, List<FileParam> fileParams) {
         try (Connection conn = dbPool.getNonAutoCommitConnection()) {
             insertAppCallRow(conn, callId, appId, userId);

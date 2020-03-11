@@ -18,28 +18,13 @@ import static org.junit.Assert.*;
  *
  * @author cuong
  */
-public class DBAppInfoDAOIT {
+public class DBAppInfoDAOTest {
     DBAppInfoDAO dao = new DBAppInfoDAO(DBHelper.getPool());
-    
-    @BeforeClass
-    public static void setUpClass() {
-        DBHelper.createTables();
-    }
-    
-    @AfterClass
-    public static void cleanup() {
-        DBHelper.dropTables();
-    }
     
     @Before
     public void setUp() {
-        DBHelper.clearAllRows();
+        DBHelper.truncateTables();
     }
-    
-    @After
-    public void tearDown() {
-    }
-    
 
     @Test
     public void add_then_retrieve() {
@@ -63,7 +48,6 @@ public class DBAppInfoDAOIT {
     
     public static AppInfo newApp() {
         return new AppInfo()
-            .setAppId("10000")
             .setAppName("show number of rows in csv resource")
             .setType(AppType.BATCH)
             .setLanguage(SupportLanguage.PYTHON)

@@ -6,17 +6,14 @@ import com.github.dockerjava.api.command.*;
 import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.command.*;
-import java.io.File;
-import java.io.IOException;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Single;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 import java.util.function.Consumer;
 import javax.inject.Singleton;
-//import com.github.dockerjava.api.command.BuildImageResultCallback;
+import com.github.dockerjava.api.command.BuildImageResultCallback;
+import common.AppConfig;
 import static java.util.stream.Collectors.toList;
+
 @Singleton
 public class DockerAdapter {
     
@@ -68,12 +65,15 @@ public class DockerAdapter {
         }
     }
     
-    public String startContainer(String image) throws IOException {
-        try (DockerClient docker = newClient()) {
+    public String startContainer(String image) {
+        DockerClient docker = newClient();
+        try {
             CreateContainerCmd cmd = docker.createContainerCmd(image);
             CreateContainerResponse container = cmd.exec();
             docker.startContainerCmd(container.getId()).exec();
             return container.getId();
+        } finally {
+            close(docker);
         }
     }
 
@@ -81,7 +81,7 @@ public class DockerAdapter {
     public String createAndStartContainer(
         String imageName,
         Map<String/*env*/, String /*value*/> envs,
-        Map<String /*local path*/, String /*container path*/> mounts) throws IOException
+        Map<String /*local path*/, String /*container path*/> mounts)
     {
         List<Volume> volumes = new ArrayList<>();
         List<Bind> binds = new ArrayList<>();
@@ -99,31 +99,39 @@ public class DockerAdapter {
             .collect(toList());
             
         
-        try (DockerClient docker = newClient()) {
+        DockerClient docker = newClient();
+        try {
             CreateContainerResponse container = docker
                 .createContainerCmd(imageName)
                 .withEnv(envList)
                 .withVolumes(volumes)
+                //@SuppressWarnings("deprecation")
                 .withBinds(binds)
                 .exec();
                 
             docker.startContainerCmd(container.getId()).exec();
             return container.getId();
+        } finally {
+            close(docker);
         }
     }
 
-    public void startServerApp(String imageName, int hostPort, int imagePort) throws IOException {
-        try (DockerClient dockerClient = newClient()) {
+    public void startServerApp(String imageName, int hostPort, int imagePort) {
+        DockerClient docker = newClient();
+        try {
             ExposedPort exposedPort = ExposedPort.tcp(imagePort);
             Ports portBindings = new Ports();
             portBindings.bind(exposedPort, Ports.Binding.bindPort(hostPort));
 
-            CreateContainerResponse container = dockerClient.createContainerCmd(imageName)
-//                .withLabels(labelMap)
+            CreateContainerResponse container = docker.createContainerCmd(imageName)
+                //.withLabels(labelMap)
                 .withExposedPorts(exposedPort)
+                //@SuppressWarnings("deprecation")
                 .withPortBindings(portBindings)
                 .exec();
-            dockerClient.startContainerCmd(container.getId()).exec();
+            docker.startContainerCmd(container.getId()).exec();
+        } finally {
+            close(docker);
         }
     }
 
@@ -133,12 +141,11 @@ public class DockerAdapter {
             BuildImageResultCallback callback = docker
                 .buildImageCmd(new File(path))
                 //.withTag(imageName)//TODO: tag
-//                .withTag(imageName)//TODO: tag
                 .exec(new BuildImageResultCallback() {
                     // DEBUG
                     @Override
                     public void onNext(BuildResponseItem item) {
-                        if (item.getStream() != null) {
+                        if (AppConfig.RUNNING_MODE == AppConfig.RunningMode.DEBUG && item.getStream() != null) {
                             System.out.println(item.getStream().trim());
                         }
                         super.onNext(item);
@@ -146,7 +153,6 @@ public class DockerAdapter {
 
                     @Override
                     public void onError(Throwable throwable) {
-                        System.out.println("********** " + throwable);
                         throwable.printStackTrace();
                         super.onError(throwable);
                     }
@@ -158,48 +164,6 @@ public class DockerAdapter {
         }
     }
     
-    public Single<String> buildImage2(String path) {
-        return Single.<String>create(emitter -> {
-            DockerClient docker = newClient();
-            try {
-                BuildImageResultCallback callback = docker
-                    .buildImageCmd(new File(path))
-                    .exec(new BuildImageResultCallback() {
-                        // DEBUG
-                        @Override
-                        public void onNext(BuildResponseItem item) {
-                            super.onNext(item);
-                            if (item.getStream() != null) {
-                                System.out.println(item.getStream().trim());
-                            }
-                        }
-
-                        @Override
-                        public void onError(Throwable throwable) {
-                            super.onError(throwable);
-                            //System.out.println("***** error " + throwable);
-                            //emitter.onError(throwable);
-                        }
-
-                        @Override
-                        public void onComplete() {
-                            super.onComplete();
-                            try {
-                                awaitImageId();
-                            } catch (Exception ex) {
-                                System.out.println(">>>>>>>>>>>>> " + ex);
-                            }
-                            emitter.onSuccess(awaitImageId());
-                        }
-                    });
-            } catch (Exception ex) {
-                System.out.println(">>>>>>>>>>>>> " + ex);
-            } finally {
-                close(docker);
-            }
-        });
-    }
-    
     public InspectContainerResponse inspectContainer(String containerId) {
         DockerClient docker = DockerAdapter.newClient();
         try {
@@ -207,34 +171,6 @@ public class DockerAdapter {
         } finally {
             close(docker);
         }
-    }
-    
-    public Observable<Event> watchFinishedContainers() {
-        return watchEvents("die") // die = complete
-            ;
-    }
-    
-    public Observable<Event> watchEvents(String... filters) {
-        return Observable
-            .<Event>create(emitter -> {
-                try (DockerClient docker = DockerAdapter.newClient()) {
-                    docker
-                        .eventsCmd()
-                        .withEventFilter(filters)
-                        .exec(new EventsResultCallback() {
-                            @Override
-                            public void onNext(Event item) {
-                                emitter.onNext(item);
-                            }
-                        }).awaitCompletion();
-                } catch (InterruptedException interrupt) {
-                    // when stop server
-                    emitter.onComplete();
-                } catch (Exception ex) {
-                    emitter.onError(ex);
-                }
-                
-            });
     }
     
     public void watchContainersFinish(Consumer<String/*containerId*/> handler) throws InterruptedException {

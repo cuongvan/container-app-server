@@ -14,6 +14,9 @@ import java.util.Properties;
  * @author cuong
  */
 public class AppConfig {
+    public enum RunningMode { DEBUG, TEST, PRODUCTION }
+    public static RunningMode RUNNING_MODE = RunningMode.DEBUG;
+    
     public static final AppConfig Inst = readConfigFile();
     public final int HTTP_PORT = 5001;
 

@@ -3,7 +3,6 @@ package helpers;
 import common.AppConfig;
 import externalapi.db.DBConnectionPool;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -15,40 +14,7 @@ public class DBHelper {
     public static DBConnectionPool getPool() {
         return ConnectionPoolHolder.pool;
     }
-    
-    //public static DBConnectionPool pool = new DBConnectionPool(AppConfig.Inst);
-    
-    public interface UseStatement {
-        void accept(Statement stmt) throws SQLException;
-    }
-    
-    public interface UsePreparedStatement {
-        void accept(PreparedStatement stmt) throws SQLException;
-    }
-    
-    public static void useStmt(UseStatement use) {
-        try (
-            Connection conn = getPool().getConnection();
-            Statement stmt = conn.createStatement();
-        ) {
-            use.accept(stmt);
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            throw new RuntimeException();
-        }
-    }
-    
-    public static void prepareStmt(String query, UsePreparedStatement use) {
-        try (
-            Connection conn = getPool().getConnection();
-            PreparedStatement stmt = conn.prepareStatement(query);
-        ) {
-            use.accept(stmt);
-        } catch (SQLException ex) {
-            throw new RuntimeException();
-        }
-    }
-    
+
     public static void createTables() {
         createAppInfoTable();
         createAppParamTable();
@@ -60,7 +26,7 @@ public class DBHelper {
     
     
     private static void createAppInfoTable() {
-        query(
+        update(
             "CREATE TABLE IF NOT EXISTS app_info (\n" +
             "	app_id TEXT PRIMARY KEY,\n" +
             "	app_name TEXT NOT NULL,\n" +
@@ -78,7 +44,7 @@ public class DBHelper {
         );
     }
     private static void createAppParamTable() {
-        query(
+        update(
             "CREATE TABLE IF NOT EXISTS app_param (\n" +
             "    app_id TEXT REFERENCES app_info(app_id) ON DELETE CASCADE,\n" +
             "    name TEXT NOT NULL,\n" +
@@ -91,7 +57,7 @@ public class DBHelper {
     }
     
     private static void createAppCallTable() {
-        query(
+        update(
             "CREATE TABLE IF NOT EXISTS app_call (\n" +
             "    call_id TEXT PRIMARY KEY,\n" +
             "    app_id TEXT NOT NULL,\n" +
@@ -103,7 +69,7 @@ public class DBHelper {
     }
     
     private static void createCallParamTable() {
-        query(
+        update(
             "CREATE TABLE IF NOT EXISTS call_param(\n" +
             "    call_id TEXT REFERENCES app_call(call_id) ON DELETE CASCADE,\n" +
             "    param_name TEXT NOT NULL,\n" +
@@ -114,18 +80,23 @@ public class DBHelper {
         );
     }
     
-    private static void query(String query) {
-        useStmt(stmt -> stmt.executeUpdate(query));
+    private static void update(String query) {
+        try (
+            Connection conn = getPool().getConnection();
+            Statement stmt = conn.createStatement();
+        ) {
+            stmt.executeUpdate(query);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            throw new RuntimeException();
+        }
     }
     
-    public static void clearAllRows() {
-        query("DELETE FROM call_param");
-        query("DELETE FROM app_call");
-        query("DELETE FROM app_param");
-        query("DELETE FROM app_info");
+    public static void truncateTables() {
+        update("TRUNCATE call_param, app_call, app_param, app_info");
     }
     
     public static void dropTables() {
-        query("DROP TABLE IF EXISTS app_info, app_param, app_call, call_param");
+        update("DROP TABLE IF EXISTS app_info, app_param, app_call, call_param");
     }
 }

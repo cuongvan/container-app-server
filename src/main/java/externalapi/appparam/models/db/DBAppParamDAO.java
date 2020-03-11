@@ -41,6 +41,7 @@ public class DBAppParamDAO implements AppParamDAO {
             stmt.executeBatch();
             connection.commit();
         } catch (SQLException ex) {
+            ex.printStackTrace();
             throw new RuntimeException(ex);
         }
     }
