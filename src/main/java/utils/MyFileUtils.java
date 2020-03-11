@@ -39,25 +39,26 @@ public class MyFileUtils {
     
     public static void unzipBytesToDir(byte[] in, String dest) throws IOException {
         ByteArrayInputStream is = new ByteArrayInputStream(in);
-        unzipStreamToDir(is, new File(dest));
+        unzipStreamToDir(is, dest);
     }
     
-    public static void unzipStreamToDir(InputStream input, File destDir) throws IOException {
-        try (ZipInputStream zis = new ZipInputStream(input)) {
-            ZipEntry entry = zis.getNextEntry();
+    public static void unzipStreamToDir(InputStream input, String dest) throws IOException {
+        File destDir = new File(dest);
+        try (ZipInputStream zipStream = new ZipInputStream(input)) {
+            ZipEntry entry = zipStream.getNextEntry();
             while (entry != null) {
                 Path entryPath = Paths.get(destDir.toString(), entry.getName());
                 if (entry.isDirectory())
                     Files.createDirectories(entryPath);
                 else {
                     File newFile = checkZipSlip(destDir, entry);
-                    try (FileOutputStream fos = new FileOutputStream(newFile)) {
-                        IOUtils.copy(zis, fos);
+                    try (FileOutputStream out = new FileOutputStream(newFile)) {
+                        IOUtils.copy(zipStream, out);
                     }
                 }
                 
-                zis.closeEntry();
-                entry = zis.getNextEntry();
+                zipStream.closeEntry();
+                entry = zipStream.getNextEntry();
             }
         }
     }

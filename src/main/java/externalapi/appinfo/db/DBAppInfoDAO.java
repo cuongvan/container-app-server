@@ -8,6 +8,7 @@ import externalapi.appinfo.models.SupportLanguage;
 import externalapi.db.DBConnectionPool;
 import java.sql.*;
 import javax.inject.*;
+import utils.MiscHelper;
 
 @Singleton
 public class DBAppInfoDAO implements AppInfoDAO {
@@ -20,14 +21,15 @@ public class DBAppInfoDAO implements AppInfoDAO {
     
 
     @Override
-    public void createApp(AppInfo app) {
+    public String createApp(AppInfo app) {
+        String appId = MiscHelper.newId();
         String query = "INSERT INTO app_info(\n" +
             "app_id, app_name, ava_url, type, slug_name, image, owner, description, language, status)\n" +
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = dbPool.getConnection();
             PreparedStatement stmt = connection.prepareStatement(query);
         ) {
-            stmt.setString(1, app.getAppId());
+            stmt.setString(1, appId);
             stmt.setString(2, app.getAppName());
             stmt.setString(3, app.getAvatarUrl());
             stmt.setString(4, app.getType().name());
@@ -38,6 +40,7 @@ public class DBAppInfoDAO implements AppInfoDAO {
             stmt.setString(9, app.getLanguage().name());
             stmt.setString(10, AppStatus.CREATED.name());
             stmt.executeUpdate();
+            return appId;
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }

@@ -3,13 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package externalapi.db;
+package integration;
 
 import externalapi.appinfo.models.AppInfo;
 import externalapi.appinfo.models.AppStatus;
 import externalapi.appinfo.models.AppType;
 import externalapi.appinfo.models.SupportLanguage;
 import externalapi.appinfo.db.DBAppInfoDAO;
+import helpers.DB;
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -42,23 +43,20 @@ public class DBAppInfoDAOIT {
 
     @Test
     public void add_then_retrieve() {
-        AppInfo insert = newApp()
-            .setAppId("100")
-            ;
+        AppInfo insert = newApp();
         
-        dao.createApp(insert);
+        String appId = dao.createApp(insert);
         
-        AppInfo getApp = dao.getById("100");
+        AppInfo getApp = dao.getById(appId);
         assertEquals(insert.setStatus(AppStatus.CREATED), getApp);
     }
     
     @Test
     public void delete_app() {
-        AppInfo app = newApp()
-            .setAppId("100");
+        AppInfo app = newApp();
         
-        dao.createApp(app);
-        dao.deleteById(app.getAppId());
+        String appId = dao.createApp(app);
+        dao.deleteById(appId);
         assertNull(dao.getById(app.getAppId()));
         
     }

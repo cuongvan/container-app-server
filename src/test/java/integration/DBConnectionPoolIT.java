@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package externalapi.db;
+package integration;
 
+import helpers.DB;
 import org.junit.Test;
 
 /**

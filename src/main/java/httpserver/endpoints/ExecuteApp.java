@@ -10,8 +10,14 @@ import httpserver.common.BasicResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import httpserver.providers.Debugging;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import static java.util.stream.Collectors.toMap;
 import javax.inject.Inject;
-import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.eclipse.jetty.http.HttpStatus;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
 /**
  *
@@ -24,22 +30,43 @@ public class ExecuteApp {
     @Inject
     private ExecuteHandler handler;
         
-    @Path("/batch/{callId}")
+    @Path("/app-{appId}/execute/")
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     public Response execute(
-        @PathParam("callId") String callId,
-        @FormDataParam("json") byte[] jsonInput,
-        @FormDataParam("binary") byte[] fileInput)
-    {
-        handler
-            .execute(callId, jsonInput, fileInput)
-            .blockingAwait()
-            ;
-        return Response
-            .ok(new BasicResponse(""))
-            .type(MediaType.APPLICATION_JSON)
-            .build();
+        @PathParam("appId") String appId,
+        @QueryParam("userId") String userId,
+        FormDataMultiPart body
+    ){
+        Map<String, List<FormDataBodyPart>> allFiles = body.getFields();
+        // get first file of each key
+        Map<String, FormDataBodyPart> files = allFiles
+            .entrySet()
+            .stream()
+            .collect(toMap(
+                Map.Entry::getKey,
+                e -> e.getValue().get(0)
+            ));
+        
+        try {
+            String callId = handler.execute(appId, userId, files);
+            return Response
+                .ok(new ExecuteResponseSuccess(callId))
+                .status(HttpStatus.ACCEPTED_202)
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex); 
+        }
+    }
+    
+    private static class ExecuteResponseSuccess extends BasicResponse {
+        public final String callId;
+
+        public ExecuteResponseSuccess(String callId) {
+            super("");
+            this.callId = callId;
+        }
     }
 }

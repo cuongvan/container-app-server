@@ -3,10 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package externalapi.appinfo.models;
+package unit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import externalapi.appinfo.models.AppInfo;
 import java.io.IOException;
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -15,7 +16,7 @@ import static org.junit.Assert.*;
  *
  * @author cuong
  */
-public class AppInfoIT {
+public class AppInfoTest {
     @Test
     public void serialize_to_underscore() throws JsonProcessingException {
         AppInfo app = new AppInfo();

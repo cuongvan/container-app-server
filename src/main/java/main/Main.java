@@ -4,7 +4,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import common.AppConfig;
-import externalapi.db.DBConnectionPool;
 import externalapi.appcall.db.DBAppCallDAO;
 import java.io.File;
 import java.nio.file.Files;
@@ -13,6 +12,10 @@ import httpserver.WebServiceServer;
 import org.slf4j.*;
 import workers.WatchingContainerWorker;
 import externalapi.appcall.AppCallDAO;
+import externalapi.appinfo.AppInfoDAO;
+import externalapi.appinfo.db.DBAppInfoDAO;
+import externalapi.appparam.models.AppParamDAO;
+import externalapi.appparam.models.db.DBAppParamDAO;
 
 /**
  *
@@ -20,24 +23,19 @@ import externalapi.appcall.AppCallDAO;
  */
 public class Main {
     static Logger logger = LoggerFactory.getLogger(Main.class);
-    public static void main(String[] args) throws Exception {
-//        String s = """
-//                   DROP TABLE IF EXISTS app_info;
-//                   DROP TABLE IF EXISTS app_call;
-//                   """;
-//        System.out.println(s);
+    public static void main(String... args) throws Exception {
         Injector injector = initialize();
         {
             WatchingContainerWorker watchingContainerWorker = injector.getInstance(WatchingContainerWorker.class);
             watchingContainerWorker.runForever().subscribe();
         }
         
-//        createAppBuildDirs();
         WebServiceServer server = new WebServiceServer(injector);
         server.start();
+        logger.info("Application started");
     }
     
-    private static Injector initialize() {
+    public static Injector initialize() {
         Injector injector = Guice.createInjector(new AppModule());
         return injector;
     }
@@ -46,18 +44,11 @@ public class Main {
     public static class AppModule extends AbstractModule {
         @Override
         protected void configure() {
-            AppConfig config = AppConfig.Inst;
-            bind(AppConfig.class).toProvider(() -> config);
-            bind(DBConnectionPool.class).toProvider(() -> singletonDBConnectionPool());
+            bind(AppConfig.class).toProvider(() -> AppConfig.Inst);
+            bind(AppInfoDAO.class).to(DBAppInfoDAO.class);
+            bind(AppParamDAO.class).to(DBAppParamDAO.class);
             bind(AppCallDAO.class).to(DBAppCallDAO.class);
         }
-    }
-    
-    private static final AppConfig appConfig = AppConfig.Inst;
-    private static DBConnectionPool dbPool = new DBConnectionPool(appConfig);
-    
-    public static DBConnectionPool singletonDBConnectionPool() {
-        return dbPool;
     }
     
     public static void createAppBuildDirs(){

@@ -3,26 +3,31 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package externalapi.appparam.models.db;
+package integration;
 
+import externalapi.appcall.db.DBAppCallDAO;
+import externalapi.appcall.models.FileParam;
+import externalapi.appcall.models.KeyValueParam;
 import externalapi.appinfo.db.DBAppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
 import externalapi.appparam.models.AppParam;
 import externalapi.appparam.models.ParamType;
-import externalapi.db.DB;
-import static externalapi.db.DBAppInfoDAOIT.newApp;
+import externalapi.appparam.models.db.DBAppParamDAO;
+import helpers.DB;
+import static integration.DBAppInfoDAOIT.newApp;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.BeforeClass;
 
 /**
  *
  * @author cuong
  */
-public class DBAppParamDAOIT {
-    DBAppInfoDAO appInfoDAO = new DBAppInfoDAO(DB.pool);
-    DBAppParamDAO appParamDAO = new DBAppParamDAO(DB.pool);
+public class DBAppCallDAOTest {
+    DBAppInfoDAO appInfoDao = new DBAppInfoDAO(DB.pool);
+    DBAppParamDAO appParamDao = new DBAppParamDAO(DB.pool);
+    DBAppCallDAO appCallDAO = new DBAppCallDAO(DB.pool);
     
     @BeforeClass
     public static void setupClass() {
@@ -31,7 +36,7 @@ public class DBAppParamDAOIT {
     
     @AfterClass
     public static void afterClass() {
-        DB.dropTables();
+        //DB.dropTables();
     }
     
     @Before
@@ -40,13 +45,13 @@ public class DBAppParamDAOIT {
     }
 
     @Test
-    public void test_update_params() {
+    public void create_call() {
         AppInfo app = newApp();
         List<AppParam> params = Arrays.asList(
             new AppParam()
                 .setAppId(app.getAppId())
                 .setName("algorithm")
-                .setType(ParamType.TEXT)
+                .setType(ParamType.KEY_VALUE)
                 .setLabel("Algorithm"),
             new AppParam()
                 .setAppId(app.getAppId())
@@ -55,10 +60,13 @@ public class DBAppParamDAOIT {
                 .setLabel("File to anonymize")
         );
         
-        appInfoDAO.createApp(app);
-        appParamDAO.updateParams(app.getAppId(), params);
-        List<AppParam> params2 = appParamDAO.getAppParams(app.getAppId());
-        assertEquals(params2, params);
-        System.out.println(params2);
+        String callId = "9999";
+        
+        appInfoDao.createApp(app);
+        appParamDao.updateParams(app.getAppId(), params);
+        appCallDAO.createNewCall(callId, app.getAppId(), DBAppCallDAO.ANONYMOUS_USER,
+            Arrays.asList(new KeyValueParam("algorithm", "k-anonymity")),
+            Arrays.asList(new FileParam("file2anonymize", "/tmp/aaa"))
+        );
     }
 }

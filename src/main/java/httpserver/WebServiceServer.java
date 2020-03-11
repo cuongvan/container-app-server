@@ -13,6 +13,8 @@ import org.glassfish.jersey.server.*;
 import org.glassfish.jersey.servlet.*;
 import httpserver.helpers.SetupGuiceHK2Bridge;
 import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.jersey.jackson.JacksonFeature;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.jvnet.hk2.guice.bridge.api.GuiceIntoHK2Bridge;
 
 /**
@@ -49,8 +51,8 @@ public class WebServiceServer {
         public MyApplication(Injector guiceInjector) {
             packages(true, "httpserver");
             register(LoggingFeature.class);
-            register(org.glassfish.jersey.jackson.JacksonFeature.class);
-            register(org.glassfish.jersey.media.multipart.MultiPartFeature.class);
+            register(JacksonFeature.class);
+            register(MultiPartFeature.class);
             register(new SetupGuiceHK2Bridge(guiceInjector));
         }
         

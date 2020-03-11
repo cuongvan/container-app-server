@@ -1,5 +1,5 @@
 package externalapi.appparam.models;
 
 public enum ParamType {
-    TEXT, FILE
+    KEY_VALUE, FILE
 }
