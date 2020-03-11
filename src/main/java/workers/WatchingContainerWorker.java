@@ -6,63 +6,62 @@
 package workers;
 
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerjava.api.model.Event;
 import common.ContainerLog;
 import docker.DockerAdapter;
 import externalapi.appcall.AppCallDAO;
 import externalapi.appcall.models.AppCallResult;
-import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.Single;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class WatchingContainerWorker {
+    
+    private final Logger LOG = LoggerFactory.getLogger(WatchingContainerWorker.class);
+    
     private DockerAdapter docker;
     private AppCallDAO appCallDAO;
-    private Disposable run;
+    private ExecutorService executor;
     
     @Inject
     public WatchingContainerWorker(DockerAdapter dockerAdapter, AppCallDAO appCallDAO) {
         this.docker = dockerAdapter;
         this.appCallDAO = appCallDAO;
+        executor = Executors.newSingleThreadExecutor();
     }
     
     public void runForever() {
-        run = docker.watchFinishedContainers()
-            .map(Event::getId) // container id
-            .subscribeOn(Schedulers.io()) // runs in a dedicated thread
-            .observeOn(Schedulers.io())
-            .retry()  // retry when exception occurs
-            .flatMapCompletable(this::handleFinishedContainer)
-            .subscribe()
-            ;
+        executor.submit(() -> loopTask());
     }
     
-    private Completable handleFinishedContainer(String containerId) {
-        return Single
-            .fromCallable(() -> docker.inspectContainer(containerId))
-            .doOnSuccess(this::deleteAllMounted)
-            .flatMap(inspect -> Single
-                .just(gatherCallResultInfo(inspect, containerId))
-                .doOnSuccess(r -> System.out.println("Done: " + r))
-                .doOnSuccess(r -> docker.deleteContainer(containerId))
-                .doOnSuccess(r -> System.out.println("Deleted"))
-                .doOnSuccess(appCallDAO::updateFinishedAppCall)
-                .doOnSuccess(r -> System.out.println("Save to DB"))
-            )
-            // NOTIFY to CKAN
-            .flatMapCompletable(x -> Completable.complete())
-            ;
+    private void loopTask() {
+        while (true) {
+            try {
+                docker.watchContainersFinish(containerId -> handleFinishedContainer2(containerId));
+            } catch (InterruptedException ex) {
+                // stop server
+                break;
+            } catch (Exception ex) {
+                // continue
+            }
+        }
     }
     
+    private void handleFinishedContainer2(String containerId) {
+        InspectContainerResponse inspect = docker.inspectContainer(containerId);
+        deleteAllMounted(inspect);
+        AppCallResult r = gatherCallResultInfo(inspect, containerId);
+        docker.deleteContainer(containerId);
+        appCallDAO.updateFinishedAppCall(r);
+    }
     private void deleteAllMounted(InspectContainerResponse inspect) {
         inspect.getMounts()
             .stream()
@@ -77,7 +76,7 @@ public class WatchingContainerWorker {
             });
     }
 
-    private AppCallResult gatherCallResultInfo(InspectContainerResponse inspect, String containerId) throws IOException {
+    private AppCallResult gatherCallResultInfo(InspectContainerResponse inspect, String containerId) {
         int exitCode = inspect.getState().getExitCode();
         boolean success = (exitCode == 0);
         
@@ -90,6 +89,7 @@ public class WatchingContainerWorker {
     }
     
     public void stop() {
-        run.dispose();
+        LOG.info("Stop now");
+        executor.shutdown();
     }
 }

@@ -13,6 +13,7 @@ import io.reactivex.rxjava3.core.Single;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import javax.inject.Singleton;
 //import com.github.dockerjava.api.command.BuildImageResultCallback;
 import static java.util.stream.Collectors.toList;
@@ -31,11 +32,12 @@ public class DockerAdapter {
         }
     }
     
-    public ContainerLog getContainerLog(String containerId) throws IOException {
-        try (DockerClient dockerClient = newClient()) {
+    public ContainerLog getContainerLog(String containerId) {
+        DockerClient docker = newClient();
+        try {
             StringBuilder stdoutBuilder = new StringBuilder();
             StringBuilder stderrBuilder = new StringBuilder();
-            dockerClient.logContainerCmd(containerId)
+            docker.logContainerCmd(containerId)
                 .withStdOut(true)
                 .withStdErr(true)
                 .exec(new LogContainerResultCallback() {
@@ -52,12 +54,17 @@ public class DockerAdapter {
             return new ContainerLog(stdoutBuilder.toString(), stderrBuilder.toString());
         } catch (InterruptedException ignore) {
             throw new IllegalStateException("Should not happend");
+        } finally {
+            close(docker);
         }
     }
 
-    public void deleteContainer(String containerId) throws IOException {
-        try (DockerClient dockerClient = newClient()) {
-            dockerClient.removeContainerCmd(containerId).exec();
+    public void deleteContainer(String containerId) {
+        DockerClient docker = newClient();
+        try {
+            docker.removeContainerCmd(containerId).exec();
+        } finally {
+            close(docker);
         }
     }
     
@@ -193,9 +200,12 @@ public class DockerAdapter {
         });
     }
     
-    public InspectContainerResponse inspectContainer(String containerId) throws IOException {
-        try (DockerClient docker = DockerAdapter.newClient()) {
+    public InspectContainerResponse inspectContainer(String containerId) {
+        DockerClient docker = DockerAdapter.newClient();
+        try {
             return docker.inspectContainerCmd(containerId).exec();
+        } finally {
+            close(docker);
         }
     }
     
@@ -225,5 +235,22 @@ public class DockerAdapter {
                 }
                 
             });
+    }
+    
+    public void watchContainersFinish(Consumer<String/*containerId*/> handler) throws InterruptedException {
+        DockerClient docker = DockerAdapter.newClient();
+        try {
+            docker
+                .eventsCmd()
+                .withEventFilter("die")
+                .exec(new EventsResultCallback() {
+                    @Override
+                    public void onNext(Event item) {
+
+                    }
+                }).awaitCompletion();
+        } finally {
+            close(docker);
+        }
     }
 }
