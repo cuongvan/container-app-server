@@ -4,8 +4,6 @@ import common.Consts;
 import docker.DockerAdapter;
 import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
-import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.Single;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,34 +30,19 @@ public class BuildAppHandler {
         this.appInfoDAO = appInfoDAO;
     }
     
-    public Completable buildApp(String appId, InputStream codeZipFile) {
-        return Single
-            .fromCallable(() -> appInfoDAO.getById(appId))
-            .flatMapCompletable(appInfo -> buildApp(appInfo, codeZipFile));
+    public void buildApp(String appId, InputStream codeZipFile) throws IOException {
+        AppInfo appInfo = appInfoDAO.getById(appId);
+        {
+            String templateDir = Paths.get(Consts.DOCKER_BUILD_TEMPLATE_DIR, appInfo.getLanguage().name().toLowerCase()).toString();
+            Path dir = createRandomDirAt(Consts.APP_BUILD_DIR);
+            MyFileUtils.unzipStreamToDir(codeZipFile, dir.resolve(Consts.DOCKER_BUILD_EXTRACE_CODE_DIR).toString());
+            MyFileUtils.copyDirectory(templateDir, dir.toString());
+            codeZipFile.close();
+            String imageId = docker.buildImage(dir.toString(), appInfo.getImage());
+            LOG.info("Image built: " + imageId);
+        }
     }
 
-    private Completable buildApp(AppInfo appInfo, InputStream codeZipFile) throws IOException {
-        String templateDir = Paths.get(Consts.DOCKER_BUILD_TEMPLATE_DIR, appInfo.getLanguage().name().toLowerCase()).toString();
-        
-        return Single
-            .fromCallable(() -> createRandomDirAt(Consts.APP_BUILD_DIR))
-            .doOnSuccess(dir -> MyFileUtils.unzipStreamToDir(codeZipFile, dir.resolve(Consts.DOCKER_BUILD_EXTRACE_CODE_DIR).toString()))
-            .map(Path::toString)
-            .doOnSuccess(dir -> MyFileUtils.copyDirectory(templateDir, dir))
-            .doOnTerminate(() -> codeZipFile.close())
-            .flatMap(dir -> Single
-                .fromCallable(() -> docker.buildImage(dir, appInfo.getImage()))
-                //.defer(() -> Single.just(docker.buildImage(dir, appInfo.getImage())))
-                .doOnSuccess(imageId -> LOG.info("Build image success: {}", imageId))
-                //.doOnComplete(() -> MyFileUtils.deleteDirectory(dir))
-                //.doOnError(err -> moveBuildFailBuildDir(appInfo, dir))
-            )
-            
-            .flatMapCompletable(ignore -> Completable.complete())
-            ;
-    }
-
-    
     private Path createRandomDirAt(String root) throws IOException {
         Path tempDir = Files.createTempDirectory(Paths.get(root), "");
         {

@@ -120,7 +120,7 @@ public class DockerAdapter {
         }
     }
 
-    public String buildImage(String path, String imageName) throws InterruptedException {
+    public String buildImage(String path, String imageName) {
         DockerClient docker = newClient();
         try {
             BuildImageResultCallback callback = docker
