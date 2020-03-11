@@ -33,7 +33,7 @@ public class DBConnectionPool {
         dataSource.setMaxIdle(5); // only 1 thread do the insert
         dataSource.setMaxOpenPreparedStatements(10);
         dataSource.setDefaultAutoCommit(true);
-        dataSource.setEnableAutoCommitOnReturn(true);
+        dataSource.setAutoCommitOnReturn(true);
     }
     
     public Connection getConnection() throws SQLException {

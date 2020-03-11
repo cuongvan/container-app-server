@@ -5,7 +5,7 @@
  */
 package integration;
 
-import helpers.DB;
+import helpers.DBHelper;
 import org.junit.Test;
 
 /**
@@ -15,8 +15,8 @@ import org.junit.Test;
 public class DBConnectionPoolIT {
     @Test
     public void insert_null() {
-        DB.createTables();
-        DB.prepareStmt("INSERT INTO app_info(app_id, app_name, ava_url) VALUES(?, ?, ?)", stmt -> {
+        DBHelper.createTables();
+        DBHelper.prepareStmt("INSERT INTO app_info(app_id, app_name, ava_url) VALUES(?, ?, ?)", stmt -> {
             stmt.setString(1, "a");
             stmt.setString(2, "a");
             stmt.setString(3, null);

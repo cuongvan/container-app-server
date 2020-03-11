@@ -16,6 +16,8 @@ import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.db.DBAppInfoDAO;
 import externalapi.appparam.models.AppParamDAO;
 import externalapi.appparam.models.db.DBAppParamDAO;
+import externalapi.db.DBConnectionPool;
+import helpers.DBHelper;
 
 /**
  *
@@ -24,6 +26,7 @@ import externalapi.appparam.models.db.DBAppParamDAO;
 public class Main {
     static Logger logger = LoggerFactory.getLogger(Main.class);
     public static void main(String... args) throws Exception {
+        DBHelper.createTables();
         Injector injector = initialize();
         {
             WatchingContainerWorker watchingContainerWorker = injector.getInstance(WatchingContainerWorker.class);
@@ -45,6 +48,7 @@ public class Main {
         @Override
         protected void configure() {
             bind(AppConfig.class).toProvider(() -> AppConfig.Inst);
+            bind(DBConnectionPool.class).toProvider(() -> DBHelper.getPool());
             bind(AppInfoDAO.class).to(DBAppInfoDAO.class);
             bind(AppParamDAO.class).to(DBAppParamDAO.class);
             bind(AppCallDAO.class).to(DBAppCallDAO.class);

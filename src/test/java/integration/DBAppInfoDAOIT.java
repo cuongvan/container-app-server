@@ -10,7 +10,7 @@ import externalapi.appinfo.models.AppStatus;
 import externalapi.appinfo.models.AppType;
 import externalapi.appinfo.models.SupportLanguage;
 import externalapi.appinfo.db.DBAppInfoDAO;
-import helpers.DB;
+import helpers.DBHelper;
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -19,21 +19,21 @@ import static org.junit.Assert.*;
  * @author cuong
  */
 public class DBAppInfoDAOIT {
-    DBAppInfoDAO dao = new DBAppInfoDAO(DB.pool);
+    DBAppInfoDAO dao = new DBAppInfoDAO(DBHelper.getPool());
     
     @BeforeClass
     public static void setUpClass() {
-        DB.createTables();
+        DBHelper.createTables();
     }
     
     @AfterClass
     public static void cleanup() {
-        DB.dropTables();
+        DBHelper.dropTables();
     }
     
     @Before
     public void setUp() {
-        DB.clearAllRows();
+        DBHelper.clearAllRows();
     }
     
     @After

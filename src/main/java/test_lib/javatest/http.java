@@ -6,7 +6,7 @@
 package test_lib.javatest;
 
 import java.io.IOException;
-import utils.HttpUtil;
+import helpers.HttpUtil;
 
 /**
  *

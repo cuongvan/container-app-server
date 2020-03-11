@@ -10,7 +10,7 @@ import externalapi.appinfo.models.AppInfo;
 import externalapi.appparam.models.AppParam;
 import externalapi.appparam.models.ParamType;
 import externalapi.appparam.models.db.DBAppParamDAO;
-import helpers.DB;
+import helpers.DBHelper;
 import static integration.DBAppInfoDAOIT.newApp;
 import java.util.Arrays;
 import java.util.List;
@@ -22,22 +22,22 @@ import static org.junit.Assert.*;
  * @author cuong
  */
 public class DBAppParamDAOTest {
-    DBAppInfoDAO appInfoDAO = new DBAppInfoDAO(DB.pool);
-    DBAppParamDAO appParamDAO = new DBAppParamDAO(DB.pool);
+    DBAppInfoDAO appInfoDAO = new DBAppInfoDAO(DBHelper.getPool());
+    DBAppParamDAO appParamDAO = new DBAppParamDAO(DBHelper.getPool());
     
     @BeforeClass
     public static void setupClass() {
-        DB.createTables();
+        DBHelper.createTables();
     }
     
     @AfterClass
     public static void afterClass() {
-        DB.dropTables();
+        DBHelper.dropTables();
     }
     
     @Before
     public void setUp() {
-        DB.clearAllRows();
+        DBHelper.clearAllRows();
     }
 
     @Test

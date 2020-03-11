@@ -6,10 +6,17 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import org.junit.Test;
 
-public class DB {
-    public static DBConnectionPool pool = new DBConnectionPool(AppConfig.Inst);
+public class DBHelper {
+    private static class ConnectionPoolHolder {
+        private static final DBConnectionPool pool = new DBConnectionPool(AppConfig.Inst);
+    }
+    
+    public static DBConnectionPool getPool() {
+        return ConnectionPoolHolder.pool;
+    }
+    
+    //public static DBConnectionPool pool = new DBConnectionPool(AppConfig.Inst);
     
     public interface UseStatement {
         void accept(Statement stmt) throws SQLException;
@@ -21,7 +28,7 @@ public class DB {
     
     public static void useStmt(UseStatement use) {
         try (
-            Connection conn = pool.getConnection();
+            Connection conn = getPool().getConnection();
             Statement stmt = conn.createStatement();
         ) {
             use.accept(stmt);
@@ -33,7 +40,7 @@ public class DB {
     
     public static void prepareStmt(String query, UsePreparedStatement use) {
         try (
-            Connection conn = pool.getConnection();
+            Connection conn = getPool().getConnection();
             PreparedStatement stmt = conn.prepareStatement(query);
         ) {
             use.accept(stmt);
@@ -120,11 +127,5 @@ public class DB {
     
     public static void dropTables() {
         query("DROP TABLE IF EXISTS app_info, app_param, app_call, call_param");
-    }
-    
-    @Test
-    public void main() {
-        createTables();
-        //dropTables();
     }
 }

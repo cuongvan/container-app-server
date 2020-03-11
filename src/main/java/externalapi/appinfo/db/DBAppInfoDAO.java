@@ -8,7 +8,7 @@ import externalapi.appinfo.models.SupportLanguage;
 import externalapi.db.DBConnectionPool;
 import java.sql.*;
 import javax.inject.*;
-import utils.MiscHelper;
+import helpers.MiscHelper;
 
 @Singleton
 public class DBAppInfoDAO implements AppInfoDAO {
