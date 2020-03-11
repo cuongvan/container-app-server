@@ -217,7 +217,13 @@ public class DockerAdapter {
                                 emitter.onNext(item);
                             }
                         }).awaitCompletion();
+                } catch (InterruptedException interrupt) {
+                    // when stop server
+                    emitter.onComplete();
+                } catch (Exception ex) {
+                    emitter.onError(ex);
                 }
+                
             });
     }
 }

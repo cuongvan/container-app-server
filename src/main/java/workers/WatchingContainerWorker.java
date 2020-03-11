@@ -13,6 +13,7 @@ import externalapi.appcall.AppCallDAO;
 import externalapi.appcall.models.AppCallResult;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +27,7 @@ import org.apache.commons.io.FileUtils;
 public class WatchingContainerWorker {
     private DockerAdapter docker;
     private AppCallDAO appCallDAO;
+    private Disposable run;
     
     @Inject
     public WatchingContainerWorker(DockerAdapter dockerAdapter, AppCallDAO appCallDAO) {
@@ -33,13 +35,14 @@ public class WatchingContainerWorker {
         this.appCallDAO = appCallDAO;
     }
     
-    public Completable runForever() {
-        return docker.watchFinishedContainers()
+    public void runForever() {
+        run = docker.watchFinishedContainers()
             .map(Event::getId) // container id
             .subscribeOn(Schedulers.io()) // runs in a dedicated thread
             .observeOn(Schedulers.io())
             .retry()  // retry when exception occurs
             .flatMapCompletable(this::handleFinishedContainer)
+            .subscribe()
             ;
     }
     
@@ -83,6 +86,10 @@ public class WatchingContainerWorker {
         long duration = Duration.between(t1, t2).getSeconds();
         
         ContainerLog log = docker.getContainerLog(inspect.getId());
-        return new AppCallResult(containerId, true, duration, log.stdout, log.stderr);
+        return new AppCallResult(containerId, success, duration, log.stdout, log.stderr);
+    }
+    
+    public void stop() {
+        run.dispose();
     }
 }

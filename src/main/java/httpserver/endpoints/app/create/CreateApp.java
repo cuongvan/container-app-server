@@ -31,6 +31,7 @@ public class CreateApp {
         CreateAppRequest request
     ) throws IOException, SQLException
     {
+        System.out.println(">>>>>>>>>>>> Received request: " + request);
         AppInfo app = new AppInfo()
             .setAppName(request.appName)
             .setAvatarUrl(request.avatarUrl)

@@ -22,13 +22,7 @@ import org.jvnet.hk2.guice.bridge.api.GuiceIntoHK2Bridge;
  * @author cuong
  */
 public class WebServiceServer {
-    private Injector guiceInjector;
-
-    public WebServiceServer(Injector guiceInjector) {
-        this.guiceInjector = guiceInjector;
-    }
-    
-    public void start() throws Exception {
+    public static Server createServer(Injector guiceInjector) throws Exception {
         Server server = new Server();
         {
             ServerConnector connector = new ServerConnector(server);
@@ -44,7 +38,7 @@ public class WebServiceServer {
             server.setHandler(ctx);
         }
         
-        server.start();
+        return server;
     }
     
     public static class MyApplication extends ResourceConfig {

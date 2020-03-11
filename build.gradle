@@ -39,6 +39,9 @@ dependencies {
     /// test
     testImplementation'junit:junit:4.13'
     testImplementation 'org.mockito:mockito-core:3.3.0'
+    testImplementation 'io.rest-assured:rest-assured:4.2.0'
+
+    
     
     /// jersey
     testImplementation 'org.glassfish.jersey.test-framework:jersey-test-framework-core:2.13'

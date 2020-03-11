@@ -18,6 +18,7 @@ import externalapi.appparam.models.AppParamDAO;
 import externalapi.appparam.models.db.DBAppParamDAO;
 import externalapi.db.DBConnectionPool;
 import helpers.DBHelper;
+import org.eclipse.jetty.server.Server;
 
 /**
  *
@@ -25,15 +26,17 @@ import helpers.DBHelper;
  */
 public class Main {
     static Logger logger = LoggerFactory.getLogger(Main.class);
+    private static Server server;
+    private static Injector injector;
     public static void main(String... args) throws Exception {
         DBHelper.createTables();
-        Injector injector = initialize();
+        injector = initialize();
         {
             WatchingContainerWorker watchingContainerWorker = injector.getInstance(WatchingContainerWorker.class);
-            watchingContainerWorker.runForever().subscribe();
+            watchingContainerWorker.runForever();
         }
         
-        WebServiceServer server = new WebServiceServer(injector);
+        server = WebServiceServer.createServer(injector);
         server.start();
         logger.info("Application started");
     }
@@ -42,7 +45,7 @@ public class Main {
         Injector injector = Guice.createInjector(new AppModule());
         return injector;
     }
-    
+
     // dependency injection
     public static class AppModule extends AbstractModule {
         @Override
@@ -53,6 +56,12 @@ public class Main {
             bind(AppParamDAO.class).to(DBAppParamDAO.class);
             bind(AppCallDAO.class).to(DBAppCallDAO.class);
         }
+    }
+    
+    public static void stop() throws Exception {
+        logger.info("Stop server");
+        server.stop();
+        injector.getInstance(WatchingContainerWorker.class).stop();
     }
     
     public static void createAppBuildDirs(){

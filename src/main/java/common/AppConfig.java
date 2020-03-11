@@ -15,7 +15,7 @@ import java.util.Properties;
  */
 public class AppConfig {
     public static final AppConfig Inst = readConfigFile();
-    public final int HTTP_PORT;
+    public final int HTTP_PORT = 5001;
 
     public final String APP_BUILD_DIR = "./tmp/builds";
     public final String APP_BUILD_FAILED_DIR = "./tmp/builds-failed";
@@ -29,8 +29,7 @@ public class AppConfig {
     public final String POSTGRES_PASS;
     public final String POSTGRES_DATABASE;
 
-    public AppConfig(int HTTP_PORT, String POSTGRES_HOST, String POSTGRES_USER, String POSTGRES_PASS, String POSTGRES_DATABASE) {
-        this.HTTP_PORT = HTTP_PORT;
+    public AppConfig(String POSTGRES_HOST, String POSTGRES_USER, String POSTGRES_PASS, String POSTGRES_DATABASE) {
         this.POSTGRES_HOST = POSTGRES_HOST;
         this.POSTGRES_USER = POSTGRES_USER;
         this.POSTGRES_PASS = POSTGRES_PASS;
@@ -51,7 +50,6 @@ public class AppConfig {
             prop.load(input);
             
             return new AppConfig(
-                Integer.parseInt(prop.getProperty("http.port")),
                 prop.getProperty("postgres.host"),
                 prop.getProperty("postgres.user"),
                 prop.getProperty("postgres.pass"),

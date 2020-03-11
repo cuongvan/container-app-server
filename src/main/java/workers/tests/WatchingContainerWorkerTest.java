@@ -20,11 +20,12 @@ public class WatchingContainerWorkerTest {
     static WatchingContainerWorker worker = new WatchingContainerWorker(docker, dao);
 
     public static void watchContainersFinish() throws InterruptedException, IOException {
-        worker.runForever().subscribe();
+        worker.runForever();
         for (int i = 0; i < 10; i++) {
             String id = docker.startContainer("aaa");
             System.out.println("Created: " + id);
         }
+        worker.stop();
         Thread.sleep(1000);
     }
     
