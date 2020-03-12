@@ -9,7 +9,7 @@ import externalapi.appinfo.models.AppInfo;
 import externalapi.appinfo.models.AppStatus;
 import externalapi.appinfo.models.AppType;
 import externalapi.appinfo.models.SupportLanguage;
-import externalapi.appinfo.db.DBAppInfoDAO;
+import externalapi.appinfo.DBAppInfoDAO;
 import helpers.DBHelper;
 import org.junit.*;
 import static org.junit.Assert.*;

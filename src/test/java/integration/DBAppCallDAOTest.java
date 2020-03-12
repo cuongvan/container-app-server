@@ -5,20 +5,19 @@
  */
 package integration;
 
-import externalapi.appcall.db.DBAppCallDAO;
+import externalapi.appcall.DBAppCallDAO;
 import externalapi.appcall.models.FileParam;
 import externalapi.appcall.models.KeyValueParam;
-import externalapi.appinfo.db.DBAppInfoDAO;
+import externalapi.appinfo.DBAppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
 import externalapi.appparam.models.AppParam;
 import externalapi.appparam.models.ParamType;
-import externalapi.appparam.models.db.DBAppParamDAO;
+import externalapi.appparam.models.DBAppParamDAO;
 import helpers.DBHelper;
 import static integration.DBAppInfoDAOTest.newApp;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.*;
-import org.junit.BeforeClass;
 
 /**
  *
@@ -39,12 +38,10 @@ public class DBAppCallDAOTest {
         AppInfo app = newApp();
         List<AppParam> params = Arrays.asList(
             new AppParam()
-                .setAppId(app.getAppId())
                 .setName("algorithm")
                 .setType(ParamType.KEY_VALUE)
                 .setLabel("Algorithm"),
             new AppParam()
-                .setAppId(app.getAppId())
                 .setName("file2anonymize")
                 .setType(ParamType.FILE)
                 .setLabel("File to anonymize")

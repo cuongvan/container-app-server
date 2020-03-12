@@ -1,9 +1,9 @@
-package externalapi.appparam.models.db;
+package externalapi.appparam.models;
 
 import externalapi.appparam.models.AppParam;
-import externalapi.appparam.models.AppParamDAO;
+import externalapi.appparam.AppParamDAO;
 import externalapi.appparam.models.ParamType;
-import externalapi.db.DBConnectionPool;
+import externalapi.appparam.DBConnectionPool;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -58,7 +58,6 @@ public class DBAppParamDAO implements AppParamDAO {
                 List<AppParam> params = new ArrayList<>();
                 while (rs.next()) {
                     params.add(new AppParam()
-                        .setAppId(appId)
                         .setName(rs.getString("name"))
                         .setType(ParamType.valueOf(rs.getString("type")))
                         .setLabel(rs.getString("label"))

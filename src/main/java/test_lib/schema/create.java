@@ -1,7 +1,7 @@
 package test_lib.schema;
 
 import common.AppConfig;
-import externalapi.db.DBConnectionPool;
+import externalapi.appparam.DBConnectionPool;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;

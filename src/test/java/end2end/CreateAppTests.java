@@ -1,6 +1,5 @@
 package end2end;
 
-import common.AppConfig;
 import helpers.TestConstants;
 import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;

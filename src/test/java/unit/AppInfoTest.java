@@ -21,7 +21,6 @@ public class AppInfoTest {
     public void serialize_to_underscore() throws JsonProcessingException {
         AppInfo app = new AppInfo();
         String s = new ObjectMapper().writeValueAsString(app);
-        System.out.println(s);
     }
     
     @Test

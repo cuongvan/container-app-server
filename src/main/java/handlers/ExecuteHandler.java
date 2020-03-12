@@ -1,13 +1,15 @@
 package handlers;
 
 import common.Consts;
-import externalapi.db.DBConnectionPool;
+import externalapi.appparam.DBConnectionPool;
 import docker.DockerAdapter;
 import externalapi.appcall.AppCallDAO;
 import externalapi.appcall.models.FileParam;
 import externalapi.appcall.models.KeyValueParam;
+import externalapi.appinfo.AppInfoDAO;
+import externalapi.appinfo.models.AppInfo;
 import externalapi.appparam.models.AppParam;
-import externalapi.appparam.models.AppParamDAO;
+import externalapi.appparam.AppParamDAO;
 import externalapi.appparam.models.ParamType;
 import io.reactivex.rxjava3.core.Completable;
 import java.io.IOException;
@@ -28,11 +30,24 @@ import helpers.MiscHelper;
 public class ExecuteHandler {
     
     @Inject DockerAdapter docker;
-    @Inject DBConnectionPool connectionPool;
+    @Inject AppInfoDAO appInfoDAO;
     @Inject AppCallDAO appCallDAO;
     @Inject AppParamDAO appParamDAO;
 
+    public ExecuteHandler(DockerAdapter docker, DBConnectionPool connectionPool, AppInfoDAO appInfoDAO, AppCallDAO appCallDAO, AppParamDAO appParamDAO) {
+        this.docker = docker;
+        this.appInfoDAO = appInfoDAO;
+        this.appCallDAO = appCallDAO;
+        this.appParamDAO = appParamDAO;
+    }
+
     public String execute(String appId, String userId, Map<String, FormDataBodyPart> files) throws IOException {
+        AppInfo appInfo = appInfoDAO.getById(appId);
+        String image = appInfo.getImage();
+        if (image == null) {
+            
+        }
+        
         List<AppParam> appParams = appParamDAO.getAppParams(appId);
 
         List<KeyValueParam> keyValueParams = appParams
@@ -67,7 +82,8 @@ public class ExecuteHandler {
                 p -> fileParamMountPath(p.getName())
             ));
         
-        docker.createAndStartContainer(callId, environments, mounts);
+        String imageName = appInfo.getImage();
+        docker.createAndStartContainer(imageName, environments, mounts);
         return callId;
     }
     

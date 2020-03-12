@@ -1,11 +1,10 @@
-package externalapi.appinfo.db;
+package externalapi.appinfo;
 
-import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
 import externalapi.appinfo.models.AppStatus;
 import externalapi.appinfo.models.AppType;
 import externalapi.appinfo.models.SupportLanguage;
-import externalapi.db.DBConnectionPool;
+import externalapi.appparam.DBConnectionPool;
 import java.sql.*;
 import javax.inject.*;
 import helpers.MiscHelper;

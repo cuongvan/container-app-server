@@ -3,20 +3,10 @@ package externalapi.appparam.models;
 import java.util.Objects;
 
 public class AppParam {
-    private String appId;
     private String name;
     private ParamType type;
     private String label;
     private String description;
-
-    public String getAppId() {
-        return appId;
-    }
-
-    public AppParam setAppId(String appId) {
-        this.appId = appId;
-        return this;
-    }
 
     public String getName() {
         return name;
@@ -55,12 +45,6 @@ public class AppParam {
     }
     
     //////////////////////////////////////////
-
-    @Override
-    public String toString() {
-        return "AppParam{" + "appId=" + appId + ", name=" + name + ", type=" + type + ", label=" + label + ", description=" + description + '}';
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -73,9 +57,6 @@ public class AppParam {
             return false;
         }
         final AppParam other = (AppParam) obj;
-        if (!Objects.equals(this.appId, other.appId)) {
-            return false;
-        }
         if (!Objects.equals(this.name, other.name)) {
             return false;
         }

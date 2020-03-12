@@ -5,11 +5,11 @@
  */
 package integration;
 
-import externalapi.appinfo.db.DBAppInfoDAO;
+import externalapi.appinfo.DBAppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
 import externalapi.appparam.models.AppParam;
 import externalapi.appparam.models.ParamType;
-import externalapi.appparam.models.db.DBAppParamDAO;
+import externalapi.appparam.models.DBAppParamDAO;
 import helpers.DBHelper;
 import static integration.DBAppInfoDAOTest.newApp;
 import java.util.Arrays;
@@ -37,12 +37,10 @@ public class DBAppParamDAOTest {
         
         List<AppParam> params = Arrays.asList(
             new AppParam()
-                .setAppId(appId)
                 .setName("algorithm")
                 .setType(ParamType.KEY_VALUE)
                 .setLabel("Algorithm"),
             new AppParam()
-                .setAppId(appId)
                 .setName("file2anonymize")
                 .setType(ParamType.FILE)
                 .setLabel("File to anonymize")

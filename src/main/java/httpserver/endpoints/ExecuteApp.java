@@ -9,7 +9,6 @@ import handlers.ExecuteHandler;
 import httpserver.common.BasicResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import httpserver.providers.Debugging;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -24,13 +23,11 @@ import org.glassfish.jersey.media.multipart.FormDataMultiPart;
  * @author cuong
  */
 
-@Path("/execute")
-@Debugging
+@Path("/app/{appId}/execute")
 public class ExecuteApp {
     @Inject
     private ExecuteHandler handler;
         
-    @Path("/app-{appId}/execute/")
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)

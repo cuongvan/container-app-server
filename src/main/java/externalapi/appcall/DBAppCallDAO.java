@@ -1,11 +1,11 @@
-package externalapi.appcall.db;
+package externalapi.appcall;
 
 import externalapi.appcall.AppCallDAO;
 import externalapi.appcall.models.AppCallResult;
 import externalapi.appcall.models.BatchAppCallResult;
 import externalapi.appcall.models.FileParam;
 import externalapi.appcall.models.KeyValueParam;
-import externalapi.db.DBConnectionPool;
+import externalapi.appparam.DBConnectionPool;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
