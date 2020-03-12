@@ -1,5 +1,7 @@
 package externalapi.appinfo.models;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class AppInfo {
@@ -13,7 +15,8 @@ public class AppInfo {
     private final String description;
     private final SupportLanguage language;
     private final AppStatus status;
-    
+    private final List<AppParam> params;
+
     public String getAppId() {
         return appId;
     }
@@ -52,6 +55,10 @@ public class AppInfo {
 
     public AppStatus getStatus() {
         return status;
+    }
+    
+    public List<AppParam> getParams() {
+        return params;
     }
 
     @Override
@@ -96,10 +103,18 @@ public class AppInfo {
         if (this.status != other.status) {
             return false;
         }
+        if (!Objects.equals(this.params, other.params)) {
+            return false;
+        }
         return true;
     }
 
-    public AppInfo(String appId, String appName, String avatarUrl, AppType type, String slugName, String image, String owner, String description, SupportLanguage language, AppStatus status) {
+    @Override
+    public String toString() {
+        return "AppInfo{" + "appId=" + appId + ", appName=" + appName + ", avatarUrl=" + avatarUrl + ", type=" + type + ", slugName=" + slugName + ", image=" + image + ", owner=" + owner + ", description=" + description + ", language=" + language + ", status=" + status + ", params=" + params + '}';
+    }
+
+    public AppInfo(String appId, String appName, String avatarUrl, AppType type, String slugName, String image, String owner, String description, SupportLanguage language, AppStatus status, List<AppParam> params) {
         this.appId = appId;
         this.appName = appName;
         this.avatarUrl = avatarUrl;
@@ -110,6 +125,7 @@ public class AppInfo {
         this.description = description;
         this.language = language;
         this.status = status;
+        this.params = params;
     }
     
     public static Builder builder() {
@@ -132,6 +148,7 @@ public class AppInfo {
         private String description;
         private SupportLanguage language;
         private AppStatus status;
+        private List<AppParam> params = new ArrayList<>();
 
         public Builder() {
         }
@@ -199,8 +216,13 @@ public class AppInfo {
             return this;
         }
         
+        public Builder addParam(AppParam param) {
+            params.add(param);
+            return this;
+        }
+        
         public AppInfo build() {
-            return new AppInfo(appId, appName, avatarUrl, type, slugName, image, owner, description, language, status);
+            return new AppInfo(appId, appName, avatarUrl, type, slugName, image, owner, description, language, status, params);
         }
     }
 }

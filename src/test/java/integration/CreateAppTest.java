@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
  *
  * @author cuong
  */
-public class DBAppInfoDAOTest {
+public class CreateAppTest {
     DBAppInfoDAO dao = new DBAppInfoDAO(DBHelper.getPool());
     
     @Before
@@ -28,17 +28,16 @@ public class DBAppInfoDAOTest {
 
     @Test
     public void add_then_retrieve() {
-        AppInfo insert = newApp();
-        
+        AppInfo insert = makeNewApp();
         String appId = dao.createApp(insert);
         
         AppInfo getApp = dao.getById(appId);
-        assertEquals(createdApp(insert), getApp);
+        assertEquals(createdApp(insert, appId), getApp);
     }
     
     @Test
     public void delete_app() {
-        AppInfo app = newApp();
+        AppInfo app = makeNewApp();
         
         String appId = dao.createApp(app);
         dao.deleteById(appId);
@@ -46,7 +45,7 @@ public class DBAppInfoDAOTest {
         
     }
     
-    public static AppInfo newApp() {
+    public static AppInfo makeNewApp() {
         return AppInfo.builder()
             .withAppName("show number of rows in csv resource")
             .withType(AppType.BATCH)
@@ -54,7 +53,9 @@ public class DBAppInfoDAOTest {
             .build();
     }
     
-    public static AppInfo createdApp(AppInfo app) {
-        return AppInfo.builder(app).withStatus(AppStatus.CREATED).build();
+    public static AppInfo createdApp(AppInfo app, String appId) {
+        return AppInfo.builder(app)
+            .withAppId(appId)
+            .withStatus(AppStatus.CREATED).build();
     }
 }

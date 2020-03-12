@@ -10,11 +10,11 @@ import externalapi.appinfo.models.AppInfo;
 import externalapi.appinfo.models.AppParam;
 import externalapi.appinfo.models.ParamType;
 import helpers.DBHelper;
-import static integration.DBAppInfoDAOTest.newApp;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.*;
 import static org.junit.Assert.*;
+import static integration.CreateAppTest.makeNewApp;
 
 /**
  *
@@ -30,7 +30,7 @@ public class DBAppParamDAOTest {
 
     @Test
     public void test_update_params() {
-        AppInfo app = newApp();
+        AppInfo app = makeNewApp();
         String appId = appInfoDAO.createApp(app);
         
         List<AppParam> params = Arrays.asList(
