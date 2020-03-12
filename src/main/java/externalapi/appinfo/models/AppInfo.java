@@ -1,114 +1,57 @@
 package externalapi.appinfo.models;
 
-import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.*;
 import java.util.Objects;
 
-@JsonNaming(PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy.class)
 public class AppInfo {
-    private String appId;
-    private String appName;
-    private String avatarUrl;
-    private AppType type;
-    private String slugName;
-    private String image;
-    private String owner;
-    private String description;
-    private SupportLanguage language;
-    private AppStatus status;
+    private final String appId;
+    private final String appName;
+    private final String avatarUrl;
+    private final AppType type;
+    private final String slugName;
+    private final String image;
+    private final String owner;
+    private final String description;
+    private final SupportLanguage language;
+    private final AppStatus status;
     
-
     public String getAppId() {
         return appId;
-    }
-
-    public AppInfo setAppId(String appId) {
-        this.appId = appId;
-        return this;
     }
 
     public String getAppName() {
         return appName;
     }
-
-    public AppInfo setAppName(String appName) {
-        this.appName = appName;
-        return this;
-    }
     
-    @JsonProperty("ava_url")
     public String getAvatarUrl() {
         return avatarUrl;
     }
 
-    @JsonProperty("ava_url")
-    public AppInfo setAvatarUrl(String avatarUrl) {
-        this.avatarUrl = avatarUrl;
-        return this;
-    }
-    
     public AppType getType() {
         return type;
-    }
-
-    public AppInfo setType(AppType type) {
-        this.type = type;
-        return this;
     }
 
     public String getSlugName() {
         return slugName;
     }
 
-    public AppInfo setSlugName(String slugName) {
-        this.slugName = slugName;
-        return this;
-    }
-
     public String getImage() {
         return image;
-    }
-
-    public AppInfo setImage(String image) {
-        this.image = image;
-        return this;
     }
 
     public String getOwner() {
         return owner;
     }
 
-    public AppInfo setOwner(String owner) {
-        this.owner = owner;
-        return this;
-    }
-
     public String getDescription() {
         return description;
-    }
-
-    public AppInfo setDescription(String description) {
-        this.description = description;
-        return this;
     }
 
     public SupportLanguage getLanguage() {
         return language;
     }
 
-    public AppInfo setLanguage(SupportLanguage language) {
-        this.language = language;
-        return this;
-    }
-
     public AppStatus getStatus() {
         return status;
-    }
-
-    public AppInfo setStatus(AppStatus status) {
-        this.status = status;
-        return this;
     }
 
     @Override
@@ -155,5 +98,109 @@ public class AppInfo {
         }
         return true;
     }
+
+    public AppInfo(String appId, String appName, String avatarUrl, AppType type, String slugName, String image, String owner, String description, SupportLanguage language, AppStatus status) {
+        this.appId = appId;
+        this.appName = appName;
+        this.avatarUrl = avatarUrl;
+        this.type = type;
+        this.slugName = slugName;
+        this.image = image;
+        this.owner = owner;
+        this.description = description;
+        this.language = language;
+        this.status = status;
+    }
     
+    public static Builder builder() {
+        return new Builder();
+    }
+    
+    
+    public static Builder builder(AppInfo other) {
+        return new Builder(other);
+    }
+    
+    public static class Builder {
+        private String appId;
+        private String appName;
+        private String avatarUrl;
+        private AppType type = AppType.BATCH;
+        private String slugName;
+        private String image;
+        private String owner;
+        private String description;
+        private SupportLanguage language;
+        private AppStatus status;
+
+        public Builder() {
+        }
+        
+        public Builder(AppInfo other) {
+            this.appId = other.appId;
+            this.appName = other.appName;
+            this.avatarUrl = other.avatarUrl;
+            this.type = other.type;
+            this.slugName = other.slugName;
+            this.image = other.image;
+            this.owner = other.owner;
+            this.description = other.description;
+            this.language = other.language;
+            this.status = other.status;
+        }
+
+        public Builder withAppId(String appId) {
+            this.appId = appId;
+            return this;
+        }
+
+        public Builder withAppName(String appName) {
+            this.appName = appName;
+            return this;
+        }
+
+        public Builder withAvatarUrl(String avatarUrl) {
+            this.avatarUrl = avatarUrl;
+            return this;
+        }
+
+        public Builder withType(AppType type) {
+            this.type = type;
+            return this;
+        }
+
+        public Builder withSlugName(String slugName) {
+            this.slugName = slugName;
+            return this;
+        }
+
+        public Builder withImage(String image) {
+            this.image = image;
+            return this;
+        }
+
+        public Builder withOwner(String owner) {
+            this.owner = owner;
+            return this;
+        }
+
+        public Builder withDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder withLanguage(SupportLanguage language) {
+            this.language = language;
+            return this;
+        }
+
+        public Builder withStatus(AppStatus status) {
+            this.status = status;
+            return this;
+        }
+        
+        public AppInfo build() {
+            return new AppInfo(appId, appName, avatarUrl, type, slugName, image, owner, description, language, status);
+        }
+    }
 }

@@ -33,7 +33,7 @@ public class DBAppInfoDAOTest {
         String appId = dao.createApp(insert);
         
         AppInfo getApp = dao.getById(appId);
-        assertEquals(insert.setStatus(AppStatus.CREATED), getApp);
+        assertEquals(createdApp(insert), getApp);
     }
     
     @Test
@@ -47,10 +47,14 @@ public class DBAppInfoDAOTest {
     }
     
     public static AppInfo newApp() {
-        return new AppInfo()
-            .setAppName("show number of rows in csv resource")
-            .setType(AppType.BATCH)
-            .setLanguage(SupportLanguage.PYTHON)
-            ;
+        return AppInfo.builder()
+            .withAppName("show number of rows in csv resource")
+            .withType(AppType.BATCH)
+            .withLanguage(SupportLanguage.PYTHON)
+            .build();
+    }
+    
+    public static AppInfo createdApp(AppInfo app) {
+        return AppInfo.builder(app).withStatus(AppStatus.CREATED).build();
     }
 }

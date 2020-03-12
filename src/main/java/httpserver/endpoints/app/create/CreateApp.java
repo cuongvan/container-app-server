@@ -31,16 +31,16 @@ public class CreateApp {
         CreateAppRequest request
     ) throws IOException, SQLException
     {
-        AppInfo app = new AppInfo()
-            .setAppName(request.appName)
-            .setAvatarUrl(request.avatarUrl)
-            .setSlugName(request.slugName)
-            .setImage(request.image)
-            .setOwner(request.owner)
-            .setDescription(request.description)
-            .setLanguage(request.language)
-            .setType(AppType.BATCH)//EXTRA: remove field
-            ;
+        AppInfo app = AppInfo.builder()
+            .withAppName(request.appName)
+            .withAvatarUrl(request.avatarUrl)
+            .withSlugName(request.slugName)
+            .withImage(request.image)
+            .withOwner(request.owner)
+            .withDescription(request.description)
+            .withLanguage(request.language)
+            .withType(AppType.BATCH)//EXTRA: remove field
+            .build();
         String appId = appInfoDAO.createApp(app);
         return Response
             .status(Response.Status.CREATED)

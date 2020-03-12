@@ -57,17 +57,18 @@ public class DBAppInfoDAO implements AppInfoDAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (!rs.next())
                     return null;
-                return new AppInfo()
-                    .setAppId(appId)
-                    .setAppName(rs.getString("app_name"))
-                    .setAvatarUrl(rs.getString("ava_url"))
-                    .setType(AppType.valueOf(rs.getString("type")))
-                    .setSlugName(rs.getString("slug_name"))
-                    .setImage(rs.getString("image"))
-                    .setOwner(rs.getString("owner"))
-                    .setDescription(rs.getString("description"))
-                    .setLanguage(SupportLanguage.valueOf(rs.getString("language")))
-                    .setStatus(AppStatus.valueOf(rs.getString("status")))
+                return AppInfo.builder()
+                    .withAppId(appId)
+                    .withAppName(rs.getString("app_name"))
+                    .withAvatarUrl(rs.getString("ava_url"))
+                    .withType(AppType.valueOf(rs.getString("type")))
+                    .withSlugName(rs.getString("slug_name"))
+                    .withImage(rs.getString("image"))
+                    .withOwner(rs.getString("owner"))
+                    .withDescription(rs.getString("description"))
+                    .withLanguage(SupportLanguage.valueOf(rs.getString("language")))
+                    .withStatus(AppStatus.valueOf(rs.getString("status")))
+                    .build()
                     ;
             }
         } catch (SQLException ex) {

@@ -44,6 +44,6 @@ public class ExecuteAnAppTest {
     }
 
     private static AppInfo appWithImage(String image) {
-        return new AppInfo().setImage(image);
+        return AppInfo.builder().withImage(image).build();
     }
 }
