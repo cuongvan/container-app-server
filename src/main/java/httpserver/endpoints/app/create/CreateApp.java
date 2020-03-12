@@ -14,6 +14,7 @@ import externalapi.appinfo.models.AppInfo;
 import externalapi.appinfo.models.AppType;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -50,7 +51,7 @@ public class CreateApp {
     
     
     @JsonNaming(PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy.class)
-    public static class CreateAppRequest {
+    private static class CreateAppRequest {
         public String appName;
         public String avatarUrl;
         public String slugName;

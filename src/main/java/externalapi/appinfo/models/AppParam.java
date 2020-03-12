@@ -3,49 +3,34 @@ package externalapi.appinfo.models;
 import java.util.Objects;
 
 public class AppParam {
-    private String name;
-    private ParamType type;
-    private String label;
-    private String description;
+    private final String name;
+    private final ParamType type;
+    private final String label;
+    private final String description;
 
+    public AppParam(String name, ParamType type, String label, String description) {
+        this.name = name;
+        this.type = type;
+        this.label = label;
+        this.description = description;
+    }
+    
     public String getName() {
         return name;
-    }
-
-    public AppParam setName(String name) {
-        this.name = name;
-        return this;
     }
 
     public ParamType getType() {
         return type;
     }
 
-    public AppParam setType(ParamType type) {
-        this.type = type;
-        return this;
-    }
-
     public String getLabel() {
         return label;
-    }
-
-    public AppParam setLabel(String label) {
-        this.label = label;
-        return this;
     }
 
     public String getDescription() {
         return description;
     }
-
-    public AppParam setDescription(String description) {
-        this.description = description;
-        return this;
-    }
     
-    //////////////////////////////////////////
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -76,5 +61,40 @@ public class AppParam {
     @Override
     public String toString() {
         return "AppParam{" + "name=" + name + ", type=" + type + ", label=" + label + ", description=" + description + '}';
+    }
+    
+    public static Builder builder() {
+        return new Builder();
+    }
+    
+    public static class Builder {
+        private String name;
+        private ParamType type;
+        private String label;
+        private String description;
+        
+        public Builder setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder setType(ParamType type) {
+            this.type = type;
+            return this;
+        }
+
+        public Builder setLabel(String label) {
+            this.label = label;
+            return this;
+        }
+
+        public Builder setDescription(String description) {
+            this.description = description;
+            return this;
+        }
+        
+        public AppParam build() {
+            return new AppParam(name, type, label, description);
+        }
     }
 }

@@ -34,14 +34,14 @@ public class DBAppParamDAOTest {
         String appId = appInfoDAO.createApp(app);
         
         List<AppParam> params = Arrays.asList(
-            new AppParam()
+            AppParam.builder()
                 .setName("algorithm")
                 .setType(ParamType.KEY_VALUE)
-                .setLabel("Algorithm"),
-            new AppParam()
+                .setLabel("Algorithm").build(),
+            AppParam.builder()
                 .setName("file2anonymize")
                 .setType(ParamType.FILE)
-                .setLabel("File to anonymize")
+                .setLabel("File to anonymize").build()
         );
         appInfoDAO.updateParams(appId, params);
         

@@ -36,14 +36,14 @@ public class DBAppCallDAOTest {
     public void create_call() {
         AppInfo app = makeNewApp();
         List<AppParam> params = Arrays.asList(
-            new AppParam()
+            AppParam.builder()
                 .setName("algorithm")
                 .setType(ParamType.KEY_VALUE)
-                .setLabel("Algorithm"),
-            new AppParam()
+                .setLabel("Algorithm").build(),
+            AppParam.builder()
                 .setName("file2anonymize")
                 .setType(ParamType.FILE)
-                .setLabel("File to anonymize")
+                .setLabel("File to anonymize").build()
         );
         
         

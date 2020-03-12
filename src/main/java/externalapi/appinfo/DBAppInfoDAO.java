@@ -110,12 +110,11 @@ public class DBAppInfoDAO implements AppInfoDAO {
                 stmt.setString(1, appId);
                 try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {
-                        builder.addParam(new AppParam()
+                        builder.addParam(AppParam.builder()
                             .setName(rs.getString("name"))
                             .setType(ParamType.valueOf(rs.getString("type")))
                             .setLabel(rs.getString("label"))
-                            .setDescription(rs.getString("description"))
-                        );
+                            .setDescription(rs.getString("description")).build());
                     }
                 }
             }
@@ -178,12 +177,11 @@ public class DBAppInfoDAO implements AppInfoDAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 List<AppParam> params = new ArrayList<>();
                 while (rs.next()) {
-                    params.add(new AppParam()
+                    params.add(AppParam.builder()
                         .setName(rs.getString("name"))
                         .setType(ParamType.valueOf(rs.getString("type")))
                         .setLabel(rs.getString("label"))
-                        .setDescription(rs.getString("description"))
-                    );
+                        .setDescription(rs.getString("description")).build());
                 }
                 return params;
             }

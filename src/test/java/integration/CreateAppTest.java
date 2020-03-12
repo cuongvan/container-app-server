@@ -34,14 +34,14 @@ public class CreateAppTest {
             .withAppName("show number of rows in csv resource")
             .withType(AppType.BATCH)
             .withLanguage(SupportLanguage.PYTHON)
-            .addParam(new AppParam()
+            .addParam(AppParam.builder()
                 .setName("algorithm")
                 .setType(ParamType.KEY_VALUE)
-                .setLabel("Algorithm"))
-            .addParam(new AppParam()
+                .setLabel("Algorithm").build())
+            .addParam(AppParam.builder()
                 .setName("file2anonymize")
                 .setType(ParamType.FILE)
-                .setLabel("File to anonymize"))
+                .setLabel("File to anonymize").build())
             .build();
         
         String appId = dao.createApp(addNew);
