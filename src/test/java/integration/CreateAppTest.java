@@ -10,6 +10,8 @@ import externalapi.appinfo.models.AppStatus;
 import externalapi.appinfo.models.AppType;
 import externalapi.appinfo.models.SupportLanguage;
 import externalapi.appinfo.DBAppInfoDAO;
+import externalapi.appinfo.models.AppParam;
+import externalapi.appinfo.models.ParamType;
 import helpers.DBHelper;
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -28,11 +30,28 @@ public class CreateAppTest {
 
     @Test
     public void add_then_retrieve() {
-        AppInfo insert = makeNewApp();
-        String appId = dao.createApp(insert);
+        AppInfo addNew = AppInfo.builder()
+            .withAppName("show number of rows in csv resource")
+            .withType(AppType.BATCH)
+            .withLanguage(SupportLanguage.PYTHON)
+            .addParam(new AppParam()
+                .setName("algorithm")
+                .setType(ParamType.KEY_VALUE)
+                .setLabel("Algorithm"))
+            .addParam(new AppParam()
+                .setName("file2anonymize")
+                .setType(ParamType.FILE)
+                .setLabel("File to anonymize"))
+            .build();
         
-        AppInfo getApp = dao.getById(appId);
-        assertEquals(createdApp(insert, appId), getApp);
+        String appId = dao.createApp(addNew);
+        
+        AppInfo added = createdApp(addNew, appId);
+        AppInfo gotOut = dao.getById(appId);
+        System.out.println(added);
+        System.out.println(gotOut);
+        
+        assertEquals(added, gotOut);
     }
     
     @Test

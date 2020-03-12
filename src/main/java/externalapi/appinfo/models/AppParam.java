@@ -72,4 +72,9 @@ public class AppParam {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "AppParam{" + "name=" + name + ", type=" + type + ", label=" + label + ", description=" + description + '}';
+    }
 }

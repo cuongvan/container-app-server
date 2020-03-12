@@ -22,9 +22,6 @@ public class DBHelper {
         createCallParamTable();
     }
     
-    
-    
-    
     private static void createAppInfoTable() {
         update(
             "CREATE TABLE IF NOT EXISTS app_info (\n" +
@@ -98,5 +95,24 @@ public class DBHelper {
     
     public static void dropTables() {
         update("DROP TABLE IF EXISTS app_info, app_param, app_call, call_param");
+    }
+    
+    public static void close(Connection connection) {
+        if (connection != null)
+            try {
+                connection.close();
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    
+    public static void rollback(Connection connection) {
+        try {
+            if (connection != null) {
+                connection.rollback();
+            }
+        } catch (SQLException ex1) {
+            ex1.printStackTrace();
+        }
     }
 }

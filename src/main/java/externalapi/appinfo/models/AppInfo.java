@@ -125,8 +125,9 @@ public class AppInfo {
         this.description = description;
         this.language = language;
         this.status = status;
-        this.params = params;
+        this.params = new ArrayList<>(params);
     }
+
     
     public static Builder builder() {
         return new Builder();
@@ -164,6 +165,7 @@ public class AppInfo {
             this.description = other.description;
             this.language = other.language;
             this.status = other.status;
+            this.params = new ArrayList<>(other.params);
         }
 
         public Builder withAppId(String appId) {
@@ -217,7 +219,7 @@ public class AppInfo {
         }
         
         public Builder addParam(AppParam param) {
-            params.add(param);
+            this.params.add(param);
             return this;
         }
         
