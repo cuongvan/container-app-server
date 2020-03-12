@@ -14,8 +14,6 @@ import workers.WatchingContainerWorker;
 import externalapi.appcall.AppCallDAO;
 import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.DBAppInfoDAO;
-import externalapi.appparam.AppParamDAO;
-import externalapi.appparam.DBAppParamDAO;
 import externalapi.DBConnectionPool;
 import helpers.DBHelper;
 import org.eclipse.jetty.server.Server;
@@ -49,7 +47,6 @@ public class Main {
                 bind(AppConfig.class).toProvider(() -> AppConfig.Inst);
                 bind(DBConnectionPool.class).toProvider(() -> DBHelper.getPool());
                 bind(AppInfoDAO.class).to(DBAppInfoDAO.class);
-                bind(AppParamDAO.class).to(DBAppParamDAO.class);
                 bind(AppCallDAO.class).to(DBAppCallDAO.class);
             }
         });

@@ -7,9 +7,8 @@ import externalapi.appcall.models.FileParam;
 import externalapi.appcall.models.KeyValueParam;
 import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
-import externalapi.appparam.models.AppParam;
-import externalapi.appparam.AppParamDAO;
-import externalapi.appparam.models.ParamType;
+import externalapi.appinfo.models.AppParam;
+import externalapi.appinfo.models.ParamType;
 import java.io.IOException;
 import static java.lang.String.format;
 import java.nio.file.Files;
@@ -27,15 +26,12 @@ public class ExecuteHandler {
     private DockerAdapter docker;
     private AppInfoDAO appInfoDAO;
     private AppCallDAO appCallDAO;
-    private AppParamDAO appParamDAO;
 
     @Inject
-    public ExecuteHandler(DockerAdapter docker, AppInfoDAO appInfoDAO, AppCallDAO appCallDAO, AppParamDAO appParamDAO) {
+    public ExecuteHandler(DockerAdapter docker, AppInfoDAO appInfoDAO, AppCallDAO appCallDAO) {
         this.docker = docker;
-        System.out.println("dao: " + appInfoDAO);
         this.appInfoDAO = appInfoDAO;
         this.appCallDAO = appCallDAO;
-        this.appParamDAO = appParamDAO;
     }
 
 
@@ -46,7 +42,7 @@ public class ExecuteHandler {
             
         }
         
-        List<AppParam> appParams = appParamDAO.getAppParams(appId);
+        List<AppParam> appParams = appInfoDAO.getAppParams(appId);
 
         List<KeyValueParam> keyValueParams = appParams
             .stream()

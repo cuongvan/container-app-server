@@ -7,9 +7,8 @@ package integration;
 
 import externalapi.appinfo.DBAppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
-import externalapi.appparam.models.AppParam;
-import externalapi.appparam.models.ParamType;
-import externalapi.appparam.DBAppParamDAO;
+import externalapi.appinfo.models.AppParam;
+import externalapi.appinfo.models.ParamType;
 import helpers.DBHelper;
 import static integration.DBAppInfoDAOTest.newApp;
 import java.util.Arrays;
@@ -23,7 +22,6 @@ import static org.junit.Assert.*;
  */
 public class DBAppParamDAOTest {
     DBAppInfoDAO appInfoDAO = new DBAppInfoDAO(DBHelper.getPool());
-    DBAppParamDAO appParamDAO = new DBAppParamDAO(DBHelper.getPool());
     
     @Before
     public void setUp() {
@@ -45,9 +43,9 @@ public class DBAppParamDAOTest {
                 .setType(ParamType.FILE)
                 .setLabel("File to anonymize")
         );
-        appParamDAO.updateParams(appId, params);
+        appInfoDAO.updateParams(appId, params);
         
-        List<AppParam> params2 = appParamDAO.getAppParams(appId);
+        List<AppParam> params2 = appInfoDAO.getAppParams(appId);
         
         
         assertEquals(params2, params);

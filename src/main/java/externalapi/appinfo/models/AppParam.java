@@ -1,4 +1,4 @@
-package externalapi.appparam.models;
+package externalapi.appinfo.models;
 
 import java.util.Objects;
 

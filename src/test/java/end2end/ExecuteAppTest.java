@@ -1,9 +1,8 @@
 package end2end;
 
 import externalapi.appinfo.DBAppInfoDAO;
-import externalapi.appparam.models.AppParam;
-import externalapi.appparam.models.ParamType;
-import externalapi.appparam.DBAppParamDAO;
+import externalapi.appinfo.models.AppParam;
+import externalapi.appinfo.models.ParamType;
 import helpers.DBHelper;
 import helpers.TestConstants;
 import static helpers.TestHelper.createNewApp;
@@ -19,7 +18,6 @@ import org.junit.*;
 public class ExecuteAppTest {
     
     DBAppInfoDAO appInfoDAO = new DBAppInfoDAO(DBHelper.getPool());
-    DBAppParamDAO appParamDAO = new DBAppParamDAO(DBHelper.getPool());
     
     @BeforeClass
     public static void setup() throws Exception {
@@ -46,7 +44,7 @@ public class ExecuteAppTest {
                 .setType(ParamType.FILE)
                 .setLabel("File to anonymize")
         );
-        appParamDAO.updateParams(appId, params);
+        appInfoDAO.updateParams(appId, params);
         
         File file = File.createTempFile("file", "");
         file.deleteOnExit();

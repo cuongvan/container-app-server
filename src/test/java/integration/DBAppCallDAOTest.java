@@ -11,9 +11,8 @@ import externalapi.appcall.models.FileParam;
 import externalapi.appcall.models.KeyValueParam;
 import externalapi.appinfo.DBAppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
-import externalapi.appparam.models.AppParam;
-import externalapi.appparam.models.ParamType;
-import externalapi.appparam.DBAppParamDAO;
+import externalapi.appinfo.models.AppParam;
+import externalapi.appinfo.models.ParamType;
 import helpers.DBHelper;
 import static integration.DBAppInfoDAOTest.newApp;
 import java.util.Arrays;
@@ -26,7 +25,6 @@ import org.junit.*;
  */
 public class DBAppCallDAOTest {
     DBAppInfoDAO appInfoDao = new DBAppInfoDAO(DBHelper.getPool());
-    DBAppParamDAO appParamDao = new DBAppParamDAO(DBHelper.getPool());
     AppCallDAO appCallDAO = new DBAppCallDAO(DBHelper.getPool());
     
     @Before
@@ -50,7 +48,7 @@ public class DBAppCallDAOTest {
         
         
         String appId = appInfoDao.createApp(app);
-        appParamDao.updateParams(appId, params);
+        appInfoDao.updateParams(appId, params);
         
         appCallDAO.createNewCall(appId, DBAppCallDAO.ANONYMOUS_USER,
             Arrays.asList(new KeyValueParam("algorithm", "k-anonymity")),
