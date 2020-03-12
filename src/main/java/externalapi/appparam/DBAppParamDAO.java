@@ -1,9 +1,8 @@
-package externalapi.appparam.models;
+package externalapi.appparam;
 
+import externalapi.DBConnectionPool;
 import externalapi.appparam.models.AppParam;
-import externalapi.appparam.AppParamDAO;
 import externalapi.appparam.models.ParamType;
-import externalapi.appparam.DBConnectionPool;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

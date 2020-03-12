@@ -7,12 +7,12 @@ package httpserver.endpoints;
 
 import handlers.ExecuteHandler;
 import httpserver.common.BasicResponse;
+import java.io.IOException;
+import java.util.HashMap;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.io.IOException;
-import java.util.List;
 import java.util.Map;
-import static java.util.stream.Collectors.toMap;
+import java.util.Set;
 import javax.inject.Inject;
 import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
@@ -35,27 +35,28 @@ public class ExecuteApp {
         @PathParam("appId") String appId,
         @QueryParam("userId") String userId,
         FormDataMultiPart body
-    ){
-        Map<String, List<FormDataBodyPart>> allFiles = body.getFields();
-        // get first file of each key
-        Map<String, FormDataBodyPart> files = allFiles
-            .entrySet()
-            .stream()
-            .collect(toMap(
-                Map.Entry::getKey,
-                e -> e.getValue().get(0)
-            ));
+    ) throws IOException 
+    {
+        Map<String, byte[]> fields = getFieldsContent(body);
+        String callId = handler.execute(appId, userId, fields);
+        return Response
+            .ok(new ExecuteResponseSuccess(callId))
+            .status(HttpStatus.ACCEPTED_202)
+            .type(MediaType.APPLICATION_JSON)
+            .build();
+    }
+    
+    private static Map<String, byte[]> getFieldsContent(FormDataMultiPart body) {
+        Map<String, byte[]> map = new HashMap<>();
         
-        try {
-            String callId = handler.execute(appId, userId, files);
-            return Response
-                .ok(new ExecuteResponseSuccess(callId))
-                .status(HttpStatus.ACCEPTED_202)
-                .type(MediaType.APPLICATION_JSON)
-                .build();
-        } catch (IOException ex) {
-            throw new RuntimeException(ex); 
+        Set<String> fields = body.getFields().keySet();
+        for (String field : fields) {
+            FormDataBodyPart fieldContent = body.getField(field);
+            byte[] content = fieldContent.getEntityAs(byte[].class);
+            map.put(field, content);
         }
+        
+        return map;
     }
     
     private static class ExecuteResponseSuccess extends BasicResponse {

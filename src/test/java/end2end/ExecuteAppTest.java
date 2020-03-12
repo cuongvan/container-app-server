@@ -3,7 +3,7 @@ package end2end;
 import externalapi.appinfo.DBAppInfoDAO;
 import externalapi.appparam.models.AppParam;
 import externalapi.appparam.models.ParamType;
-import externalapi.appparam.models.DBAppParamDAO;
+import externalapi.appparam.DBAppParamDAO;
 import helpers.DBHelper;
 import helpers.TestConstants;
 import static helpers.TestHelper.createNewApp;

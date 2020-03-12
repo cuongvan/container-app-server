@@ -1,4 +1,4 @@
-package externalapi.appparam;
+package externalapi;
 
 
 import common.AppConfig;

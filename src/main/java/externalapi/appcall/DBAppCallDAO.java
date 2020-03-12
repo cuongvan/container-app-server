@@ -1,11 +1,11 @@
 package externalapi.appcall;
 
-import externalapi.appcall.AppCallDAO;
 import externalapi.appcall.models.AppCallResult;
 import externalapi.appcall.models.BatchAppCallResult;
 import externalapi.appcall.models.FileParam;
 import externalapi.appcall.models.KeyValueParam;
-import externalapi.appparam.DBConnectionPool;
+import externalapi.DBConnectionPool;
+import helpers.MiscHelper;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -26,20 +26,25 @@ public class DBAppCallDAO implements AppCallDAO {
     }
 
     @Override
-    public void createNewCall(String callId, String appId, String userId, List<KeyValueParam> keyValueParams, List<FileParam> fileParams) {
+    public String createNewCall(String appId, String userId, List<KeyValueParam> keyValueParams, List<FileParam> fileParams) {
+        String callId = MiscHelper.newId();
         try (Connection conn = dbPool.getNonAutoCommitConnection()) {
+            
             insertAppCallRow(conn, callId, appId, userId);
+            
             for (KeyValueParam p : keyValueParams)
                 insertTextCallParam(conn, callId, p);
+            
             for (FileParam p : fileParams)
                 insertFileCallParam(conn, callId, p);
             conn.commit();
+            return callId;
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
     }
 
-    private void insertAppCallRow(final Connection conn, String callId, String appId, String userId) throws SQLException {
+    private void insertAppCallRow(Connection conn, String callId, String appId, String userId) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement (
             "INSERT INTO app_call (call_id, app_id, user_id) VALUES (?, ?, ?)")) {
             stmt.setString(1, callId);

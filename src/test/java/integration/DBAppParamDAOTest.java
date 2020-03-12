@@ -9,7 +9,7 @@ import externalapi.appinfo.DBAppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
 import externalapi.appparam.models.AppParam;
 import externalapi.appparam.models.ParamType;
-import externalapi.appparam.models.DBAppParamDAO;
+import externalapi.appparam.DBAppParamDAO;
 import helpers.DBHelper;
 import static integration.DBAppInfoDAOTest.newApp;
 import java.util.Arrays;

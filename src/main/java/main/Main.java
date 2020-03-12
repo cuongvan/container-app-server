@@ -15,8 +15,8 @@ import externalapi.appcall.AppCallDAO;
 import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.DBAppInfoDAO;
 import externalapi.appparam.AppParamDAO;
-import externalapi.appparam.models.DBAppParamDAO;
-import externalapi.appparam.DBConnectionPool;
+import externalapi.appparam.DBAppParamDAO;
+import externalapi.DBConnectionPool;
 import helpers.DBHelper;
 import org.eclipse.jetty.server.Server;
 

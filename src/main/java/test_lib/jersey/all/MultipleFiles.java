@@ -1,5 +1,6 @@
 package test_lib.jersey.all;
 
+import java.util.Arrays;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -27,6 +28,15 @@ public class MultipleFiles {
             return "" + multiPart.getFields();
         }
         return "no body";
+    }
+    
+    @Path("/2")
+    @POST
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public String post2(FormDataMultiPart body) {
+        byte[] file = body.getField("file").getEntityAs(byte[].class);
+        //return "File: " + new String(file);
+        return Arrays.toString(file);
     }
     
 //    public String post(FormDataMultiPart body) {

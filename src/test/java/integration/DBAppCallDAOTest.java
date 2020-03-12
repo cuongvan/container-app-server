@@ -5,6 +5,7 @@
  */
 package integration;
 
+import externalapi.appcall.AppCallDAO;
 import externalapi.appcall.DBAppCallDAO;
 import externalapi.appcall.models.FileParam;
 import externalapi.appcall.models.KeyValueParam;
@@ -12,7 +13,7 @@ import externalapi.appinfo.DBAppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
 import externalapi.appparam.models.AppParam;
 import externalapi.appparam.models.ParamType;
-import externalapi.appparam.models.DBAppParamDAO;
+import externalapi.appparam.DBAppParamDAO;
 import helpers.DBHelper;
 import static integration.DBAppInfoDAOTest.newApp;
 import java.util.Arrays;
@@ -26,7 +27,7 @@ import org.junit.*;
 public class DBAppCallDAOTest {
     DBAppInfoDAO appInfoDao = new DBAppInfoDAO(DBHelper.getPool());
     DBAppParamDAO appParamDao = new DBAppParamDAO(DBHelper.getPool());
-    DBAppCallDAO appCallDAO = new DBAppCallDAO(DBHelper.getPool());
+    AppCallDAO appCallDAO = new DBAppCallDAO(DBHelper.getPool());
     
     @Before
     public void setUp() {
@@ -51,8 +52,7 @@ public class DBAppCallDAOTest {
         String appId = appInfoDao.createApp(app);
         appParamDao.updateParams(appId, params);
         
-        String callId = "9999";
-        appCallDAO.createNewCall(callId, appId, DBAppCallDAO.ANONYMOUS_USER,
+        appCallDAO.createNewCall(appId, DBAppCallDAO.ANONYMOUS_USER,
             Arrays.asList(new KeyValueParam("algorithm", "k-anonymity")),
             Arrays.asList(new FileParam("file2anonymize", "/tmp/aaa"))
         );
