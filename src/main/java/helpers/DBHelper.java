@@ -31,10 +31,9 @@ public class DBHelper {
             "	type TEXT,\n" +
             "    slug_name TEXT,\n" +
             "	image TEXT,\n" +
+            "    image_id TEXT,\n" +
             "	owner TEXT,\n" +
             "    description TEXT,\n" +
-            "	host_port int,\n" +
-            "    container_port int,\n" +
             "	language TEXT,\n" +
             "    status TEXT\n" +
             ");"
@@ -60,6 +59,7 @@ public class DBHelper {
             "    app_id TEXT NOT NULL,\n" +
             "    user_id TEXT,\n" +
             "    elapsed_seconds BIGINT,\n" +
+            "    status TEXT,\n" +
             "    output TEXT\n" +
             ");"
         );

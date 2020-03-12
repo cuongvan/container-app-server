@@ -1,6 +1,5 @@
 package all;
 
-import common.AppConfig;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -11,7 +10,4 @@ import org.junit.runners.Suite;
     EndToEndTests.class
 })
 public class All {
-    static {
-        AppConfig.RUNNING_MODE = AppConfig.RunningMode.TEST;
-    }
 }

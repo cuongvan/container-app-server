@@ -35,23 +35,19 @@ public class ExecuteHandler {
     }
 
 
-    public String execute(String appId, String userId, Map<String, byte[]> files) throws IOException {
+    public String/*error*/ execute(String appId, String userId, Map<String, byte[]> files) throws IOException {
         AppInfo appInfo = appInfoDAO.getById(appId);
-        String image = appInfo.getImage();
-        if (image == null) {
-            
-        }
+        if (appInfo.getImageId() == null)
+            return "App has not been built yet";
         
-        List<AppParam> appParams = appInfoDAO.getAppParams(appId);
-
-        List<KeyValueParam> keyValueParams = appParams
+        List<KeyValueParam> keyValueParams = appInfo.getParams()
             .stream()
             .filter(p -> p.getType() == ParamType.KEY_VALUE)
             .map(p -> processKeyValueParam(p, files.get(p.getName())))
             .collect(toList());
             
         List<FileParam> fileParams = new ArrayList<>();
-        for (AppParam appParam : appParams) {
+        for (AppParam appParam : appInfo.getParams()) {
             if (appParam.getType() == ParamType.FILE)
                 fileParams.add(processFileParam("aabbccdd", appParam, files.get(appParam.getName())));
         }
@@ -74,9 +70,8 @@ public class ExecuteHandler {
                 p -> fileParamMountPath(p.getName())
             ));
         
-        String imageName = appInfo.getImage();
-        docker.createAndStartContainer(imageName, environments, mounts);
-        return callId;
+        docker.createAndStartContainer(appInfo.getImageId(), environments, mounts);
+        return "";
     }
     
     private KeyValueParam processKeyValueParam(AppParam appParam, byte[] fileContent) {
@@ -85,7 +80,7 @@ public class ExecuteHandler {
     }
     private FileParam processFileParam(String callId, AppParam appParam, byte[] fileContent) throws IOException {
         String filename = format("%s-%s", callId, appParam.getName());
-        Path filePath = Paths.get(Consts.APP_INPUT_FILES_DIR, filename);
+        Path filePath = Paths.get(Consts.APP_INPUT_FILES_DIR, filename).toAbsolutePath().normalize();
         
         Files.write(filePath, fileContent);
         return new FileParam(appParam.getName(), filePath.toString());

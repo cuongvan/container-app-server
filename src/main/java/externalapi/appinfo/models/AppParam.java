@@ -73,22 +73,22 @@ public class AppParam {
         private String label;
         private String description;
         
-        public Builder setName(String name) {
+        public Builder withName(String name) {
             this.name = name;
             return this;
         }
 
-        public Builder setType(ParamType type) {
+        public Builder withType(ParamType type) {
             this.type = type;
             return this;
         }
 
-        public Builder setLabel(String label) {
+        public Builder withLabel(String label) {
             this.label = label;
             return this;
         }
 
-        public Builder setDescription(String description) {
+        public Builder withDescription(String description) {
             this.description = description;
             return this;
         }

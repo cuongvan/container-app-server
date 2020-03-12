@@ -75,8 +75,8 @@ public class DBAppInfoDAO implements AppInfoDAO {
 
     @Override
     public AppInfo getById(String appId) {
-        String selectAppInfo = "SELECT app_id, app_name, ava_url, type, slug_name, image, "
-            + "owner, description, host_port, container_port, language, status\n" 
+        String selectAppInfo = "SELECT app_id, app_name, ava_url, type, slug_name, image, image_id, "
+            + "owner, description, language, status\n" 
             + "FROM app_info WHERE app_id = ?";
         
         String selectAppParams = "SELECT name, type, label, description\n" +
@@ -98,6 +98,7 @@ public class DBAppInfoDAO implements AppInfoDAO {
                         .withType(AppType.valueOf(rs.getString("type")))
                         .withSlugName(rs.getString("slug_name"))
                         .withImage(rs.getString("image"))
+                        .withImageId(rs.getString("image_id"))
                         .withOwner(rs.getString("owner"))
                         .withDescription(rs.getString("description"))
                         .withLanguage(SupportLanguage.valueOf(rs.getString("language")))
@@ -111,10 +112,10 @@ public class DBAppInfoDAO implements AppInfoDAO {
                 try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {
                         builder.addParam(AppParam.builder()
-                            .setName(rs.getString("name"))
-                            .setType(ParamType.valueOf(rs.getString("type")))
-                            .setLabel(rs.getString("label"))
-                            .setDescription(rs.getString("description")).build());
+                            .withName(rs.getString("name"))
+                            .withType(ParamType.valueOf(rs.getString("type")))
+                            .withLabel(rs.getString("label"))
+                            .withDescription(rs.getString("description")).build());
                     }
                 }
             }
@@ -136,6 +137,20 @@ public class DBAppInfoDAO implements AppInfoDAO {
             PreparedStatement stmt = connection.prepareStatement(query);
         ) {
             stmt.setString(1, appId);
+            stmt.executeUpdate();
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    
+    @Override
+    public void updateImageId(String appId, String imageId) {
+        String query = "UPDATE app_info SET image_id = ? WHERE app_id = ?";
+        try (Connection connection = dbPool.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(query);
+        ) {
+            stmt.setString(1, imageId);
+            stmt.setString(2, appId);
             stmt.executeUpdate();
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
@@ -178,10 +193,10 @@ public class DBAppInfoDAO implements AppInfoDAO {
                 List<AppParam> params = new ArrayList<>();
                 while (rs.next()) {
                     params.add(AppParam.builder()
-                        .setName(rs.getString("name"))
-                        .setType(ParamType.valueOf(rs.getString("type")))
-                        .setLabel(rs.getString("label"))
-                        .setDescription(rs.getString("description")).build());
+                        .withName(rs.getString("name"))
+                        .withType(ParamType.valueOf(rs.getString("type")))
+                        .withLabel(rs.getString("label"))
+                        .withDescription(rs.getString("description")).build());
                 }
                 return params;
             }

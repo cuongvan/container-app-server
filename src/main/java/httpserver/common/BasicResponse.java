@@ -21,4 +21,12 @@ public class BasicResponse {
     public BasicResponse(String error) {
         this.error = error;
     }
+    
+    public static BasicResponse success() {
+        return new BasicResponse("");
+    }
+    
+    public static BasicResponse fail(String error) {
+        return new BasicResponse(error);
+    }
 }

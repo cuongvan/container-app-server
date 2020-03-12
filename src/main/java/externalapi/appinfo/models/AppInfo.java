@@ -11,6 +11,7 @@ public class AppInfo {
     private final AppType type;
     private final String slugName;
     private final String image;
+    private final String imageId;
     private final String owner;
     private final String description;
     private final SupportLanguage language;
@@ -41,6 +42,10 @@ public class AppInfo {
         return image;
     }
 
+    public String getImageId() {
+        return imageId;
+    }
+    
     public String getOwner() {
         return owner;
     }
@@ -114,20 +119,21 @@ public class AppInfo {
         return "AppInfo{" + "appId=" + appId + ", appName=" + appName + ", avatarUrl=" + avatarUrl + ", type=" + type + ", slugName=" + slugName + ", image=" + image + ", owner=" + owner + ", description=" + description + ", language=" + language + ", status=" + status + ", params=" + params + '}';
     }
 
-    public AppInfo(String appId, String appName, String avatarUrl, AppType type, String slugName, String image, String owner, String description, SupportLanguage language, AppStatus status, List<AppParam> params) {
+    public AppInfo(String appId, String appName, String avatarUrl, AppType type, String slugName, String image, String imageId, String owner, String description, SupportLanguage language, AppStatus status, List<AppParam> params) {
         this.appId = appId;
         this.appName = appName;
         this.avatarUrl = avatarUrl;
         this.type = type;
         this.slugName = slugName;
         this.image = image;
+        this.imageId = imageId;
         this.owner = owner;
         this.description = description;
         this.language = language;
         this.status = status;
         this.params = new ArrayList<>(params);
     }
-
+    
     
     public static Builder builder() {
         return new Builder();
@@ -145,6 +151,7 @@ public class AppInfo {
         private AppType type = AppType.BATCH;
         private String slugName;
         private String image;
+        private String imageId;
         private String owner;
         private String description;
         private SupportLanguage language;
@@ -198,6 +205,11 @@ public class AppInfo {
             return this;
         }
 
+        public Builder withImageId(String imageId) {
+            this.imageId = imageId;
+            return this;
+        }
+        
         public Builder withOwner(String owner) {
             this.owner = owner;
             return this;
@@ -224,7 +236,7 @@ public class AppInfo {
         }
         
         public AppInfo build() {
-            return new AppInfo(appId, appName, avatarUrl, type, slugName, image, owner, description, language, status, params);
+            return new AppInfo(appId, appName, avatarUrl, type, slugName, image, imageId, owner, description, language, status, params);
         }
     }
 }

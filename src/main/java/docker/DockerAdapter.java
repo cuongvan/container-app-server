@@ -87,7 +87,7 @@ public class DockerAdapter {
         List<Bind> binds = new ArrayList<>();
         mounts.forEach((localPath, containerPath) -> {
             Volume vol = new Volume(containerPath);
-            Bind bind = new Bind(localPath, vol, true);
+            Bind bind = new Bind(localPath, vol);
             volumes.add(vol);
             binds.add(bind);
         });
@@ -97,7 +97,8 @@ public class DockerAdapter {
             .stream()
             .map(e -> e.getKey() + "=" + e.getValue()) // VARIABLE=value
             .collect(toList());
-            
+        
+        System.out.println(mounts);
         
         DockerClient docker = newClient();
         try {
@@ -145,9 +146,9 @@ public class DockerAdapter {
                     // DEBUG
                     @Override
                     public void onNext(BuildResponseItem item) {
-                        if (AppConfig.RUNNING_MODE == AppConfig.RunningMode.DEBUG && item.getStream() != null) {
-                            System.out.println(item.getStream().trim());
-                        }
+//                        if (item.getStream() != null) {
+//                            System.out.println(item.getStream().trim());
+//                        }
                         super.onNext(item);
                     }
 
@@ -182,7 +183,7 @@ public class DockerAdapter {
                 .exec(new EventsResultCallback() {
                     @Override
                     public void onNext(Event item) {
-
+                        handler.accept(item.getId());
                     }
                 }).awaitCompletion();
         } finally {

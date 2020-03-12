@@ -3,21 +3,21 @@ package externalapi.appcall.models;
 public class AppCallResult {
     private String containerId;
     private boolean success;
-    private long duration;
+    private long elapsedSeconds;
     private String stdout;
     private String stderr;
 
-    public AppCallResult(String containerId, boolean success, long duration, String stdout, String stderr) {
+    public AppCallResult(String containerId, boolean success, long elapsedSeconds, String stdout, String stderr) {
         this.containerId = containerId;
         this.success = success;
-        this.duration = duration;
+        this.elapsedSeconds = elapsedSeconds;
         this.stdout = stdout;
         this.stderr = stderr;
     }
 
     @Override
     public String toString() {
-        return "AppCallResult{" + "containerId=" + containerId + ", success=" + success + ", duration=" + duration + ", stdout=" + stdout.trim() + ", stderr=" + stderr.trim() + '}';
+        return "AppCallResult{" + "containerId=" + containerId + ", success=" + success + ", duration=" + elapsedSeconds + ", stdout=" + stdout.trim() + ", stderr=" + stderr.trim() + '}';
     }
     
     
@@ -37,7 +37,7 @@ public class AppCallResult {
         return stderr;
     }
 
-    public long getDuration() {
-        return duration;
+    public long getElapsedSeconds() {
+        return elapsedSeconds;
     }
 }

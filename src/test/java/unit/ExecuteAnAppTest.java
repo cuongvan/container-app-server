@@ -28,7 +28,7 @@ public class ExecuteAnAppTest {
 
     @Test
     public void executeFoundApp() throws IOException {
-        when(appInfoDAO.getById("app-id")).thenReturn(appWithImage("app-image"));
+        when(appInfoDAO.getById("app-id")).thenReturn(appWithImageId("app-image"));
         
         HashMap<String, byte[]> files = new HashMap<String, byte[]>() {{
             put("datasetId", "123".getBytes());
@@ -40,7 +40,7 @@ public class ExecuteAnAppTest {
         verify(appCallDAO).createNewCall(eq("app-id"), eq("user-id"), anyList(), anyList());
     }
 
-    private static AppInfo appWithImage(String image) {
-        return AppInfo.builder().withImage(image).build();
+    private static AppInfo appWithImageId(String imageId) {
+        return AppInfo.builder().withImageId(imageId).build();
     }
 }

@@ -9,6 +9,8 @@ public interface AppInfoDAO {
     AppInfo getById(String appId);
     void deleteById(String appId);
     
+    void updateImageId(String appId, String imageId);
+    
     void updateParams(String appId, List<AppParam> params);
     List<AppParam> getAppParams(String appId);
 }

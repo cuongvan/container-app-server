@@ -40,6 +40,7 @@ public class BuildAppHandler {
             codeZipFile.close();
             String imageId = docker.buildImage(dir.toString(), appInfo.getImage());
             LOG.info("Image built: " + imageId);
+            appInfoDAO.updateImageId(appId, imageId);
         }
     }
 

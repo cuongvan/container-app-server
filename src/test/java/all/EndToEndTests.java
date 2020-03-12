@@ -6,8 +6,8 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    BuildAppTest.class,
-    CreateAppTests.class,
+    CreateAndBuildAppTest.class,
+    ExecuteAppTest.class
 })
 public class EndToEndTests {
 

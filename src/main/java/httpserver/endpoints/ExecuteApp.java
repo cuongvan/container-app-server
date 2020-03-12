@@ -38,12 +38,20 @@ public class ExecuteApp {
     ) throws IOException 
     {
         Map<String, byte[]> fields = getFieldsContent(body);
-        String callId = handler.execute(appId, userId, fields);
-        return Response
-            .ok(new ExecuteResponseSuccess(callId))
+        String error = handler.execute(appId, userId, fields);
+        if ("".equals(error)) {
+            return Response
+            .ok(BasicResponse.OK)
             .status(HttpStatus.ACCEPTED_202)
             .type(MediaType.APPLICATION_JSON)
             .build();
+        } else {
+            return Response
+                .ok(BasicResponse.fail(error))
+                .status(HttpStatus.BAD_REQUEST_400)
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+        }
     }
     
     private static Map<String, byte[]> getFieldsContent(FormDataMultiPart body) {

@@ -1,18 +1,19 @@
 package end2end;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import externalapi.appinfo.DBAppInfoDAO;
-import externalapi.appinfo.models.AppParam;
-import externalapi.appinfo.models.ParamType;
 import helpers.DBHelper;
 import helpers.TestConstants;
-import static helpers.TestHelper.createNewApp;
 import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
+import java.io.IOException;
 import main.Main;
+import static org.hamcrest.Matchers.equalTo;
 import org.junit.*;
+import static helpers.TestHelper.createNewAppWithExistingCodeFile;
+import static helpers.TestHelper.createNewApp;
 
 
 public class ExecuteAppTest {
@@ -23,40 +24,50 @@ public class ExecuteAppTest {
     public static void setup() throws Exception {
         RestAssured.baseURI = TestConstants.BASE_URI;
         RestAssured.port = TestConstants.PORT;
-        Main.main();
-    }
-    
-    @AfterClass
-    public static void teardown() throws Exception {
-        Main.stop();
     }
     
     @Test
-    public void create_app_returns_201_created() throws Exception {
-        String appId = createNewApp();
-        List<AppParam> params = Arrays.asList(
-            AppParam.builder()
-                .setName("algorithm")
-                .setType(ParamType.KEY_VALUE)
-                .setLabel("Algorithm").build(),
-            AppParam.builder()
-                .setName("file2anonymize")
-                .setType(ParamType.FILE)
-                .setLabel("File to anonymize").build());
-        
-        appInfoDAO.updateParams(appId, params);
-        
-        File file = File.createTempFile("file", "");
-        file.deleteOnExit();
+    public void execute_app_returns_201_created() throws Exception {
+        JsonObject app = new JsonObject();
+        app.addProperty("app_name", "Anonymize data file");
+        app.addProperty("language", "PYTHON");
+        {
+            JsonArray params = new JsonArray();
+            {
+                JsonObject param = new JsonObject();
+                param.addProperty("name", "algorithm");
+                param.addProperty("type", "KEY_VALUE");
+                param.addProperty("label", "Algorithm");
+                param.addProperty("description", "Algorithm to anonymize dataset");
+                params.add(param);
+            }
+            {
+                JsonObject param = new JsonObject();
+                param.addProperty("name", "file");
+                param.addProperty("type", "FILE");
+                param.addProperty("label", "File to anonymize");
+                param.addProperty("description", "A csv data file");
+                params.add(param);
+            }
+            app.add("params", params);
+        }
+        String appId = createNewAppWithExistingCodeFile(app);
         
         given()
             .contentType("multipart/form-data")
             .multiPart("algorithm", "k-anomity")
-            .multiPart("file2anonymize", file)
+            .multiPart("file", tempFile())
         .when()
             .post("/app/{appId}/execute?userId=1111", appId)
         .then()
-            .statusCode(201)
+            .body("error", equalTo(""))
+            .statusCode(202)
         ;
+    }
+    
+    public static File tempFile() throws IOException {
+        File file = File.createTempFile("file", "");
+        file.deleteOnExit();
+        return file;
     }
 }
