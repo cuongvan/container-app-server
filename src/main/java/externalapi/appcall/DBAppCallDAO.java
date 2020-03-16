@@ -78,26 +78,23 @@ public class DBAppCallDAO implements AppCallDAO {
     
     @Override
     public void updateFinishedAppCall(AppCallResult callResult) {
-        String query = "SELECT call_id, elapsed_seconds, status, stdout, stderr, container_id FROM app_call WHERE container_id = ? FOR UPDATE";
+        String query = "SELECT call_id, elapsed_seconds, call_status, output FROM app_call WHERE call_id = ? FOR UPDATE";
         try (Connection conn = dbPool.getNonAutoCommitConnection()) {
             try (PreparedStatement stmt = conn.prepareStatement(query,
                 ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE))
             {
-                stmt.setString(1, callResult.getContainerId());
+                stmt.setString(1, callResult.getAppCallId());
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (!rs.next()) {
                         return;
                     }
                     
-                    String callId = rs.getString("call_id");
                     rs.updateLong("elapsed_seconds", callResult.getElapsedSeconds());
                     {
                         String status = callResult.isSuccess() ? "Success" : "Fail";
-                        rs.updateString("status", status);
+                        rs.updateString("call_status", status);
                     }
-                    rs.updateString("stdout", callResult.getStdout());
-                    rs.updateString("stderr", callResult.getStderr());
-                    rs.updateNull("container_id");
+                    rs.updateString("output", callResult.getOutput());
                     rs.updateRow();
                 }
             }

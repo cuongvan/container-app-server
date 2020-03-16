@@ -1,6 +1,6 @@
 package handlers;
 
-import common.Consts;
+import common.Constants;
 import docker.DockerAdapter;
 import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
@@ -33,9 +33,9 @@ public class BuildAppHandler {
     public void buildApp(String appId, InputStream codeZipFile) throws IOException {
         AppInfo appInfo = appInfoDAO.getById(appId);
         {
-            String templateDir = Paths.get(Consts.DOCKER_BUILD_TEMPLATE_DIR, appInfo.getLanguage().name().toLowerCase()).toString();
-            Path dir = createRandomDirAt(Consts.APP_BUILD_DIR);
-            MyFileUtils.unzipStreamToDir(codeZipFile, dir.resolve(Consts.DOCKER_BUILD_EXTRACE_CODE_DIR).toString());
+            String templateDir = Paths.get(Constants.DOCKER_BUILD_TEMPLATE_DIR, appInfo.getLanguage().name().toLowerCase()).toString();
+            Path dir = createRandomDirAt(Constants.APP_BUILD_DIR);
+            MyFileUtils.unzipStreamToDir(codeZipFile, dir.resolve(Constants.DOCKER_BUILD_EXTRACE_CODE_DIR).toString());
             MyFileUtils.copyDirectory(templateDir, dir.toString());
             codeZipFile.close();
             String imageId = docker.buildImage(dir.toString(), appInfo.getImage());
@@ -57,7 +57,7 @@ public class BuildAppHandler {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
         String newFolderName = String.format("%s-%s-%s", appInfo.getImage(), appInfo.getLanguage(), dtf.format(now));
-        Path dest = Paths.get(Consts.APP_BUILD_FAILED_DIR, newFolderName);
+        Path dest = Paths.get(Constants.APP_BUILD_FAILED_DIR, newFolderName);
         MyFileUtils.moveDirectory(dir, dest.toString());
     }
 }

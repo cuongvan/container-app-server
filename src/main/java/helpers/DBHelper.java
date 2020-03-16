@@ -59,7 +59,7 @@ public class DBHelper {
             "    app_id TEXT NOT NULL,\n" +
             "    user_id TEXT,\n" +
             "    elapsed_seconds BIGINT,\n" +
-            "    status TEXT,\n" +
+            "    call_status TEXT,\n" +
             "    output TEXT\n" +
             ");"
         );

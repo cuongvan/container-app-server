@@ -3,36 +3,34 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package workers;
+package watchers;
 
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import common.ContainerLog;
+import common.Constants;
 import docker.DockerAdapter;
 import externalapi.appcall.AppCallDAO;
 import externalapi.appcall.models.AppCallResult;
-import java.io.File;
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class WatchingContainerWorker {
+public class ContainerFinishWatcher {
     
-    private final Logger LOG = LoggerFactory.getLogger(WatchingContainerWorker.class);
+    private final Logger LOG = LoggerFactory.getLogger(ContainerFinishWatcher.class);
     
     private DockerAdapter docker;
     private AppCallDAO appCallDAO;
     private ExecutorService executor;
     
     @Inject
-    public WatchingContainerWorker(DockerAdapter dockerAdapter, AppCallDAO appCallDAO) {
+    public ContainerFinishWatcher(DockerAdapter dockerAdapter, AppCallDAO appCallDAO) {
         this.docker = dockerAdapter;
         this.appCallDAO = appCallDAO;
         executor = Executors.newSingleThreadExecutor();
@@ -50,36 +48,36 @@ public class WatchingContainerWorker {
                 // stop server
                 break;
             } catch (Exception ex) {
-                // continue
+                LOG.warn("Exception: {}", ex);
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ex1) {
+                    ex1.printStackTrace();
+                }
             }
         }
     }
     
     private void handleFinishedContainer(String containerId) {
+        InspectContainerResponse inspect = docker.inspectContainer(containerId);
+        Map<String, String> labels = inspect.getConfig().getLabels();
+        if (!labels.containsKey(Constants.CONTAINER_ID_LABEL_KEY)) {
+            // container not belong to ckan
+            return;
+        }
+        
         try {
-            InspectContainerResponse inspect = docker.inspectContainer(containerId);
-            deleteAllMounted(inspect);
-            AppCallResult r = gatherCallResultInfo(inspect, containerId);
+            AppCallResult r = gatherCallResultInfo(inspect);
             appCallDAO.updateFinishedAppCall(r);
+            LOG.info("App call {} finished: {}", r.getAppCallId(), r);
         } finally {
             docker.deleteContainer(containerId);
         }
     }
-    private void deleteAllMounted(InspectContainerResponse inspect) {
-        inspect.getMounts()
-            .stream()
-            .map(mount -> mount.getSource())
-            .map(path -> new File(path))
-            .forEach(inputFile -> {
-                try {
-                    FileUtils.forceDelete(inputFile);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            });
-    }
 
-    private AppCallResult gatherCallResultInfo(InspectContainerResponse inspect, String containerId) {
+    private AppCallResult gatherCallResultInfo(InspectContainerResponse inspect) {
+        Map<String, String> labels = inspect.getConfig().getLabels();
+        String callId = labels.get(Constants.CONTAINER_ID_LABEL_KEY);
         int exitCode = inspect.getState().getExitCode();
         boolean success = (exitCode == 0);
         
@@ -87,8 +85,8 @@ public class WatchingContainerWorker {
         Instant t2 = Instant.parse(inspect.getState().getFinishedAt());
         long duration = Duration.between(t1, t2).getSeconds();
         
-        ContainerLog log = docker.getContainerLog(inspect.getId());
-        return new AppCallResult(containerId, success, duration, log.stdout, log.stderr);
+        String output = docker.getContainerLog(inspect.getId());
+        return new AppCallResult(callId, success, duration, output);
     }
     
     public void stop() {

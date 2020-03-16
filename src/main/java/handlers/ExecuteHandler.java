@@ -1,6 +1,6 @@
 package handlers;
 
-import common.Consts;
+import common.Constants;
 import docker.DockerAdapter;
 import externalapi.appcall.AppCallDAO;
 import externalapi.appcall.models.FileParam;
@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import static java.util.stream.Collectors.toList;
@@ -70,7 +71,11 @@ public class ExecuteHandler {
                 p -> fileParamMountPath(p.getName())
             ));
         
-        docker.createAndStartContainer(appInfo.getImageId(), environments, mounts);
+        Map<String, String> labels = new HashMap<String, String>() {{
+            put(Constants.CONTAINER_ID_LABEL_KEY, callId);
+        }};
+        
+        docker.createAndStartContainer(appInfo.getImageId(), environments, mounts, labels);
         return "";
     }
     
@@ -80,13 +85,13 @@ public class ExecuteHandler {
     }
     private FileParam processFileParam(String callId, AppParam appParam, byte[] fileContent) throws IOException {
         String filename = format("%s-%s", callId, appParam.getName());
-        Path filePath = Paths.get(Consts.APP_INPUT_FILES_DIR, filename).toAbsolutePath().normalize();
+        Path filePath = Paths.get(Constants.APP_INPUT_FILES_DIR, filename).toAbsolutePath().normalize();
         
         Files.write(filePath, fileContent);
         return new FileParam(appParam.getName(), filePath.toString());
     }
     
     private String fileParamMountPath(String paramName) {
-        return Paths.get(Consts.FILES_MOUNT_DIR, paramName).toString();
+        return Paths.get(Constants.FILES_MOUNT_DIR, paramName).toString();
     }
 }

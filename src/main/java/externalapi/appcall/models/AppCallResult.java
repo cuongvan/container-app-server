@@ -1,43 +1,37 @@
 package externalapi.appcall.models;
 
 public class AppCallResult {
-    private String containerId;
-    private boolean success;
-    private long elapsedSeconds;
-    private String stdout;
-    private String stderr;
+    private final String appCallId;
+    private final boolean success;
+    private final long elapsedSeconds;
+    private final String output;
 
-    public AppCallResult(String containerId, boolean success, long elapsedSeconds, String stdout, String stderr) {
-        this.containerId = containerId;
+    public AppCallResult(String appCallId, boolean success, long elapsedSeconds, String output) {
+        this.appCallId = appCallId;
         this.success = success;
         this.elapsedSeconds = elapsedSeconds;
-        this.stdout = stdout;
-        this.stderr = stderr;
+        this.output = output;
     }
+    
 
     @Override
     public String toString() {
-        return "AppCallResult{" + "containerId=" + containerId + ", success=" + success + ", duration=" + elapsedSeconds + ", stdout=" + stdout.trim() + ", stderr=" + stderr.trim() + '}';
+        return "AppCallResult{" + "appCallId=" + appCallId + ", success=" + success + ", elapsedSeconds=" + elapsedSeconds + ", output=" + output + '}';
     }
-    
-    
-    public String getContainerId() {
-        return containerId;
+
+    public String getAppCallId() {
+        return appCallId;
     }
 
     public boolean isSuccess() {
         return success;
     }
 
-    public String getStdout() {
-        return stdout;
-    }
-
-    public String getStderr() {
-        return stderr;
-    }
-
     public long getElapsedSeconds() {
         return elapsedSeconds;
+    }
+
+    public String getOutput() {
+        return output;
     }
 }

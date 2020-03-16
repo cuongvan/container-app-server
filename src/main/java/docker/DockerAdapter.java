@@ -1,6 +1,5 @@
 package docker;
 
-import common.ContainerLog;
 import com.github.dockerjava.api.*;
 import com.github.dockerjava.api.command.*;
 import com.github.dockerjava.api.model.*;
@@ -11,7 +10,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import javax.inject.Singleton;
 import com.github.dockerjava.api.command.BuildImageResultCallback;
-import common.AppConfig;
 import static java.util.stream.Collectors.toList;
 
 @Singleton
@@ -29,7 +27,7 @@ public class DockerAdapter {
         }
     }
     
-    public ContainerLog getContainerLog(String containerId) {
+    public String getContainerLog(String containerId) {
         DockerClient docker = newClient();
         try {
             StringBuilder stdoutBuilder = new StringBuilder();
@@ -48,7 +46,9 @@ public class DockerAdapter {
                         }
                     }
                 }).awaitCompletion();
-            return new ContainerLog(stdoutBuilder.toString(), stderrBuilder.toString());
+            
+            stdoutBuilder.append(stderrBuilder);
+            return stdoutBuilder.toString();
         } catch (InterruptedException ignore) {
             throw new IllegalStateException("Should not happend");
         } finally {
@@ -81,8 +81,9 @@ public class DockerAdapter {
     public String createAndStartContainer(
         String imageName,
         Map<String/*env*/, String /*value*/> envs,
-        Map<String /*local path*/, String /*container path*/> mounts)
-    {
+        Map<String /*local path*/, String /*container path*/> mounts,
+        Map<String, String> labels
+    ) {
         List<Volume> volumes = new ArrayList<>();
         List<Bind> binds = new ArrayList<>();
         mounts.forEach((localPath, containerPath) -> {
@@ -98,14 +99,13 @@ public class DockerAdapter {
             .map(e -> e.getKey() + "=" + e.getValue()) // VARIABLE=value
             .collect(toList());
         
-        System.out.println(mounts);
-        
         DockerClient docker = newClient();
         try {
             CreateContainerResponse container = docker
                 .createContainerCmd(imageName)
                 .withEnv(envList)
                 .withVolumes(volumes)
+                .withLabels(labels)
                 //@SuppressWarnings("deprecation")
                 .withBinds(binds)
                 .exec();

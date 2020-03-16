@@ -10,7 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import httpserver.WebServiceServer;
 import org.slf4j.*;
-import workers.WatchingContainerWorker;
+import watchers.ContainerFinishWatcher;
 import externalapi.appcall.AppCallDAO;
 import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.DBAppInfoDAO;
@@ -31,7 +31,7 @@ public class Main {
         DBHelper.createTables();
         injector = initialize();
         {
-            WatchingContainerWorker watchingContainerWorker = injector.getInstance(WatchingContainerWorker.class);
+            ContainerFinishWatcher watchingContainerWorker = injector.getInstance(ContainerFinishWatcher.class);
             watchingContainerWorker.runForever();
         }
         
@@ -55,7 +55,7 @@ public class Main {
     public static void stop() throws Exception {
         logger.info("Stop server");
         server.stop();
-        injector.getInstance(WatchingContainerWorker.class).stop();
+        injector.getInstance(ContainerFinishWatcher.class).stop();
     }
     
     public static void createAppBuildDirs(){

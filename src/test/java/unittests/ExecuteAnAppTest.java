@@ -1,4 +1,4 @@
-package unit;
+package unittests;
 
 import docker.DockerAdapter;
 import externalapi.appcall.AppCallDAO;

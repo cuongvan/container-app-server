@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS app_call (
     app_id TEXT NOT NULL,
     user_id TEXT,
     elapsed_seconds BIGINT,
-    status TEXT,
+    call_status TEXT,
     output TEXT
 );
 
