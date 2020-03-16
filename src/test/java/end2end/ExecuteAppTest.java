@@ -9,11 +9,9 @@ import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
 import java.io.File;
 import java.io.IOException;
-import main.Main;
 import static org.hamcrest.Matchers.equalTo;
 import org.junit.*;
 import static helpers.TestHelper.createNewAppWithExistingCodeFile;
-import static helpers.TestHelper.createNewApp;
 
 
 public class ExecuteAppTest {

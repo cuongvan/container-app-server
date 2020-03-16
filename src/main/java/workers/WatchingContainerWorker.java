@@ -45,7 +45,7 @@ public class WatchingContainerWorker {
     private void loopTask() {
         while (true) {
             try {
-                docker.watchContainersFinish(containerId -> handleFinishedContainer2(containerId));
+                docker.watchContainersFinish(containerId -> handleFinishedContainer(containerId));
             } catch (InterruptedException ex) {
                 // stop server
                 break;
@@ -55,12 +55,15 @@ public class WatchingContainerWorker {
         }
     }
     
-    private void handleFinishedContainer2(String containerId) {
-        InspectContainerResponse inspect = docker.inspectContainer(containerId);
-        deleteAllMounted(inspect);
-        AppCallResult r = gatherCallResultInfo(inspect, containerId);
-        docker.deleteContainer(containerId);
-        appCallDAO.updateFinishedAppCall(r);
+    private void handleFinishedContainer(String containerId) {
+        try {
+            InspectContainerResponse inspect = docker.inspectContainer(containerId);
+            deleteAllMounted(inspect);
+            AppCallResult r = gatherCallResultInfo(inspect, containerId);
+            appCallDAO.updateFinishedAppCall(r);
+        } finally {
+            docker.deleteContainer(containerId);
+        }
     }
     private void deleteAllMounted(InspectContainerResponse inspect) {
         inspect.getMounts()

@@ -38,6 +38,8 @@ CREATE TABLE IF NOT EXISTS call_param (
     PRIMARY KEY(call_id, param_name)
 );
 
+-- app_call.status: STARTED, SUCCESS, FAILED
+
 -- DROP TABLE IF EXISTS app_info;
 -- DROP TABLE IF EXISTS app_call;
 -- GRANT ALL PRIVILEGES ON TABLE app_info TO ckan_default;

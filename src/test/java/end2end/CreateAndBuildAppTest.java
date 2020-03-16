@@ -1,5 +1,6 @@
 package end2end;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import helpers.TestConstants;
@@ -8,6 +9,8 @@ import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
 import java.io.File;
 import java.io.IOException;
+import javax.ws.rs.core.MediaType;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -34,15 +37,15 @@ public class CreateAndBuildAppTest {
             }
             app.add("params", params);
         }
-        String appId = createNewAppWithExistingCodeFile(app);
         
         given()
-            .contentType("application/octet-stream")
-            .body(new File("./example_apps/python/hello-world/code.zip"))
+            .contentType("multipart/form-data")
+            .multiPart("app_info", new Gson().toJson(app))
+            .multiPart("code_file", new File("./example_apps/python/hello-world/code.zip"))
         .when()
-            .post("/app/{appId}/build", appId)
+            .post("/app/create")
         .then()
-            .statusCode(202)
+            .statusCode(201)
         ;
     }
 }
