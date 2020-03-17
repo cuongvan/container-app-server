@@ -5,6 +5,10 @@ import externalapi.appcall.models.BatchAppCallResult;
 import externalapi.appcall.models.FileParam;
 import externalapi.appcall.models.KeyValueParam;
 import externalapi.DBConnectionPool;
+import externalapi.appcall.models.CallDetail;
+import externalapi.appcall.models.CallParam;
+import externalapi.appcall.models.CallStatus;
+import helpers.DBHelper;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -150,6 +154,59 @@ public class DBAppCallDAO implements AppCallDAO {
             return ids;
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
+        }
+    }
+
+    @Override
+    public CallDetail getById(String callId) {
+        Connection connection = null;
+        CallDetail callDetail = new CallDetail();
+        try {
+            connection = dbPool.getNonAutoCommitConnection();
+            try (PreparedStatement stmt = connection.prepareStatement(
+                "SELECT call_id, app_id, user_id, elapsed_seconds, call_status, output "
+                + "FROM app_call WHERE call_id = ?")) {
+                stmt.setString(1, callId);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (!rs.next())
+                        return null;
+                    callDetail
+                        .withCallId(callId)
+                        .withAppId(rs.getString("app_id"))
+                        .withUserId(rs.getString("user_id"))
+                        .withElapsedSeconds(rs.getLong("elapsed_seconds"))
+                        .withCallStatus(CallStatus.valueOf(rs.getString("call_status")))
+                        .withOutput(rs.getString("output"));
+                }
+            }
+            
+            try (PreparedStatement stmt = connection.prepareStatement(
+                "SELECT param_name, text_value, file_path FROM call_param WHERE call_id = ?")) {
+                stmt.setString(1, callId);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        String paramName = rs.getString("param_name");
+                        CallParam param;
+                        String keyValue = rs.getString("text_value");
+                        String filePath = rs.getString("file_path");
+                        if (keyValue != null) {
+                            param = new KeyValueParam(paramName, keyValue);
+                        } else {
+                            param = new FileParam(paramName, filePath);
+                        }
+                        
+                        callDetail.addCallParam(param);
+                    }
+                }
+            }
+            
+            connection.commit();
+            return callDetail;
+        } catch (SQLException ex) {
+            DBHelper.rollback(connection);
+            throw new RuntimeException(ex);
+        } finally {
+            DBHelper.close(connection);
         }
     }
 }

@@ -10,7 +10,6 @@ import externalapi.appinfo.models.ParamType;
 import helpers.DBHelper;
 import java.sql.*;
 import javax.inject.*;
-import helpers.MiscHelper;
 import java.util.ArrayList;
 import java.util.List;
 

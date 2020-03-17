@@ -15,6 +15,11 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 @JsonNaming(PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy.class)
 public class BasicResponse {
     public final String error;
+    
+    public BasicResponse() {
+        this.error = "";
+    }
+    
     public BasicResponse(String error) {
         this.error = error;
     }
