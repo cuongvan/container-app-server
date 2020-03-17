@@ -8,7 +8,7 @@ public class Constants {
     public static final String DB_DATABASE = "ckan_default";
     public static final String JDBC_CONNECTION_STRING = String.format("jdbc:postgresql://%s/%s", DB_HOST, DB_DATABASE);
     
-    public static final String DOCKER_BUILD_TEMPLATE_DIR = "docker_build_files";
+    public static final String DOCKER_BUILD_TEMPLATE_DIR = "dockerbuild_templates";
     public static final String DOCKER_BUILD_DIR = "../ckanapp/builds";
     public static final String DOCKER_BUILD_FAILED_DIR = "../ckanapp/builds-failed";
     public static final String DOCKER_BUILD_EXTRACE_CODE_DIR = "code";
