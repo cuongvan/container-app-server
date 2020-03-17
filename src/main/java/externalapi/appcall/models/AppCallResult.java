@@ -2,29 +2,28 @@ package externalapi.appcall.models;
 
 public class AppCallResult {
     private final String appCallId;
-    private final boolean success;
+    private final CallStatus callStatus;
     private final long elapsedSeconds;
     private final String output;
 
-    public AppCallResult(String appCallId, boolean success, long elapsedSeconds, String output) {
+    public AppCallResult(String appCallId, CallStatus callStatus, long elapsedSeconds, String output) {
         this.appCallId = appCallId;
-        this.success = success;
+        this.callStatus = callStatus;
         this.elapsedSeconds = elapsedSeconds;
         this.output = output;
     }
-    
 
     @Override
     public String toString() {
-        return "AppCallResult{" + "appCallId=" + appCallId + ", success=" + success + ", elapsedSeconds=" + elapsedSeconds + ", output=" + output + '}';
+        return "AppCallResult{" + "appCallId=" + appCallId + ", callStatus=" + callStatus + ", elapsedSeconds=" + elapsedSeconds + ", output=" + output + '}';
     }
-
+    
     public String getAppCallId() {
         return appCallId;
     }
 
-    public boolean isSuccess() {
-        return success;
+    public CallStatus getCallStatus() {
+        return CallStatus.SUCCESS;
     }
 
     public long getElapsedSeconds() {

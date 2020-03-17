@@ -16,6 +16,7 @@ import externalapi.appinfo.models.AppParam;
 import externalapi.appinfo.models.AppType;
 import externalapi.appinfo.models.ParamType;
 import handlers.BuildAppHandler;
+import handlers.CreateAppHandler;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -28,25 +29,24 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 
 @Path("/app/create")
 public class CreateApp {
-    
     @Inject
-    private AppInfoDAO appInfoDAO;
+    private CreateAppHandler createAppHandler;
     @Inject
     private BuildAppHandler buildAppHandler;
     
     @POST
     @Consumes("multipart/form-data")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response newBatchApp(
+    public Response createApp(
         @FormDataParam("app_info") byte[] appInfo,
         @FormDataParam("code_file") byte [] codeFile
     ) throws IOException, SQLException
     {
         AppInfo_ request = new ObjectMapper().readValue(appInfo, AppInfo_.class);
         AppInfo app = translate(request);
-        
-        String appId = appInfoDAO.createApp(app);
+        String appId = createAppHandler.createApp(app, codeFile);
         buildAppHandler.buildApp(appId, new ByteArrayInputStream(codeFile));
+        
         
         return Response
             .status(Response.Status.CREATED)

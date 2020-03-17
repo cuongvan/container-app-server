@@ -1,18 +1,11 @@
 package end2end;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import helpers.TestConstants;
-import static helpers.TestHelper.*;
 import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
-import java.io.File;
-import java.io.IOException;
-import javax.ws.rs.core.MediaType;
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import java.io.*;
+import org.junit.*;
 
 public class CreateAndBuildAppTest {
     @BeforeClass

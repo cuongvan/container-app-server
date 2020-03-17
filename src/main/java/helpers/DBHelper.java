@@ -24,16 +24,17 @@ public class DBHelper {
     private static void createAppInfoTable() {
         update(
             "CREATE TABLE IF NOT EXISTS app_info (\n" +
-            "	app_id TEXT PRIMARY KEY,\n" +
-            "	app_name TEXT NOT NULL,\n" +
-            "	ava_url TEXT,\n" +
-            "	type TEXT,\n" +
+            "    app_id TEXT PRIMARY KEY,\n" +
+            "    app_name TEXT NOT NULL,\n" +
+            "    ava_url TEXT,\n" +
+            "    type TEXT,\n" +
             "    slug_name TEXT,\n" +
-            "	image TEXT,\n" +
+            "    code_path TEXT,\n" +
+            "    image TEXT,\n" +
             "    image_id TEXT,\n" +
-            "	owner TEXT,\n" +
+            "    owner TEXT,\n" +
             "    description TEXT,\n" +
-            "	language TEXT,\n" +
+            "    language TEXT,\n" +
             "    status TEXT\n" +
             ");"
         );

@@ -10,6 +10,7 @@ import common.Constants;
 import docker.DockerAdapter;
 import externalapi.appcall.AppCallDAO;
 import externalapi.appcall.models.AppCallResult;
+import externalapi.appcall.models.CallStatus;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
@@ -79,14 +80,14 @@ public class ContainerFinishWatcher {
         Map<String, String> labels = inspect.getConfig().getLabels();
         String callId = labels.get(Constants.CONTAINER_ID_LABEL_KEY);
         int exitCode = inspect.getState().getExitCode();
-        boolean success = (exitCode == 0);
+        CallStatus status = (exitCode == 0) ? CallStatus.SUCCESS : CallStatus.FAILED;
         
         Instant t1 = Instant.parse(inspect.getState().getStartedAt());
         Instant t2 = Instant.parse(inspect.getState().getFinishedAt());
         long duration = Duration.between(t1, t2).getSeconds();
         
         String output = docker.getContainerLog(inspect.getId());
-        return new AppCallResult(callId, success, duration, output);
+        return new AppCallResult(callId, status, duration, output);
     }
     
     public void stop() {

@@ -13,6 +13,7 @@ import externalapi.appinfo.DBAppInfoDAO;
 import externalapi.appinfo.models.AppParam;
 import externalapi.appinfo.models.ParamType;
 import helpers.DBHelper;
+import helpers.MiscHelper;
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -44,7 +45,8 @@ public class CreateAppTest {
                 .withLabel("File to anonymize").build())
             .build();
         
-        String appId = dao.createApp(addNew);
+        String appId = MiscHelper.newId();
+        dao.createApp(appId, addNew);
         
         AppInfo added = createdApp(addNew, appId);
         AppInfo gotOut = dao.getById(appId);
@@ -57,8 +59,8 @@ public class CreateAppTest {
     @Test
     public void delete_app() {
         AppInfo app = makeNewApp();
-        
-        String appId = dao.createApp(app);
+        String appId = MiscHelper.newId();
+        dao.createApp(appId, app);
         dao.deleteById(appId);
         assertNull(dao.getById(app.getAppId()));
         

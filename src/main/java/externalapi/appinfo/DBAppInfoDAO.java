@@ -25,12 +25,10 @@ public class DBAppInfoDAO implements AppInfoDAO {
     
 
     @Override
-    public String createApp(AppInfo app) {
-        String appId = MiscHelper.newId();
-        
+    public void createApp(String appId, AppInfo app) {
         String insertAppInfo = "INSERT INTO app_info(\n" +
-            "app_id, app_name, ava_url, type, slug_name, image, owner, description, language, status)\n" +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            "app_id, app_name, ava_url, type, slug_name, code_path, image, owner, description, language, status)\n" +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         String insertAppParams = "INSERT INTO app_param(\n" +
             "	app_id, name, type, label, description)\n" +
             "	VALUES (?, ?, ?, ?, ?);";
@@ -43,11 +41,12 @@ public class DBAppInfoDAO implements AppInfoDAO {
                 stmt.setString(3, app.getAvatarUrl());
                 stmt.setString(4, app.getType().name());
                 stmt.setString(5, app.getSlugName());
-                stmt.setString(6, app.getImage());
-                stmt.setString(7, app.getOwner());
-                stmt.setString(8, app.getDescription());
-                stmt.setString(9, app.getLanguage().name());
-                stmt.setString(10, AppStatus.CREATED.name());
+                stmt.setString(6, app.getCodePath());
+                stmt.setString(7, app.getImage());
+                stmt.setString(8, app.getOwner());
+                stmt.setString(9, app.getDescription());
+                stmt.setString(10, app.getLanguage().name());
+                stmt.setString(11, AppStatus.CREATED.name());
                 stmt.executeUpdate();
             }
             
@@ -64,7 +63,6 @@ public class DBAppInfoDAO implements AppInfoDAO {
             }
                 
             connection.commit();
-            return appId;
         } catch (SQLException ex) {
             DBHelper.rollback(connection);
             throw new RuntimeException(ex);
@@ -75,7 +73,7 @@ public class DBAppInfoDAO implements AppInfoDAO {
 
     @Override
     public AppInfo getById(String appId) {
-        String selectAppInfo = "SELECT app_id, app_name, ava_url, type, slug_name, image, image_id, "
+        String selectAppInfo = "SELECT app_id, app_name, ava_url, type, slug_name, code_path, image, image_id, "
             + "owner, description, language, status\n" 
             + "FROM app_info WHERE app_id = ?";
         
@@ -97,6 +95,7 @@ public class DBAppInfoDAO implements AppInfoDAO {
                         .withAvatarUrl(rs.getString("ava_url"))
                         .withType(AppType.valueOf(rs.getString("type")))
                         .withSlugName(rs.getString("slug_name"))
+                        .withCodePath(rs.getString("code_path"))
                         .withImage(rs.getString("image"))
                         .withImageId(rs.getString("image_id"))
                         .withOwner(rs.getString("owner"))

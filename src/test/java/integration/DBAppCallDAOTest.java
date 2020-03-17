@@ -14,6 +14,7 @@ import externalapi.appinfo.models.AppInfo;
 import externalapi.appinfo.models.AppParam;
 import externalapi.appinfo.models.ParamType;
 import helpers.DBHelper;
+import helpers.MiscHelper;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.*;
@@ -46,8 +47,8 @@ public class DBAppCallDAOTest {
                 .withLabel("File to anonymize").build()
         );
         
-        
-        String appId = appInfoDao.createApp(app);
+        String appId = MiscHelper.newId();
+        appInfoDao.createApp(appId, app);
         appInfoDao.updateParams(appId, params);
         
         appCallDAO.createNewCall(appId, DBAppCallDAO.ANONYMOUS_USER,

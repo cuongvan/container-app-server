@@ -9,11 +9,12 @@ public class Constants {
     public static final String JDBC_CONNECTION_STRING = String.format("jdbc:postgresql://%s/%s", DB_HOST, DB_DATABASE);
     
     public static final String DOCKER_BUILD_TEMPLATE_DIR = "docker_build_files";
-    public static final String DOCKER_BUILD_DIR = "./tmp/builds";
+    public static final String DOCKER_BUILD_DIR = "../ckanapp/builds";
+    public static final String DOCKER_BUILD_FAILED_DIR = "../ckanapp/builds-failed";
     public static final String DOCKER_BUILD_EXTRACE_CODE_DIR = "code";
-    public static final String DOCKER_BUILD_FAILED_DIR = "./tmp/builds-failed";
     
-    public static final String APP_INPUT_FILES_DIR = "./tmp/input-files";
+    public static final String APP_CODE_FILES_DIR = "../ckanapp/codes";
+    public static final String APP_INPUT_FILES_DIR = "../ckanapp/inputs";
     
     public static final String CONTAINER_INPUT_FILES_MOUNT_DIR = "/files";
     public static final String CONTAINER_ID_LABEL_KEY = "ckan.callid";

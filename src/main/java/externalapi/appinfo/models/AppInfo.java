@@ -10,6 +10,7 @@ public class AppInfo {
     private final String avatarUrl;
     private final AppType type;
     private final String slugName;
+    private final String codePath;
     private final String image;
     private final String imageId;
     private final String owner;
@@ -36,6 +37,10 @@ public class AppInfo {
 
     public String getSlugName() {
         return slugName;
+    }
+    
+    public String getCodePath() {
+        return codePath;
     }
 
     public String getImage() {
@@ -90,7 +95,13 @@ public class AppInfo {
         if (!Objects.equals(this.slugName, other.slugName)) {
             return false;
         }
+        if (!Objects.equals(this.codePath, other.codePath)) {
+            return false;
+        }
         if (!Objects.equals(this.image, other.image)) {
+            return false;
+        }
+        if (!Objects.equals(this.imageId, other.imageId)) {
             return false;
         }
         if (!Objects.equals(this.owner, other.owner)) {
@@ -113,18 +124,21 @@ public class AppInfo {
         }
         return true;
     }
+    
+    
 
     @Override
     public String toString() {
         return "AppInfo{" + "appId=" + appId + ", appName=" + appName + ", avatarUrl=" + avatarUrl + ", type=" + type + ", slugName=" + slugName + ", image=" + image + ", owner=" + owner + ", description=" + description + ", language=" + language + ", status=" + status + ", params=" + params + '}';
     }
 
-    public AppInfo(String appId, String appName, String avatarUrl, AppType type, String slugName, String image, String imageId, String owner, String description, SupportLanguage language, AppStatus status, List<AppParam> params) {
+    public AppInfo(String appId, String appName, String avatarUrl, AppType type, String slugName, String codePath, String image, String imageId, String owner, String description, SupportLanguage language, AppStatus status, List<AppParam> params) {
         this.appId = appId;
         this.appName = appName;
         this.avatarUrl = avatarUrl;
         this.type = type;
         this.slugName = slugName;
+        this.codePath = codePath;
         this.image = image;
         this.imageId = imageId;
         this.owner = owner;
@@ -133,6 +147,8 @@ public class AppInfo {
         this.status = status;
         this.params = new ArrayList<>(params);
     }
+    
+    
     
     
     public static Builder builder() {
@@ -150,6 +166,7 @@ public class AppInfo {
         private String avatarUrl;
         private AppType type = AppType.BATCH;
         private String slugName;
+        private String codePath;
         private String image;
         private String imageId;
         private String owner;
@@ -200,6 +217,11 @@ public class AppInfo {
             return this;
         }
 
+        public Builder withCodePath(String codePath) {
+            this.codePath = codePath;
+            return this;
+        }
+
         public Builder withImage(String image) {
             this.image = image;
             return this;
@@ -236,7 +258,7 @@ public class AppInfo {
         }
         
         public AppInfo build() {
-            return new AppInfo(appId, appName, avatarUrl, type, slugName, image, imageId, owner, description, language, status, params);
+            return new AppInfo(appId, appName, avatarUrl, type, slugName, codePath, image, imageId, owner, description, language, status, params);
         }
     }
 }

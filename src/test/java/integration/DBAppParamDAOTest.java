@@ -31,7 +31,8 @@ public class DBAppParamDAOTest {
     @Test
     public void test_update_params() {
         AppInfo app = makeNewApp();
-        String appId = appInfoDAO.createApp(app);
+        String appId = "12345";
+        appInfoDAO.createApp(appId, app);
         
         List<AppParam> params = Arrays.asList(
             AppParam.builder()

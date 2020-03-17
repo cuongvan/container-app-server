@@ -5,7 +5,7 @@ import externalapi.appinfo.models.AppParam;
 import java.util.List;
 
 public interface AppInfoDAO {
-    String /*appId*/ createApp(AppInfo app);
+    void createApp(String appId, AppInfo app);
     AppInfo getById(String appId);
     void deleteById(String appId);
     

@@ -78,25 +78,16 @@ public class DBAppCallDAO implements AppCallDAO {
     
     @Override
     public void updateFinishedAppCall(AppCallResult callResult) {
-        String query = "SELECT call_id, elapsed_seconds, call_status, output FROM app_call WHERE call_id = ? FOR UPDATE";
-        try (Connection conn = dbPool.getNonAutoCommitConnection()) {
-            try (PreparedStatement stmt = conn.prepareStatement(query,
-                ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE))
+        //String query = "SELECT call_id, elapsed_seconds, call_status, output FROM app_call WHERE call_id = ? FOR UPDATE";
+        String query = "UPDATE app_call SET elapsed_seconds = ?, call_status = ?, output = ? WHERE call_id = ?";
+        try (Connection conn = dbPool.getConnection()) {
+            try (PreparedStatement stmt = conn.prepareStatement(query))
             {
-                stmt.setString(1, callResult.getAppCallId());
-                try (ResultSet rs = stmt.executeQuery()) {
-                    if (!rs.next()) {
-                        return;
-                    }
-                    
-                    rs.updateLong("elapsed_seconds", callResult.getElapsedSeconds());
-                    {
-                        String status = callResult.isSuccess() ? "Success" : "Fail";
-                        rs.updateString("call_status", status);
-                    }
-                    rs.updateString("output", callResult.getOutput());
-                    rs.updateRow();
-                }
+                stmt.setLong(1, callResult.getElapsedSeconds());
+                stmt.setString(2, callResult.getCallStatus().name());
+                stmt.setString(3, callResult.getOutput());
+                stmt.setString(4, callResult.getAppCallId());
+                stmt.executeUpdate();
             }
         } catch (SQLException ex) {
             throw new RuntimeException(ex);

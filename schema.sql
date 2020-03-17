@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS app_info (
     ava_url TEXT,
     type TEXT,
     slug_name TEXT,
+    code_path TEXT,
     image TEXT,
     image_id TEXT,
     owner TEXT,
