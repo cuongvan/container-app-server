@@ -38,9 +38,9 @@ public class ExecuteApp {
     {
         Map<String, byte[]> fields = getFieldsContent(body);
         try {
-            handler.execute(appId, userId, fields);
+            String callId = handler.execute(appId, userId, fields);
             return Response
-                .ok(BasicResponse.success())
+                .ok(new ExecuteResponseSuccess(callId))
                 .status(Status.ACCEPTED)
                 .type(MediaType.APPLICATION_JSON)
                 .build();

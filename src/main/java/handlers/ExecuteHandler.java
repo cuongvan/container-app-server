@@ -37,7 +37,7 @@ public class ExecuteHandler {
     }
 
 
-    public void execute(String appId, String userId, Map<String, byte[]> files) throws IOException, AppNotBuiltYet {
+    public String execute(String appId, String userId, Map<String, byte[]> files) throws IOException, AppNotBuiltYet {
         AppInfo appInfo = appInfoDAO.getById(appId);
         if (appInfo.getImageId() == null)
             throw new AppNotBuiltYet();
@@ -79,6 +79,7 @@ public class ExecuteHandler {
         }};
         
         docker.createAndStartContainer(appInfo.getImageId(), environments, mounts, labels);
+        return callId;
     }
     
     private KeyValueParam processKeyValueParam(AppParam appParam, byte[] fileContent) {
