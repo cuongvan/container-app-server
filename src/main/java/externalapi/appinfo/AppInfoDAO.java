@@ -13,4 +13,6 @@ public interface AppInfoDAO {
     
     void updateParams(String appId, List<AppParam> params);
     List<AppParam> getAppParams(String appId);
+
+    List<String> getAllAppIds();
 }

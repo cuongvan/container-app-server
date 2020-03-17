@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import httpserver.common.BasicResponse;
 import externalapi.appinfo.models.SupportLanguage;
-import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
 import externalapi.appinfo.models.AppParam;
 import externalapi.appinfo.models.AppType;
@@ -54,7 +53,7 @@ public class CreateApp {
             .build();
     }
 
-    private AppInfo translate(AppInfo_ request) {
+    public static AppInfo translate(AppInfo_ request) {
         AppInfo.Builder builder = AppInfo.builder()
             .withAppName(request.appName)
             .withAvatarUrl(request.avatarUrl)
@@ -81,7 +80,7 @@ public class CreateApp {
     
     
     @JsonNaming(PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy.class)
-    private static class AppInfo_ {
+    public static class AppInfo_ {
         public String appName;
         public String avatarUrl;
         public String slugName;
@@ -92,7 +91,7 @@ public class CreateApp {
         public List<AppParam_> params;
     }
     
-    private static class AppParam_ {
+    public static class AppParam_ {
         public String name;
         public ParamType_ type;
         public String label;

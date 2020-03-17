@@ -213,4 +213,22 @@ public class DBAppInfoDAO implements AppInfoDAO {
             throw new RuntimeException(ex);
         }
     }
+
+    @Override
+    public List<String> getAllAppIds() {
+        String query = "SELECT app_id FROM app_info";
+        try (Connection connection = dbPool.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery();
+        ) {
+            List<String> ids = new ArrayList<>();
+            while (rs.next()) {
+                ids.add(rs.getString("app_id"));
+            }
+            
+            return ids;
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 }

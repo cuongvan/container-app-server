@@ -1,9 +1,12 @@
 package externalapi.appinfo.models;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@JsonNaming(PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy.class)
 public class AppInfo {
     private final String appId;
     private final String appName;
