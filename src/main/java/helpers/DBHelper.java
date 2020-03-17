@@ -1,6 +1,5 @@
 package helpers;
 
-import common.AppConfig;
 import externalapi.DBConnectionPool;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -8,7 +7,7 @@ import java.sql.Statement;
 
 public class DBHelper {
     private static class ConnectionPoolHolder {
-        private static final DBConnectionPool pool = new DBConnectionPool(AppConfig.Inst);
+        private static final DBConnectionPool pool = new DBConnectionPool();
     }
     
     public static DBConnectionPool getPool() {

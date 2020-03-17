@@ -1,10 +1,9 @@
 package externalapi;
 
 
-import common.AppConfig;
+import common.Constants;
 import java.sql.Connection;
 import java.sql.SQLException;
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.dbcp2.BasicDataSource;
 
@@ -22,13 +21,11 @@ import org.apache.commons.dbcp2.BasicDataSource;
 public class DBConnectionPool {
     private BasicDataSource dataSource;
     
-    @Inject
-    public DBConnectionPool(AppConfig appConfig) {
+    public DBConnectionPool() {
         dataSource = new BasicDataSource();
-        dataSource.setUrl(
-            String.format("jdbc:postgresql://%s/%s", appConfig.POSTGRES_HOST, appConfig.POSTGRES_DATABASE));
-        dataSource.setUsername(appConfig.POSTGRES_USER);
-        dataSource.setPassword(appConfig.POSTGRES_PASS);
+        dataSource.setUrl(Constants.JDBC_CONNECTION_STRING);
+        dataSource.setUsername(Constants.DB_USER);
+        dataSource.setPassword(Constants.DB_PASSWORD);
         dataSource.setMinIdle(1);
         dataSource.setMaxIdle(5); // only 1 thread do the insert
         dataSource.setMaxOpenPreparedStatements(10);

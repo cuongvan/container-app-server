@@ -5,6 +5,7 @@
  */
 package helpers;
 
+import common.Constants;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -74,5 +75,19 @@ public class MyFileUtils {
         }
          
         return destFile;
+    }
+    
+    public static void createRequiredDirs() {
+        if (Files.notExists(Paths.get(Constants.APP_BUILD_DIR))) {
+            new File(Constants.APP_BUILD_DIR).mkdirs();
+        }
+        
+        if (Files.notExists(Paths.get(Constants.APP_BUILD_FAILED_DIR))) {
+            new File(Constants.APP_BUILD_FAILED_DIR).mkdirs();
+        }
+        
+        if (Files.notExists(Paths.get(Constants.APP_INPUT_FILES_DIR))) {
+            new File(Constants.APP_INPUT_FILES_DIR).mkdirs();
+        }
     }
 }

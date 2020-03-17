@@ -3,7 +3,7 @@ package main;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import common.AppConfig;
+import common.Constants;
 import externalapi.appcall.DBAppCallDAO;
 import java.io.File;
 import java.nio.file.Files;
@@ -44,7 +44,6 @@ public class Main {
         return Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
-                bind(AppConfig.class).toProvider(() -> AppConfig.Inst);
                 bind(DBConnectionPool.class).toProvider(() -> DBHelper.getPool());
                 bind(AppInfoDAO.class).to(DBAppInfoDAO.class);
                 bind(AppCallDAO.class).to(DBAppCallDAO.class);
@@ -59,16 +58,16 @@ public class Main {
     }
     
     public static void createAppBuildDirs(){
-        if (Files.notExists(Paths.get(AppConfig.Inst.APP_BUILD_DIR))) {
-            new File(AppConfig.Inst.APP_BUILD_DIR).mkdirs();
+        if (Files.notExists(Paths.get(Constants.APP_BUILD_DIR))) {
+            new File(Constants.APP_BUILD_DIR).mkdirs();
         }
         
-        if (Files.notExists(Paths.get(AppConfig.Inst.APP_BUILD_FAILED_DIR))) {
-            new File(AppConfig.Inst.APP_BUILD_FAILED_DIR).mkdirs();
+        if (Files.notExists(Paths.get(Constants.APP_BUILD_FAILED_DIR))) {
+            new File(Constants.APP_BUILD_FAILED_DIR).mkdirs();
         }
         
-        if (Files.notExists(Paths.get(AppConfig.Inst.APP_INPUT_FILES_DIR))) {
-            new File(AppConfig.Inst.APP_INPUT_FILES_DIR).mkdirs();
+        if (Files.notExists(Paths.get(Constants.APP_INPUT_FILES_DIR))) {
+            new File(Constants.APP_INPUT_FILES_DIR).mkdirs();
         }
     }
 }
