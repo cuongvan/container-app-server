@@ -51,7 +51,8 @@ public class DBAppCallDAOTest {
         appInfoDao.createApp(appId, app);
         appInfoDao.updateParams(appId, params);
         
-        appCallDAO.createNewCall(appId, DBAppCallDAO.ANONYMOUS_USER,
+        String callId = MiscHelper.newId();
+        appCallDAO.createNewCall(callId, appId, DBAppCallDAO.ANONYMOUS_USER,
             Arrays.asList(new KeyValueParam("algorithm", "k-anonymity")),
             Arrays.asList(new FileParam("file2anonymize", "/tmp/aaa"))
         );

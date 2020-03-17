@@ -5,7 +5,6 @@ import externalapi.appcall.models.BatchAppCallResult;
 import externalapi.appcall.models.FileParam;
 import externalapi.appcall.models.KeyValueParam;
 import externalapi.DBConnectionPool;
-import helpers.MiscHelper;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -26,8 +25,7 @@ public class DBAppCallDAO implements AppCallDAO {
     }
 
     @Override
-    public String createNewCall(String appId, String userId, List<KeyValueParam> keyValueParams, List<FileParam> fileParams) {
-        String callId = MiscHelper.newId();
+    public void createNewCall(String callId, String appId, String userId, List<KeyValueParam> keyValueParams, List<FileParam> fileParams) {
         try (Connection conn = dbPool.getNonAutoCommitConnection()) {
             
             insertAppCallRow(conn, callId, appId, userId);
@@ -38,7 +36,6 @@ public class DBAppCallDAO implements AppCallDAO {
             for (FileParam p : fileParams)
                 insertFileCallParam(conn, callId, p);
             conn.commit();
-            return callId;
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }

@@ -5,18 +5,17 @@
  */
 package httpserver.endpoints;
 
+import handlers.AppNotBuiltYet;
 import handlers.ExecuteHandler;
 import httpserver.common.BasicResponse;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.util.Map;
-import java.util.Set;
 import javax.inject.Inject;
-import org.eclipse.jetty.http.HttpStatus;
-import org.glassfish.jersey.media.multipart.FormDataBodyPart;
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import javax.ws.rs.core.Response.Status;
+import org.glassfish.jersey.media.multipart.*;
 
 /**
  *
@@ -38,17 +37,17 @@ public class ExecuteApp {
     ) throws IOException 
     {
         Map<String, byte[]> fields = getFieldsContent(body);
-        String error = handler.execute(appId, userId, fields);
-        if ("".equals(error)) {
+        try {
+            handler.execute(appId, userId, fields);
             return Response
-            .ok(BasicResponse.success())
-            .status(HttpStatus.ACCEPTED_202)
-            .type(MediaType.APPLICATION_JSON)
-            .build();
-        } else {
+                .ok(BasicResponse.success())
+                .status(Status.ACCEPTED)
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+        } catch (AppNotBuiltYet e) {
             return Response
-                .ok(BasicResponse.fail(error))
-                .status(HttpStatus.BAD_REQUEST_400)
+                .ok(BasicResponse.fail("App has not been built yet"))
+                .status(Status.SERVICE_UNAVAILABLE)
                 .type(MediaType.APPLICATION_JSON)
                 .build();
         }

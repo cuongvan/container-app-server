@@ -9,6 +9,7 @@ import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
 import externalapi.appinfo.models.AppParam;
 import externalapi.appinfo.models.ParamType;
+import helpers.MiscHelper;
 import java.io.IOException;
 import static java.lang.String.format;
 import java.nio.file.Files;
@@ -36,10 +37,12 @@ public class ExecuteHandler {
     }
 
 
-    public String/*error*/ execute(String appId, String userId, Map<String, byte[]> files) throws IOException {
+    public void execute(String appId, String userId, Map<String, byte[]> files) throws IOException, AppNotBuiltYet {
         AppInfo appInfo = appInfoDAO.getById(appId);
         if (appInfo.getImageId() == null)
-            return "App has not been built yet";
+            throw new AppNotBuiltYet();
+        
+        String callId = MiscHelper.newId();
         
         List<KeyValueParam> keyValueParams = appInfo.getParams()
             .stream()
@@ -50,10 +53,10 @@ public class ExecuteHandler {
         List<FileParam> fileParams = new ArrayList<>();
         for (AppParam appParam : appInfo.getParams()) {
             if (appParam.getType() == ParamType.FILE)
-                fileParams.add(processFileParam("aabbccdd", appParam, files.get(appParam.getName())));
+                fileParams.add(processFileParam(callId, appParam, files.get(appParam.getName())));
         }
         
-        String callId = appCallDAO.createNewCall(appId, userId, keyValueParams, fileParams);
+        appCallDAO.createNewCall(callId, appId, userId, keyValueParams, fileParams);
         
         // execute docker
         Map<String, String> environments = keyValueParams
@@ -76,7 +79,6 @@ public class ExecuteHandler {
         }};
         
         docker.createAndStartContainer(appInfo.getImageId(), environments, mounts, labels);
-        return "";
     }
     
     private KeyValueParam processKeyValueParam(AppParam appParam, byte[] fileContent) {

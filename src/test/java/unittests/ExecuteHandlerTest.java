@@ -4,6 +4,7 @@ import docker.DockerAdapter;
 import externalapi.appcall.AppCallDAO;
 import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
+import handlers.AppNotBuiltYet;
 import handlers.ExecuteHandler;
 import java.io.IOException;
 import java.util.*;
@@ -14,7 +15,7 @@ import static org.mockito.Mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ExecuteAnAppTest {
+public class ExecuteHandlerTest {
     @Mock DockerAdapter docker;
     @Mock AppInfoDAO appInfoDAO;
     @Mock AppCallDAO appCallDAO;
@@ -27,7 +28,7 @@ public class ExecuteAnAppTest {
     }
 
     @Test
-    public void executeFoundApp() throws IOException {
+    public void executeFoundApp() throws IOException, AppNotBuiltYet {
         when(appInfoDAO.getById("app-id")).thenReturn(appWithImageId("app-image"));
         
         HashMap<String, byte[]> files = new HashMap<String, byte[]>() {{
@@ -36,8 +37,7 @@ public class ExecuteAnAppTest {
         }};
         
         handler.execute("app-id", "user-id", files);
-        
-        verify(appCallDAO).createNewCall(eq("app-id"), eq("user-id"), anyList(), anyList());
+        verify(appCallDAO).createNewCall(anyString(), eq("app-id"), eq("user-id"), anyList(), anyList());
     }
 
     private static AppInfo appWithImageId(String imageId) {

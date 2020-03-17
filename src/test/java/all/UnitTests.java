@@ -7,7 +7,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     CreateAppTest.class,
-    ExecuteAnAppTest.class,
+    ExecuteHandlerTest.class,
 })
 public class UnitTests {
 
