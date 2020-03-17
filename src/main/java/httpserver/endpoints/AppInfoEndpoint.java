@@ -3,6 +3,9 @@ package httpserver.endpoints;
 import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
 import httpserver.common.BasicResponse;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -40,6 +43,23 @@ public class AppInfoEndpoint {
             return Response.ok(appInfo).build();
         } else {
             return Response.status(Status.NOT_FOUND).entity(BasicResponse.fail("App not found")).build();
+        }
+    }
+    
+    @Path("/{appId}/codefile")
+    @GET
+    public Response getCodeFile(@PathParam("appId") String appId) throws IOException {
+        AppInfo appInfo = appInfoDAO.getById(appId);
+        if (appInfo != null) {
+            String codePath = appInfo.getCodePath();
+            byte[] codeFile = Files.readAllBytes(Paths.get(codePath));
+            return Response.ok(codeFile).type("application/octet-stream").build();
+        } else {
+            return Response
+                .status(Status.NOT_FOUND)
+                .type("application/json")
+                .entity(BasicResponse.fail("App not found"))
+                .build();
         }
     }
 }

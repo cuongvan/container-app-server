@@ -7,7 +7,6 @@ package httpserver.common;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import javax.ws.rs.core.Response;
 
 /**
  *
@@ -16,8 +15,6 @@ import javax.ws.rs.core.Response;
 @JsonNaming(PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy.class)
 public class BasicResponse {
     public final String error;
-    public static final BasicResponse OK = new BasicResponse("");
-
     public BasicResponse(String error) {
         this.error = error;
     }

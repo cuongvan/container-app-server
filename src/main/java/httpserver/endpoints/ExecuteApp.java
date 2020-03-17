@@ -41,7 +41,7 @@ public class ExecuteApp {
         String error = handler.execute(appId, userId, fields);
         if ("".equals(error)) {
             return Response
-            .ok(BasicResponse.OK)
+            .ok(BasicResponse.success())
             .status(HttpStatus.ACCEPTED_202)
             .type(MediaType.APPLICATION_JSON)
             .build();
