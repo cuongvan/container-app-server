@@ -34,7 +34,7 @@ public class BuildAppHandler {
         AppInfo appInfo = appInfoDAO.getById(appId);
         {
             String templateDir = Paths.get(Constants.DOCKER_BUILD_TEMPLATE_DIR, appInfo.getLanguage().name().toLowerCase()).toString();
-            Path dir = createRandomDirAt(Constants.APP_BUILD_DIR);
+            Path dir = createRandomDirAt(Constants.DOCKER_BUILD_DIR);
             MyFileUtils.unzipStreamToDir(codeZipFile, dir.resolve(Constants.DOCKER_BUILD_EXTRACE_CODE_DIR).toString());
             MyFileUtils.copyDirectory(templateDir, dir.toString());
             codeZipFile.close();
@@ -57,7 +57,7 @@ public class BuildAppHandler {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
         String newFolderName = String.format("%s-%s-%s", appInfo.getImage(), appInfo.getLanguage(), dtf.format(now));
-        Path dest = Paths.get(Constants.APP_BUILD_FAILED_DIR, newFolderName);
+        Path dest = Paths.get(Constants.DOCKER_BUILD_FAILED_DIR, newFolderName);
         MyFileUtils.moveDirectory(dir, dest.toString());
     }
 }

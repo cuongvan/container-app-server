@@ -92,6 +92,6 @@ public class ExecuteHandler {
     }
     
     private String fileParamMountPath(String paramName) {
-        return Paths.get(Constants.FILES_MOUNT_DIR, paramName).toString();
+        return Paths.get(Constants.CONTAINER_INPUT_FILES_MOUNT_DIR, paramName).toString();
     }
 }

@@ -1,21 +1,14 @@
 package main;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import common.Constants;
+import com.google.inject.*;
 import externalapi.appcall.DBAppCallDAO;
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import httpserver.WebServiceServer;
 import org.slf4j.*;
 import watchers.ContainerFinishWatcher;
-import externalapi.appcall.AppCallDAO;
-import externalapi.appinfo.AppInfoDAO;
-import externalapi.appinfo.DBAppInfoDAO;
+import externalapi.appcall.*;
 import externalapi.DBConnectionPool;
-import helpers.DBHelper;
+import externalapi.appinfo.*;
+import helpers.*;
 import org.eclipse.jetty.server.Server;
 
 /**
@@ -28,6 +21,7 @@ public class Main {
     private static Injector injector;
     
     public static void main(String... args) throws Exception {
+        MyFileUtils.createRequiredDirs();
         DBHelper.createTables();
         injector = initialize();
         {
@@ -56,19 +50,4 @@ public class Main {
         server.stop();
         injector.getInstance(ContainerFinishWatcher.class).stop();
     }
-    
-    public static void createAppBuildDirs(){
-        if (Files.notExists(Paths.get(Constants.APP_BUILD_DIR))) {
-            new File(Constants.APP_BUILD_DIR).mkdirs();
-        }
-        
-        if (Files.notExists(Paths.get(Constants.APP_BUILD_FAILED_DIR))) {
-            new File(Constants.APP_BUILD_FAILED_DIR).mkdirs();
-        }
-        
-        if (Files.notExists(Paths.get(Constants.APP_INPUT_FILES_DIR))) {
-            new File(Constants.APP_INPUT_FILES_DIR).mkdirs();
-        }
-    }
 }
-

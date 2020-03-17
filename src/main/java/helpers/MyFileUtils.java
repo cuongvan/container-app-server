@@ -77,17 +77,9 @@ public class MyFileUtils {
         return destFile;
     }
     
-    public static void createRequiredDirs() {
-        if (Files.notExists(Paths.get(Constants.APP_BUILD_DIR))) {
-            new File(Constants.APP_BUILD_DIR).mkdirs();
-        }
-        
-        if (Files.notExists(Paths.get(Constants.APP_BUILD_FAILED_DIR))) {
-            new File(Constants.APP_BUILD_FAILED_DIR).mkdirs();
-        }
-        
-        if (Files.notExists(Paths.get(Constants.APP_INPUT_FILES_DIR))) {
-            new File(Constants.APP_INPUT_FILES_DIR).mkdirs();
-        }
+    public static void createRequiredDirs() throws IOException {
+        FileUtils.forceMkdir(new File(Constants.DOCKER_BUILD_DIR));
+        FileUtils.forceMkdir(new File(Constants.DOCKER_BUILD_FAILED_DIR));
+        FileUtils.forceMkdir(new File(Constants.APP_INPUT_FILES_DIR));
     }
 }

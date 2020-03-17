@@ -6,6 +6,7 @@
 package httpserver;
 
 import com.google.inject.Injector;
+import common.Constants;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.servlet.*;
 import org.glassfish.jersey.logging.LoggingFeature;
@@ -28,7 +29,7 @@ public class WebServiceServer {
             ServerConnector connector = new ServerConnector(server);
             //connector.setHost("0.0.0.0"); // all ips: can access from internet
             connector.setHost("127.0.0.1"); // can only access from same host
-            connector.setPort(5001);
+            connector.setPort(Constants.SERVER_PORT);
             server.setConnectors(new Connector[]{connector});
         }
         
