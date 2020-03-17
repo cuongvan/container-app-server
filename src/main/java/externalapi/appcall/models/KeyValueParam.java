@@ -1,5 +1,6 @@
 package externalapi.appcall.models;
 
+import externalapi.appinfo.models.ParamType;
 import java.util.Objects;
 
 public class KeyValueParam extends CallParam {
@@ -9,6 +10,12 @@ public class KeyValueParam extends CallParam {
         super(name);
         this.value = value;
     }
+
+    @Override
+    public ParamType getType() {
+        return ParamType.KEY_VALUE;
+    }
+    
     
     public String getValue() {
         return value;

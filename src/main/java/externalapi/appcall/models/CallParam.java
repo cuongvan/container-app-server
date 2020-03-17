@@ -1,6 +1,8 @@
 package externalapi.appcall.models;
 
-public class CallParam {
+import externalapi.appinfo.models.ParamType;
+
+public abstract class CallParam {
     private String name;
 
     public CallParam(String name) {
@@ -10,4 +12,6 @@ public class CallParam {
     public String getName() {
         return name;
     }
+    
+    abstract public ParamType getType();
 }
