@@ -9,4 +9,5 @@ public interface AppCallDAO {
     void createNewCall(String callId, String appId, String userId, List<KeyValueParam> keyValueParams, List<FileParam> fileParams);
     void updateStartedAppCall(String callId, String containerId);
     void updateFinishedAppCall(AppCallResult result);
+    List<String> getAllCallIds();
 }

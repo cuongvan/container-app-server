@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -132,5 +133,23 @@ public class DBAppCallDAO implements AppCallDAO {
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         } 
+    }
+
+    @Override
+    public List<String> getAllCallIds() {
+        String query = "SELECT call_id FROM app_call";
+        try (Connection connection = dbPool.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery();
+        ) {
+            List<String> ids = new ArrayList<>();
+            while (rs.next()) {
+                ids.add(rs.getString("call_id"));
+            }
+            
+            return ids;
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }
