@@ -4,7 +4,8 @@ import externalapi.appcall.models.CallDetail;
 import externalapi.appcall.AppCallDAO;
 import externalapi.appcall.models.CallParam;
 import externalapi.appcall.models.FileParam;
-import httpserver.common.BasicResponse;
+import httpserver.common.FailedResponse;
+import httpserver.common.SuccessResponse;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -27,7 +28,7 @@ public class AppCallEndpoint {
         return new GetAllResponse(callIds);
     }
     
-    private static class GetAllResponse extends BasicResponse {
+    private static class GetAllResponse extends SuccessResponse {
         public final List<String> call_ids;
 
         public GetAllResponse(List<String> call_ids) {
@@ -42,9 +43,14 @@ public class AppCallEndpoint {
     public Response getAppInfo(@PathParam("callId") String callId) {
         CallDetail callDetail = appCallDAO.getById(callId);
         if (callDetail != null) {
-            return Response.ok(callDetail).build();
+            return Response
+                .ok(callDetail)
+                .build();
         } else {
-            return Response.status(Response.Status.NOT_FOUND).entity(BasicResponse.fail("App call not found")).build();
+            return Response
+                .status(Response.Status.NOT_FOUND)
+                .entity(new FailedResponse("App call not found"))
+                .build();
         }
     }
     
@@ -56,7 +62,7 @@ public class AppCallEndpoint {
         if (callDetail == null) {
             return Response
                 .status(Response.Status.NOT_FOUND)
-                .entity(BasicResponse.fail("App call not found"))
+                .entity(new FailedResponse("App call not found"))
                 .type("application/json")
                 .build();
         }
@@ -69,7 +75,7 @@ public class AppCallEndpoint {
             return Response
                 .status(Response.Status.NOT_FOUND)
                 .type("application/json")
-                .entity(BasicResponse.fail("Param not found"))
+                .entity(new FailedResponse("Param not found"))
                 .build();
         }
         
@@ -78,7 +84,7 @@ public class AppCallEndpoint {
             return Response
                 .status(Response.Status.BAD_REQUEST)
                 .type("application/json")
-                .entity(BasicResponse.fail("Not a file param"))
+                .entity(new FailedResponse("Not a file param"))
                 .build();
         }
         
@@ -93,7 +99,7 @@ public class AppCallEndpoint {
             return Response
                 .status(Response.Status.INTERNAL_SERVER_ERROR)
                 .type("application/json")
-                .entity(BasicResponse.fail("Input file not found. It may have been deleted"))
+                .entity(new FailedResponse("Input file not found. It may have been deleted"))
                 .build();
         }
     }

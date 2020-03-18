@@ -7,7 +7,8 @@ package httpserver.endpoints;
 
 import handlers.AppNotBuiltYet;
 import handlers.ExecuteHandler;
-import httpserver.common.BasicResponse;
+import httpserver.common.FailedResponse;
+import httpserver.common.SuccessResponse;
 import java.io.IOException;
 import java.util.*;
 import javax.ws.rs.*;
@@ -46,7 +47,7 @@ public class ExecuteApp {
                 .build();
         } catch (AppNotBuiltYet e) {
             return Response
-                .ok(BasicResponse.fail("App has not been built yet"))
+                .ok(new FailedResponse("App has not been built yet"))
                 .status(Status.SERVICE_UNAVAILABLE)
                 .type(MediaType.APPLICATION_JSON)
                 .build();
@@ -66,11 +67,10 @@ public class ExecuteApp {
         return map;
     }
     
-    private static class ExecuteResponseSuccess extends BasicResponse {
+    private static class ExecuteResponseSuccess extends SuccessResponse {
         public final String callId;
 
         public ExecuteResponseSuccess(String callId) {
-            super("");
             this.callId = callId;
         }
     }

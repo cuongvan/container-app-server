@@ -2,7 +2,8 @@ package httpserver.endpoints;
 
 import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
-import httpserver.common.BasicResponse;
+import httpserver.common.FailedResponse;
+import httpserver.common.SuccessResponse;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -25,11 +26,10 @@ public class AppInfoEndpoint {
         return new GetAllResponse(params);
     }
     
-    private static class GetAllResponse extends BasicResponse {
+    private static class GetAllResponse extends SuccessResponse {
         public final List<String> app_ids;
 
         public GetAllResponse(List<String> app_ids) {
-            super("");
             this.app_ids = app_ids;
         }
     }
@@ -42,7 +42,10 @@ public class AppInfoEndpoint {
         if (appInfo != null) {
             return Response.ok(appInfo).build();
         } else {
-            return Response.status(Status.NOT_FOUND).entity(BasicResponse.fail("App not found")).build();
+            return Response
+                .status(Status.NOT_FOUND)
+                .entity(new FailedResponse("App not found"))
+                .build();
         }
     }
     
@@ -58,7 +61,7 @@ public class AppInfoEndpoint {
             return Response
                 .status(Status.NOT_FOUND)
                 .type("application/json")
-                .entity(BasicResponse.fail("App not found"))
+                .entity(new FailedResponse("App not found"))
                 .build();
         }
     }

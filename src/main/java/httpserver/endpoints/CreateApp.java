@@ -8,7 +8,6 @@ package httpserver.endpoints;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import httpserver.common.BasicResponse;
 import externalapi.appinfo.models.SupportLanguage;
 import externalapi.appinfo.models.AppInfo;
 import externalapi.appinfo.models.AppParam;
@@ -16,6 +15,7 @@ import externalapi.appinfo.models.AppType;
 import externalapi.appinfo.models.ParamType;
 import handlers.BuildAppHandler;
 import handlers.CreateAppHandler;
+import httpserver.common.SuccessResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -102,11 +102,10 @@ public class CreateApp {
         KEY_VALUE, FILE
     }
     
-    public static class CreateAppResponse extends BasicResponse {
+    public static class CreateAppResponse extends SuccessResponse {
         public final String appId;
 
         public CreateAppResponse(String appId) {
-            super("");
             this.appId = appId;
         }
     }

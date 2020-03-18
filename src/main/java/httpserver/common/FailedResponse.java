@@ -13,22 +13,10 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
  * @author cuong
  */
 @JsonNaming(PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy.class)
-public class BasicResponse {
+public class FailedResponse {
     public final String error;
-    
-    public BasicResponse() {
-        this.error = "";
-    }
-    
-    public BasicResponse(String error) {
+
+    public FailedResponse(String error) {
         this.error = error;
-    }
-    
-    public static BasicResponse success() {
-        return new BasicResponse("");
-    }
-    
-    public static BasicResponse fail(String error) {
-        return new BasicResponse(error);
     }
 }
