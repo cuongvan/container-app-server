@@ -6,7 +6,6 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    DBAppCallDAOTest.class,
     DBAppParamDAOTest.class,
 })
 public class IntegrationTests {

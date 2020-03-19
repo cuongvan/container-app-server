@@ -3,12 +3,12 @@ package handlers;
 import common.Constants;
 import docker.DockerAdapter;
 import externalapi.appcall.AppCallDAO;
+import externalapi.appcall.models.CallParam;
 import externalapi.appcall.models.FileParam;
 import externalapi.appcall.models.KeyValueParam;
 import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
 import externalapi.appinfo.models.AppParam;
-import externalapi.appinfo.models.ParamType;
 import helpers.MiscHelper;
 import java.io.IOException;
 import static java.lang.String.format;
@@ -19,10 +19,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import javax.inject.Inject;
-import notify.Notifier;
 
 public class ExecuteHandler {
     
@@ -48,34 +46,28 @@ public class ExecuteHandler {
         
         String callId = MiscHelper.newId();
         
-        List<KeyValueParam> keyValueParams = appInfo.getParams()
-            .stream()
-            .filter(p -> p.getType() == ParamType.KEY_VALUE)
-            .map(p -> processKeyValueParam(p, files.get(p.getName())))
-            .collect(toList());
-            
-        List<FileParam> fileParams = new ArrayList<>();
+        List<CallParam> callParams = new ArrayList<>();
         for (AppParam appParam : appInfo.getParams()) {
-            if (appParam.getType() == ParamType.FILE)
-                fileParams.add(processFileParam(callId, appParam, files.get(appParam.getName())));
+            callParams.add(processParam(callId, appParam, files.get(appParam.getName())));
         }
         
-        appCallDAO.createNewCall(callId, appId, userId, keyValueParams, fileParams);
+        appCallDAO.createNewCall(callId, appId, userId, callParams);
         
         // execute docker
-        Map<String, String> environments = keyValueParams
-            .stream()
-            .collect(toMap(p -> keyValueEnvName(p),
-                KeyValueParam::getValue
-            ));
-        environments.put("CKAN_HOST", "http://localhost:5000");
+        Map<String, String> environments = new HashMap<>();
+        Map<String, String> mounts = new HashMap<>();;
         
-        Map<String, String> mounts = fileParams
-            .stream()
-            .collect(toMap(
-                FileParam::getFilePath,
-                p -> fileParamMountPath(p.getName())
-            ));
+        for (CallParam param : callParams) {
+            if (param instanceof KeyValueParam) {
+                environments.put(keyValueEnvName((KeyValueParam) param), param.getValue());
+            } else if (param instanceof FileParam) {
+                mounts.put(((FileParam) param).getFilePath(), param.getValue());
+            } else {
+                
+            }
+        }
+        
+        environments.put("CKAN_HOST", "http://localhost:5000");
         
         Map<String, String> labels = new HashMap<String, String>() {{
             put(Constants.CONTAINER_ID_LABEL_KEY, callId);
@@ -89,16 +81,22 @@ public class ExecuteHandler {
         return format("%s.%s", Constants.CONTAINER_ENV_KEY_VALUE_PREFIX, p.getName());
     }
     
-    private KeyValueParam processKeyValueParam(AppParam appParam, byte[] fileContent) {
-        String value = new String(fileContent);
-        return new KeyValueParam(appParam.getName(), value);
-    }
-    private FileParam processFileParam(String callId, AppParam appParam, byte[] fileContent) throws IOException {
-        String filename = format("%s-%s", callId, appParam.getName());
-        Path filePath = Paths.get(Constants.APP_INPUT_FILES_DIR, filename).toAbsolutePath().normalize();
-        
-        Files.write(filePath, fileContent);
-        return new FileParam(appParam.getName(), filePath.toString());
+    private CallParam processParam(String callId, AppParam appParam, byte[] fileContent) throws IOException {
+        switch (appParam.getType()) {
+            case KEY_VALUE: {
+                String value = new String(fileContent);
+                return new KeyValueParam(appParam.getName(), value);
+            }
+            case FILE: {
+                String filename = format("%s-%s", callId, appParam.getName());
+                Path filePath = Paths.get(Constants.APP_INPUT_FILES_DIR, filename).toAbsolutePath().normalize();
+
+                Files.write(filePath, fileContent);
+                return new FileParam(appParam.getName(), filePath.toString());
+            }
+            default:
+                throw new AssertionError(appParam.getType().name());
+        }
     }
     
     private String fileParamMountPath(String paramName) {

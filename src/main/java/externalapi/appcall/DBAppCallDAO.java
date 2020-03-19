@@ -31,7 +31,7 @@ public class DBAppCallDAO implements AppCallDAO {
     }
 
     @Override
-    public void createNewCall(String callId, String appId, String userId, List<KeyValueParam> keyValueParams, List<FileParam> fileParams) {
+    public void createNewCall(String callId, String appId, String userId, List<CallParam> callParams) {
         try (Connection conn = dbPool.getNonAutoCommitConnection()) {
             
             insertAppCallRow(conn, callId, appId, userId);
@@ -39,21 +39,13 @@ public class DBAppCallDAO implements AppCallDAO {
             try (PreparedStatement stmt = conn.prepareStatement(
                 "INSERT INTO call_param (call_id, name, type, value) VALUES (?, ?, ?, ?)")) {
 
-                for (CallParam p : keyValueParams) {
+                for (CallParam p : callParams) {
                     stmt.setString(1, callId);
                     stmt.setString(2, p.getName());
                     stmt.setString(3, p.getType().name());
                     stmt.setString(4, p.getValue());
                     stmt.addBatch();
                 }
-                for (FileParam p : fileParams) {
-                    stmt.setString(1, callId);
-                    stmt.setString(2, p.getName());
-                    stmt.setString(3, p.getType().name());
-                    stmt.setString(4, p.getValue());
-                    stmt.addBatch();
-                }
-                
                 stmt.executeBatch();
             }
             
