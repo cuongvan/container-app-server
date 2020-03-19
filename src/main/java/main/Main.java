@@ -1,7 +1,7 @@
 package main;
 
 import com.google.inject.*;
-import externalapi.appcall.DBAppCallDAO;
+import externalapi.appcall.AppCallDAO;
 import httpserver.WebServiceServer;
 import org.slf4j.*;
 import watchers.ContainerFinishWatcher;
@@ -39,7 +39,7 @@ public class Main {
             protected void configure() {
                 bind(DBConnectionPool.class).toProvider(() -> DBConnectionPool.getInstance());
                 bind(AppInfoDAO.class).to(DBAppInfoDAO.class);
-                bind(AppCallDAO.class).to(DBAppCallDAO.class);
+                bind(AppCallDAO.class).to(AppCallDAO.class);
             }
         });
     }
