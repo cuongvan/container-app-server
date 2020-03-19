@@ -7,6 +7,7 @@ import externalapi.appcall.models.CallParam;
 import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
 import externalapi.appinfo.models.AppParam;
+import externalapi.appinfo.models.AppStatus;
 import externalapi.appinfo.models.ParamType;
 import helpers.MiscHelper;
 import java.io.IOException;
@@ -34,13 +35,15 @@ public class ExecuteHandler {
     }
 
 
-    public String execute(String appId, String userId, Map<String, byte[]> files) throws IOException, AppNotBuiltYet, AppNotFound {
+    public String execute(String appId, String userId, Map<String, byte[]> files) throws IOException, AppNotDoneBuilding, AppNotFound, AppBuildFailed {
         AppInfo appInfo = appInfoDAO.getById(appId);
         if (appInfo == null)
             throw new AppNotFound();
         
-        if (appInfo.getImageId() == null)
-            throw new AppNotBuiltYet();
+        if (appInfo.getAppStatus() == AppStatus.BUILDING)
+            throw new AppNotDoneBuilding();
+        if (appInfo.getAppStatus() == AppStatus.BUILD_FAILED)
+            throw new AppBuildFailed();
         
         String callId = MiscHelper.newId();
         

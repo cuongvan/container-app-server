@@ -5,7 +5,8 @@
  */
 package httpserver.endpoints;
 
-import handlers.AppNotBuiltYet;
+import handlers.AppBuildFailed;
+import handlers.AppNotDoneBuilding;
 import handlers.AppNotFound;
 import handlers.ExecuteHandler;
 import httpserver.common.FailedResponse;
@@ -46,15 +47,21 @@ public class ExecuteApp {
                 .status(Status.ACCEPTED)
                 .type(MediaType.APPLICATION_JSON)
                 .build();
-        } catch (AppNotBuiltYet e) {
+        } catch (AppNotFound ex) {
+            return Response
+                .ok(new FailedResponse("App not found"))
+                .status(Status.NOT_FOUND)
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+        } catch (AppNotDoneBuilding ex) {
             return Response
                 .ok(new FailedResponse("App has not been built yet"))
                 .status(Status.SERVICE_UNAVAILABLE)
                 .type(MediaType.APPLICATION_JSON)
                 .build();
-        } catch (AppNotFound ex) {
+        } catch (AppBuildFailed ex) {
             return Response
-                .ok(new FailedResponse("App not found"))
+                .ok(new FailedResponse("App build failed. Cannot execute"))
                 .status(Status.NOT_FOUND)
                 .type(MediaType.APPLICATION_JSON)
                 .build();

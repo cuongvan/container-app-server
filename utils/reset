@@ -6,6 +6,13 @@ db = create_engine("postgres://ckan_default:ckan_default@localhost:5432/ckan_def
 def main():
     drop()
     create()
+    delete_data_dir()
+
+def delete_data_dir():
+    import shutil, os
+    dir = '../../ckanapp'
+    if os.path.isdir(dir):
+        shutil.rmtree(dir)
 
 def drop():
     db.execute('DROP TABLE IF EXISTS app_info, app_param, app_call, call_param')
