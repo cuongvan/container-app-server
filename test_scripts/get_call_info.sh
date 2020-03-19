@@ -1,2 +1,2 @@
-CALL_ID=e04ff14b-6871-11ea-99d6-f76cd41399fd
+CALL_ID=$1
 http :5001/call/$CALL_ID

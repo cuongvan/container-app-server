@@ -6,6 +6,7 @@
 package httpserver.endpoints;
 
 import handlers.AppNotBuiltYet;
+import handlers.AppNotFound;
 import handlers.ExecuteHandler;
 import httpserver.common.FailedResponse;
 import httpserver.common.SuccessResponse;
@@ -49,6 +50,12 @@ public class ExecuteApp {
             return Response
                 .ok(new FailedResponse("App has not been built yet"))
                 .status(Status.SERVICE_UNAVAILABLE)
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+        } catch (AppNotFound ex) {
+            return Response
+                .ok(new FailedResponse("App not found"))
+                .status(Status.NOT_FOUND)
                 .type(MediaType.APPLICATION_JSON)
                 .build();
         }

@@ -35,7 +35,8 @@ public class Notifier {
         
 		try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
         } catch (IOException ex) {
-            ex.printStackTrace();
+            //ex.printStackTrace();
+            System.out.println(">> webhook server not connectable");
         }
     }
 }

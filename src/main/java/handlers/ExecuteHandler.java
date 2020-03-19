@@ -38,8 +38,11 @@ public class ExecuteHandler {
     }
 
 
-    public String execute(String appId, String userId, Map<String, byte[]> files) throws IOException, AppNotBuiltYet {
+    public String execute(String appId, String userId, Map<String, byte[]> files) throws IOException, AppNotBuiltYet, AppNotFound {
         AppInfo appInfo = appInfoDAO.getById(appId);
+        if (appInfo == null)
+            throw new AppNotFound();
+        
         if (appInfo.getImageId() == null)
             throw new AppNotBuiltYet();
         

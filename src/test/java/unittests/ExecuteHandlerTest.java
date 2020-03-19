@@ -5,6 +5,7 @@ import externalapi.appcall.AppCallDAO;
 import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
 import handlers.AppNotBuiltYet;
+import handlers.AppNotFound;
 import handlers.ExecuteHandler;
 import java.io.IOException;
 import java.util.*;
@@ -28,7 +29,7 @@ public class ExecuteHandlerTest {
     }
 
     @Test
-    public void executeFoundApp() throws IOException, AppNotBuiltYet {
+    public void executeFoundApp() throws IOException, AppNotBuiltYet, AppNotFound {
         when(appInfoDAO.getById("app-id")).thenReturn(appWithImageId("app-image"));
         
         HashMap<String, byte[]> files = new HashMap<String, byte[]>() {{
