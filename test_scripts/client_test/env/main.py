@@ -1,4 +1,4 @@
-import os
+import os, json
 
 print()
 
@@ -10,8 +10,12 @@ for env_key, env_val in os.environ.items():
 
     if env_key.startswith('ckan.input.text'):
         value = env_val
-    if env_key.startswith('ckan.input.number'):
+    elif env_key.startswith('ckan.input.textlist') or env_key.startswith('ckan.input.numberlist'):
+        value = json.loads(env_val)
+    elif env_key.startswith('ckan.input.number'):
         value = float(env_val)
+    elif env_key.startswith('ckan.input.boolean'):
+        value = True if env_val == 'true' else False
     else:
         value = env_val
     

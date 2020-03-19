@@ -7,6 +7,7 @@ import externalapi.appcall.models.CallParam;
 import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
 import externalapi.appinfo.models.AppParam;
+import externalapi.appinfo.models.ParamType;
 import helpers.MiscHelper;
 import java.io.IOException;
 import static java.lang.String.format;
@@ -55,19 +56,10 @@ public class ExecuteHandler {
         Map<String, String> mounts = new HashMap<>();;
         
         for (CallParam param : callParams) {
-            switch (param.type) {
-                case TEXT:
-                    environments.put(envKey(Constants.TEXT_PARAM_PREFIX, param.name), param.value);
-                    break;
-                case NUMBER:
-                    environments.put(envKey(Constants.NUMBER_PARAM_PREFIX, param.name), param.value);
-                    break;
-                case FILE:
-                    mounts.put(param.value, fileParamMountPath(param.name));
-                    break;
-                default:
-                    throw new AssertionError(param.type.name());
-                
+            if (param.type == ParamType.FILE) {
+                mounts.put(param.value, fileParamMountPath(param.name));
+            } else {
+                environments.put(envKey(param.type.prefix, param.name), param.value);
             }
         }
         

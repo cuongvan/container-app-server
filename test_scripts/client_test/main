@@ -11,8 +11,23 @@ app_info = {
             "label": "",
         },
         {
+            "name": "mytextlist",
+            "type": "TEXT_LIST",
+            "label": "",
+        },
+        {
             "name": "mynumber",
             "type": "NUMBER",
+            "label": "",
+        },
+        {
+            "name": "mynumberlist",
+            "type": "NUMBER_LIST",
+            "label": "",
+        },
+        {
+            "name": "myboolean",
+            "type": "BOOLEAN",
             "label": "",
         },
         {
@@ -41,7 +56,10 @@ print('app_id\t', app_id)
 # call
 r = requests.post('http://localhost:5001/app/{}/execute'.format(app_id), files={
     'mytext': (None, 'Do anything you like'),
+    'mytextlist': (None, '["Van", "Tien", "Cuong"]'),
     'mynumber': (None, '100'),
+    'mynumberlist': (None, '[1, 2, 3]'),
+    'myboolean': (None, 'true'),
     'myfile': ('file', open('./env/main.py', 'rb'))
 })
 
