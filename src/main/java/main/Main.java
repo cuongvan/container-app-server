@@ -1,13 +1,10 @@
 package main;
 
 import com.google.inject.*;
-import externalapi.appcall.AppCallDAO;
 import httpserver.WebServiceServer;
 import org.slf4j.*;
 import watchers.ContainerFinishWatcher;
-import externalapi.appcall.*;
 import externalapi.DBConnectionPool;
-import externalapi.appinfo.*;
 import helpers.*;
 import org.eclipse.jetty.server.Server;
 
@@ -38,8 +35,6 @@ public class Main {
             @Override
             protected void configure() {
                 bind(DBConnectionPool.class).toProvider(() -> DBConnectionPool.getInstance());
-                bind(AppInfoDAO.class).to(DBAppInfoDAO.class);
-                bind(AppCallDAO.class).to(AppCallDAO.class);
             }
         });
     }

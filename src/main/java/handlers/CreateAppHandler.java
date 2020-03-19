@@ -4,6 +4,7 @@ import common.Constants;
 import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
 import helpers.MiscHelper;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import static java.lang.String.format;
@@ -14,13 +15,11 @@ import javax.inject.Inject;
 import org.apache.commons.io.FileUtils;
 
 public class CreateAppHandler {
-    
+    @Inject
     private AppInfoDAO appInfoDAO;
     
     @Inject
-    public CreateAppHandler(AppInfoDAO appInfoDAO) {
-        this.appInfoDAO = appInfoDAO;
-    }
+    private BuildAppHandler buildAppHandler;
     
     public String createApp(AppInfo app, byte[] codeFile, byte[] avatarFile) throws IOException {
         String appId = MiscHelper.newId();
@@ -39,6 +38,7 @@ public class CreateAppHandler {
         }
         
         appInfoDAO.createApp(appId, app);
+        buildAppHandler.buildApp(appId, new ByteArrayInputStream(codeFile));
         return appId;
     }
     

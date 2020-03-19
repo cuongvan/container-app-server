@@ -30,8 +30,6 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 public class CreateApp {
     @Inject
     private CreateAppHandler createAppHandler;
-    @Inject
-    private BuildAppHandler buildAppHandler;
     
     @POST
     @Consumes("multipart/form-data")
@@ -55,7 +53,6 @@ public class CreateApp {
         AppInfo app = translate(request);
         
         String appId = createAppHandler.createApp(app, codeFile, avatarFile);
-        buildAppHandler.buildApp(appId, new ByteArrayInputStream(codeFile));
         return Response
             .status(Response.Status.CREATED)
             .entity(new CreateAppResponse(appId))

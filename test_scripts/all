@@ -25,6 +25,7 @@ temp_name = tempfile.mkstemp()[1]
 zip_file = shutil.make_archive(temp_name, 'zip', root_dir=code_dir, base_dir='./')
 
 # make app
+print('Create app')
 r = requests.post('http://localhost:5001/app/create', files={
     'app_info': (None, json.dumps(app_info)),
     'code_file': ('code.zip', open(zip_file, 'rb'))
@@ -35,6 +36,7 @@ app_id = r.json()['app_id']
 
 
 # call
+print('Call app')
 r = requests.post('http://localhost:5001/app/{}/execute'.format(app_id), files={
     'algorithm': (None, 'Do anything you like'),
     'file_to_anonymize': ('file', open('../README.md', 'rb'))
@@ -46,6 +48,7 @@ call_id = r.json()['call_id']
 time.sleep(1)
 
 # get result
+print('Get result')
 r = requests.get('http://localhost:5001/call/{}'.format(call_id))
 if r.ok:
     output = r.json()['output']

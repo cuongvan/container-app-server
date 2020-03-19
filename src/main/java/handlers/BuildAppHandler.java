@@ -16,19 +16,18 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import helpers.MyFileUtils;
+import javax.inject.Singleton;
 
+@Singleton
 public class BuildAppHandler {
-    
+
+    @Inject    
     private DockerAdapter docker;
+    
+    @Inject
     private AppInfoDAO appInfoDAO;
     
     private final Logger LOG = LoggerFactory.getLogger(BuildAppHandler.class);
-    
-    @Inject
-    public BuildAppHandler(DockerAdapter docker, AppInfoDAO appInfoDAO) {
-        this.docker = docker;
-        this.appInfoDAO = appInfoDAO;
-    }
     
     public void buildApp(String appId, InputStream codeZipFile) throws IOException {
         AppInfo appInfo = appInfoDAO.getById(appId);
