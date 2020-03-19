@@ -34,6 +34,15 @@ r = requests.post('http://localhost:5001/app/create', files={
 print(json.dumps(r.json(), indent=4))
 app_id = r.json()['app_id']
 
+while True:
+    r = requests.get('http://localhost:5001/app/{}'.format(app_id))
+    t = r.json()
+    if t['app_details']['app_status'] == 'BUILDING':
+        print('Waiting for image to be built')
+        time.sleep(0.5)
+    else:
+        break
+
 
 # call
 print('Call app')
@@ -51,8 +60,9 @@ time.sleep(1)
 print('Get result')
 r = requests.get('http://localhost:5001/call/{}'.format(call_id))
 if r.ok:
-    output = r.json()['output']
+    t = r.json()
+    output = t['call_details']['output']
     print('call_output:', output)
-    print(json.dumps(r.json(), indent=4))
+    print(json.dumps(t, indent=4))
 else:
-    print(json.dumps(r.json(), indent=4))
+    print(json.dumps(t, indent=4))

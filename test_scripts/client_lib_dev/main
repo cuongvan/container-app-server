@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-import requests, sys, shutil, tempfile, json
+import requests, sys, shutil, tempfile, json, time
 
 app_info = {
     "app_name": "Anonymize data file",
@@ -43,6 +43,7 @@ temp_name = tempfile.mkstemp()[1]
 zip_file = shutil.make_archive(temp_name, 'zip', root_dir=code_dir, base_dir='./')
 
 # make app
+print('Create app')
 r = requests.post('http://localhost:5001/app/create', files={
     'app_info': (None, json.dumps(app_info)),
     'code_file': ('code.zip', open(zip_file, 'rb'))
@@ -51,8 +52,17 @@ r = requests.post('http://localhost:5001/app/create', files={
 app_id = r.json()['app_id']
 print('app_id\t', app_id)
 
+# wait for build
+while True:
+    r = requests.get('http://localhost:5001/app/{}'.format(app_id))
+    t = r.json()
+    if t['app_detail']['app_status'] == 'BUILDING':
+        time.sleep(0.5)
+    else:
+        break
 
 # call
+print('Call app')
 r = requests.post('http://localhost:5001/app/{}/execute'.format(app_id), files={
     'mytext': (None, 'Do anything you like'),
     'mytextlist': (None, '["Van", "Tien", "Cuong"]'),
@@ -66,11 +76,19 @@ call_id = r.json()['call_id']
 print('call_id\t', call_id)
 
 # get result
+print('Get result')
 while True:
     r = requests.get('http://localhost:5001/call/{}'.format(call_id))
+    t = r.json()
     if r.ok:
         print('call_output')
-        output = r.json()['output']
-        print(output)
-        break
+        if t['call_detail']['call_status'] == 'STARTED':
+            time.sleep(0.5)
+            continue
+        else:
+            print('-------------------------------------------------------------')
+            output = t['call_detail']['output']
+            print(output)
+            print('-------------------------------------------------------------')
+            break
 

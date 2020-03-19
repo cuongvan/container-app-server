@@ -17,9 +17,9 @@ import handlers.BuildAppHandler;
 import handlers.CreateAppHandler;
 import httpserver.common.FailedResponse;
 import httpserver.common.SuccessResponse;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -30,6 +30,8 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 public class CreateApp {
     @Inject
     private CreateAppHandler createAppHandler;
+    @Inject
+    private BuildAppHandler buildAppHandler;
     
     @POST
     @Consumes("multipart/form-data")
@@ -53,6 +55,10 @@ public class CreateApp {
         AppInfo app = translate(request);
         
         String appId = createAppHandler.createApp(app, codeFile, avatarFile);
+        
+        CompletableFuture
+            .runAsync(() -> buildAppHandler.buildApp(appId, codeFile));
+        
         return Response
             .status(Response.Status.CREATED)
             .entity(new CreateAppResponse(appId))

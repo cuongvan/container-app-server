@@ -5,10 +5,14 @@
  */
 package httpserver.common;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
 /**
  *
  * @author cuong
  */
+@JsonNaming(PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy.class)
 public class FailedResponse {
     public final String error;
 

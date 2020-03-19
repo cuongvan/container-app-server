@@ -25,7 +25,7 @@ public class AppInfoDAO {
 
     public void createApp(String appId, AppInfo app) {
         String insertAppInfo = "INSERT INTO app_info(\n" +
-            "app_id, app_name, avatar_path, type, slug_name, code_path, image, owner, description, language, status)\n" +
+            "app_id, app_name, avatar_path, type, slug_name, code_path, image, owner, description, language, app_status)\n" +
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         String insertAppParams = "INSERT INTO app_param(\n" +
             "	app_id, name, type, label, description)\n" +
@@ -44,7 +44,7 @@ public class AppInfoDAO {
                 stmt.setString(8, app.getOwner());
                 stmt.setString(9, app.getDescription());
                 stmt.setString(10, app.getLanguage().name());
-                stmt.setString(11, AppStatus.CREATED.name());
+                stmt.setString(11, app.getAppStatus().name());
                 stmt.executeUpdate();
             }
             
@@ -71,7 +71,7 @@ public class AppInfoDAO {
 
     public AppInfo getById(String appId) {
         String selectAppInfo = "SELECT app_id, app_name, avatar_path, type, slug_name, code_path, image, image_id, "
-            + "owner, description, language, status\n" 
+            + "owner, description, language, app_status\n" 
             + "FROM app_info WHERE app_id = ?";
         
         String selectAppParams = "SELECT name, type, label, description\n" +
@@ -98,7 +98,7 @@ public class AppInfoDAO {
                         .withOwner(rs.getString("owner"))
                         .withDescription(rs.getString("description"))
                         .withLanguage(SupportLanguage.valueOf(rs.getString("language")))
-                        .withStatus(AppStatus.valueOf(rs.getString("status")))
+                        .setAppStatus(AppStatus.valueOf(rs.getString("app_status")))
                         ;
                 }
             }
@@ -138,13 +138,14 @@ public class AppInfoDAO {
         }
     }
     
-    public void updateImageId(String appId, String imageId) {
-        String query = "UPDATE app_info SET image_id = ? WHERE app_id = ?";
+    public void updateImageId(String appId, String imageId, AppStatus appStatus) {
+        String query = "UPDATE app_info SET image_id = ?, app_status = ? WHERE app_id = ?";
         try (Connection connection = dbPool.getConnection();
             PreparedStatement stmt = connection.prepareStatement(query);
         ) {
             stmt.setString(1, imageId);
-            stmt.setString(2, appId);
+            stmt.setString(2, appStatus.name());
+            stmt.setString(3, appId);
             stmt.executeUpdate();
         } catch (SQLException ex) {
             throw new RuntimeException(ex);

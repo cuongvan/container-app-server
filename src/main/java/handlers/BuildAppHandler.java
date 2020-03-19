@@ -4,6 +4,7 @@ import common.Constants;
 import docker.DockerAdapter;
 import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
+import externalapi.appinfo.models.AppStatus;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,16 +30,20 @@ public class BuildAppHandler {
     
     private final Logger LOG = LoggerFactory.getLogger(BuildAppHandler.class);
     
-    public void buildApp(String appId, byte[] codeZipFile) throws IOException {
-        AppInfo appInfo = appInfoDAO.getById(appId);
-        {
+    public void buildApp(String appId, byte[] codeZipFile) {
+        try {
+            AppInfo appInfo = appInfoDAO.getById(appId);
             String templateDir = Paths.get(Constants.DOCKER_BUILD_TEMPLATE_DIR, appInfo.getLanguage().name().toLowerCase()).toString();
             Path dir = createRandomDirAt(Constants.DOCKER_BUILD_DIR);
             MyFileUtils.unzipBytesToDir(codeZipFile, dir.resolve(Constants.DOCKER_BUILD_EXTRACE_CODE_DIR).toString());
             MyFileUtils.copyDirectory(templateDir, dir.toString());
             String imageId = docker.buildImage(dir.toString(), appInfo.getImage());
+            updateAppBuildDone(appId, imageId);
             LOG.info("Image built: " + imageId);
-            appInfoDAO.updateImageId(appId, imageId);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            LOG.info("Build app image failed, appId = {}, {}", appId, ex);
+            updateAppBuildFailed(appId);
         }
     }
 
@@ -57,5 +62,13 @@ public class BuildAppHandler {
         String newFolderName = String.format("%s-%s-%s", appInfo.getImage(), appInfo.getLanguage(), dtf.format(now));
         Path dest = Paths.get(Constants.DOCKER_BUILD_FAILED_DIR, newFolderName);
         MyFileUtils.moveDirectory(dir, dest.toString());
+    }
+    
+     private void updateAppBuildDone(String appId, String imageId) {
+        appInfoDAO.updateImageId(appId, imageId, AppStatus.BUILD_DONE);
+    }
+    
+    private void updateAppBuildFailed(String appId) {
+        appInfoDAO.updateImageId(appId, null, AppStatus.BUILD_FAILED);
     }
 }

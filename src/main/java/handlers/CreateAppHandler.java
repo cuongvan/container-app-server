@@ -3,6 +3,7 @@ package handlers;
 import common.Constants;
 import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
+import externalapi.appinfo.models.AppStatus;
 import helpers.MiscHelper;
 import java.io.File;
 import java.io.IOException;
@@ -16,9 +17,6 @@ import org.apache.commons.io.FileUtils;
 public class CreateAppHandler {
     @Inject
     private AppInfoDAO appInfoDAO;
-    
-    @Inject
-    private BuildAppHandler buildAppHandler;
     
     public String createApp(AppInfo app, byte[] codeFile, byte[] avatarFile) throws IOException {
         String appId = MiscHelper.newId();
@@ -36,8 +34,9 @@ public class CreateAppHandler {
             FileUtils.copyFile(new File(defaultAvatarPath), avatarPath.toFile());
         }
         
+        app.setAppStatus(AppStatus.BUILDING);
         appInfoDAO.createApp(appId, app);
-        buildAppHandler.buildApp(appId, codeFile);
+        
         return appId;
     }
     

@@ -19,7 +19,7 @@ public class AppInfo {
     private String owner;
     private String description;
     private SupportLanguage language;
-    private AppStatus status;
+    private AppStatus appStatus;
     private List<AppParam> params = new ArrayList<>();
 
     public String getAppId() {
@@ -66,8 +66,8 @@ public class AppInfo {
         return language;
     }
 
-    public AppStatus getStatus() {
-        return status;
+    public AppStatus getAppStatus() {
+        return appStatus;
     }
     
     public List<AppParam> getParams() {
@@ -119,7 +119,7 @@ public class AppInfo {
         if (this.language != other.language) {
             return false;
         }
-        if (this.status != other.status) {
+        if (this.appStatus != other.appStatus) {
             return false;
         }
         if (!Objects.equals(this.params, other.params)) {
@@ -130,7 +130,7 @@ public class AppInfo {
     
     @Override
     public String toString() {
-        return "AppInfo{" + "appId=" + appId + ", appName=" + appName + ", avatarUrl=" + avatarUrl + ", type=" + type + ", slugName=" + slugName + ", image=" + image + ", owner=" + owner + ", description=" + description + ", language=" + language + ", status=" + status + ", params=" + params + '}';
+        return "AppInfo{" + "appId=" + appId + ", appName=" + appName + ", avatarUrl=" + avatarUrl + ", type=" + type + ", slugName=" + slugName + ", image=" + image + ", owner=" + owner + ", description=" + description + ", language=" + language + ", status=" + appStatus + ", params=" + params + '}';
     }
 
     public AppInfo withAppId(String appId) {
@@ -188,8 +188,8 @@ public class AppInfo {
         return this;
     }
 
-    public AppInfo withStatus(AppStatus status) {
-        this.status = status;
+    public AppInfo setAppStatus(AppStatus status) {
+        this.appStatus = status;
         return this;
     }
 

@@ -44,13 +44,21 @@ public class AppCallEndpoint {
         CallDetail callDetail = appCallDAO.getById(callId);
         if (callDetail != null) {
             return Response
-                .ok(callDetail)
+                .ok(new GetAppResponse(callDetail))
                 .build();
         } else {
             return Response
                 .status(Response.Status.NOT_FOUND)
                 .entity(new FailedResponse("App call not found"))
                 .build();
+        }
+    }
+    
+    private static class GetAppResponse extends SuccessResponse {
+        public final CallDetail callDetail;
+
+        public GetAppResponse(CallDetail callDetail) {
+            this.callDetail = callDetail;
         }
     }
     

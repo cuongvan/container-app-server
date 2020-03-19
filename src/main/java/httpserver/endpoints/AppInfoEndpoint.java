@@ -40,12 +40,21 @@ public class AppInfoEndpoint {
     public Response getAppInfo(@PathParam("appId") String appId) {
         AppInfo appInfo = appInfoDAO.getById(appId);
         if (appInfo != null) {
-            return Response.ok(appInfo).build();
+            return Response
+                .ok(new GetAppResponse(appInfo)).build();
         } else {
             return Response
                 .status(Status.NOT_FOUND)
                 .entity(new FailedResponse("App not found"))
                 .build();
+        }
+    }
+    
+    private static class GetAppResponse extends SuccessResponse {
+        public final AppInfo appDetail;
+
+        public GetAppResponse(AppInfo appDetail) {
+            this.appDetail = appDetail;
         }
     }
     
