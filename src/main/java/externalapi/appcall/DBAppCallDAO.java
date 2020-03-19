@@ -60,7 +60,7 @@ public class DBAppCallDAO implements AppCallDAO {
             stmt.setString(2, appId);
             stmt.setString(3, userId);
             stmt.setString(4, CallStatus.STARTED.name());
-            int nrows = stmt.executeUpdate();
+            stmt.executeUpdate();
         }
     }
     

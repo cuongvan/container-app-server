@@ -26,7 +26,6 @@ public class CreateAppTest {
     
     @Before
     public void setUp() {
-        DBHelper.truncateTables();
     }
 
     @Test

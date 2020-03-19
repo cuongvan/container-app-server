@@ -25,7 +25,6 @@ public class DBAppParamDAOTest {
     
     @Before
     public void setUp() {
-        DBHelper.truncateTables();
     }
 
     @Test
