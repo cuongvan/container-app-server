@@ -37,7 +37,7 @@ public class Main {
         return Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
-                bind(DBConnectionPool.class).toProvider(() -> DBHelper.getPool());
+                bind(DBConnectionPool.class).toProvider(() -> DBConnectionPool.getInstance());
                 bind(AppInfoDAO.class).to(DBAppInfoDAO.class);
                 bind(AppCallDAO.class).to(DBAppCallDAO.class);
             }

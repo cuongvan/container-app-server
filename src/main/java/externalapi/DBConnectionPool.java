@@ -19,9 +19,16 @@ import org.apache.commons.dbcp2.BasicDataSource;
  */
 @Singleton
 public class DBConnectionPool {
+    
+    private static final DBConnectionPool instance = new DBConnectionPool();
+    
+    public static DBConnectionPool getInstance() {
+        return instance;
+    }
+    
     private BasicDataSource dataSource;
     
-    public DBConnectionPool() {
+    private DBConnectionPool() {
         dataSource = new BasicDataSource();
         dataSource.setUrl(Constants.JDBC_CONNECTION_STRING);
         dataSource.setUsername(Constants.DB_USER);

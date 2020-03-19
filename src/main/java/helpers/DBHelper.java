@@ -5,14 +5,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class DBHelper {
-    private static class ConnectionPoolHolder {
-        private static final DBConnectionPool pool = new DBConnectionPool();
-    }
-    
-    public static DBConnectionPool getPool() {
-        return ConnectionPoolHolder.pool;
-    }
-
     public static void close(Connection connection) {
         if (connection != null)
             try {
