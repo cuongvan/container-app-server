@@ -38,12 +38,13 @@ public class CreateApp {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createApp(
         @FormDataParam("app_info") byte[] appInfo,
-        @FormDataParam("code_file") byte [] codeFile
+        @FormDataParam("code_file") byte [] codeFile,
+        @FormDataParam("avatar_file") byte[] avatarFile
     ) throws IOException, SQLException
     {
         AppInfo_ request = new ObjectMapper().readValue(appInfo, AppInfo_.class);
         AppInfo app = translate(request);
-        String appId = createAppHandler.createApp(app, codeFile);
+        String appId = createAppHandler.createApp(app, codeFile, avatarFile);
         buildAppHandler.buildApp(appId, new ByteArrayInputStream(codeFile));
         
         
@@ -54,9 +55,8 @@ public class CreateApp {
     }
 
     public static AppInfo translate(AppInfo_ request) {
-        AppInfo.Builder builder = AppInfo.builder()
+        AppInfo app = new AppInfo()
             .withAppName(request.appName)
-            .withAvatarUrl(request.avatarUrl)
             .withSlugName(request.slugName)
             .withImage(request.image)
             .withOwner(request.owner)
@@ -66,7 +66,7 @@ public class CreateApp {
             ;
         
         for (AppParam_ p : request.params) {
-            builder.addParam(AppParam.builder()
+            app.addParam(AppParam.builder()
                 .withName(p.name)
                 .withType(ParamType.valueOf(p.type.name()))
                 .withLabel(p.label)
@@ -75,14 +75,13 @@ public class CreateApp {
             );
         }
         
-        return builder.build();
+        return app;
     }
     
     
     @JsonNaming(PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy.class)
     public static class AppInfo_ {
         public String appName;
-        public String avatarUrl;
         public String slugName;
         public String image;
         public String owner;

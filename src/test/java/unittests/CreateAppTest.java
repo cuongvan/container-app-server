@@ -23,10 +23,9 @@ public class CreateAppTest {
     @Test
     public void handlerCallsCollaborators() throws IOException {
         CreateAppHandler handler = new CreateAppHandler(appInfoDAO);
-        AppInfo app = AppInfo.builder()
-            .build();
+        AppInfo app = new AppInfo();
         
-        String appId = handler.createApp(app, new byte[0]);
+        String appId = handler.createApp(app, new byte[0], new byte[0]);
         
         verify(appInfoDAO).createApp(eq(appId), any());
     }
@@ -34,10 +33,9 @@ public class CreateAppTest {
     @Test
     public void createAnAppWithCorrectArguments() throws IOException {
         CreateAppHandler handler = new CreateAppHandler(appInfoDAO);
-        AppInfo app = AppInfo.builder()
-            .build();
+        AppInfo app = new AppInfo();
         
-        String appId = handler.createApp(app, new byte[0]);
+        String appId = handler.createApp(app, new byte[0], new byte[0]);
         
         ArgumentCaptor<AppInfo> appCaptor = ArgumentCaptor.forClass(AppInfo.class);
         verify(appInfoDAO).createApp(anyString(), appCaptor.capture());

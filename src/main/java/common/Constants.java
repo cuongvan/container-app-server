@@ -14,6 +14,7 @@ public class Constants {
     public static final String DOCKER_BUILD_EXTRACE_CODE_DIR = "code";
     
     public static final String APP_CODE_FILES_DIR = "../ckanapp/codes";
+    public static final String APP_AVATARS_DIR = "../ckanapp/avatars";
     public static final String APP_INPUT_FILES_DIR = "../ckanapp/inputs";
     
     public static final String CONTAINER_INPUT_FILES_MOUNT_DIR = "/files";

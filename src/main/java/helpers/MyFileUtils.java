@@ -82,6 +82,7 @@ public class MyFileUtils {
         FileUtils.forceMkdir(new File(Constants.DOCKER_BUILD_FAILED_DIR));
         
         FileUtils.forceMkdir(new File(Constants.APP_CODE_FILES_DIR));
+        FileUtils.forceMkdir(new File(Constants.APP_AVATARS_DIR));
         FileUtils.forceMkdir(new File(Constants.APP_INPUT_FILES_DIR));
     }
     
@@ -91,6 +92,7 @@ public class MyFileUtils {
         FileUtils.deleteDirectory(new File(Constants.DOCKER_BUILD_FAILED_DIR));
         
         FileUtils.deleteDirectory(new File(Constants.APP_CODE_FILES_DIR));
+        FileUtils.deleteDirectory(new File(Constants.APP_AVATARS_DIR));
         FileUtils.deleteDirectory(new File(Constants.APP_INPUT_FILES_DIR));
     }
 }

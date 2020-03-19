@@ -80,7 +80,7 @@ public class DBAppInfoDAO implements AppInfoDAO {
                        "FROM app_param WHERE app_id = ?";
         
         Connection connection = null;
-        AppInfo.Builder builder = null;
+        AppInfo app = new AppInfo();
         try {
             connection = dbPool.getNonAutoCommitConnection();
             try (PreparedStatement stmt = connection.prepareStatement(selectAppInfo)) {
@@ -88,7 +88,7 @@ public class DBAppInfoDAO implements AppInfoDAO {
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (!rs.next())
                         return null;
-                    builder = AppInfo.builder()
+                    app
                         .withAppId(appId)
                         .withAppName(rs.getString("app_name"))
                         .withAvatarUrl(rs.getString("ava_url"))
@@ -109,7 +109,7 @@ public class DBAppInfoDAO implements AppInfoDAO {
                 stmt.setString(1, appId);
                 try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {
-                        builder.addParam(AppParam.builder()
+                        app.addParam(AppParam.builder()
                             .withName(rs.getString("name"))
                             .withType(ParamType.valueOf(rs.getString("type")))
                             .withLabel(rs.getString("label"))
@@ -119,7 +119,7 @@ public class DBAppInfoDAO implements AppInfoDAO {
             }
             
             connection.commit();
-            return builder.build();
+            return app;
         } catch (SQLException ex) {
             DBHelper.rollback(connection);
             throw new RuntimeException(ex);

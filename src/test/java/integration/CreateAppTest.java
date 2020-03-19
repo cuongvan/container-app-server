@@ -31,7 +31,7 @@ public class CreateAppTest {
 
     @Test
     public void add_then_retrieve() {
-        AppInfo addNew = AppInfo.builder()
+        AppInfo addNew = new AppInfo()
             .withAppName("show number of rows in csv resource")
             .withType(AppType.BATCH)
             .withLanguage(SupportLanguage.PYTHON)
@@ -43,7 +43,7 @@ public class CreateAppTest {
                 .withName("file2anonymize")
                 .withType(ParamType.FILE)
                 .withLabel("File to anonymize").build())
-            .build();
+            ;
         
         String appId = MiscHelper.newId();
         dao.createApp(appId, addNew);
@@ -67,16 +67,15 @@ public class CreateAppTest {
     }
     
     public static AppInfo makeNewApp() {
-        return AppInfo.builder()
+        return new AppInfo()
             .withAppName("show number of rows in csv resource")
             .withType(AppType.BATCH)
-            .withLanguage(SupportLanguage.PYTHON)
-            .build();
+            .withLanguage(SupportLanguage.PYTHON);
     }
     
     public static AppInfo createdApp(AppInfo app, String appId) {
-        return AppInfo.builder(app)
+        return new AppInfo()
             .withAppId(appId)
-            .withStatus(AppStatus.CREATED).build();
+            .withStatus(AppStatus.CREATED);
     }
 }

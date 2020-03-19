@@ -42,6 +42,6 @@ public class ExecuteHandlerTest {
     }
 
     private static AppInfo appWithImageId(String imageId) {
-        return AppInfo.builder().withImageId(imageId).build();
+        return new AppInfo().withImageId(imageId);
     }
 }
