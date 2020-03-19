@@ -45,7 +45,8 @@ public class CreateApp {
         AppInfo_ request;
         try {
             request = new ObjectMapper().readValue(appInfo, AppInfo_.class);
-        } catch (Exception exec) {
+        } catch (Throwable exec) {
+            exec.printStackTrace();
             return Response
                 .status(Response.Status.BAD_REQUEST)
                 .entity(new FailedResponse(exec.toString()))
