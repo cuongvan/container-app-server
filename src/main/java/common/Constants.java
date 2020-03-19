@@ -18,4 +18,6 @@ public class Constants {
     
     public static final String CONTAINER_INPUT_FILES_MOUNT_DIR = "/files";
     public static final String CONTAINER_ID_LABEL_KEY = "ckan.callid";
+    
+    public static final String CKAN_WEBHOOK_HOST = "http://127.0.0.1:5002";
 }

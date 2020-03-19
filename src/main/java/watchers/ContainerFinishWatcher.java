@@ -18,6 +18,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import notify.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,12 +30,14 @@ public class ContainerFinishWatcher {
     private DockerAdapter docker;
     private AppCallDAO appCallDAO;
     private ExecutorService executor;
+    private Notifier notifier;
     
     @Inject
-    public ContainerFinishWatcher(DockerAdapter dockerAdapter, AppCallDAO appCallDAO) {
+    public ContainerFinishWatcher(DockerAdapter dockerAdapter, AppCallDAO appCallDAO, Notifier notifier) {
         this.docker = dockerAdapter;
         this.appCallDAO = appCallDAO;
         executor = Executors.newSingleThreadExecutor();
+        this.notifier = notifier;
     }
     
     public void runForever() {
@@ -70,7 +73,8 @@ public class ContainerFinishWatcher {
         try {
             AppCallResult r = gatherCallResultInfo(inspect);
             appCallDAO.updateFinishedAppCall(r);
-            LOG.info("App call {} finished: {}", r.getAppCallId(), r);
+            notifier.executeDone(r.appCallId);
+            LOG.info("App call {} finished: {}", r.appCallId, r);
         } finally {
             docker.deleteContainer(containerId);
         }

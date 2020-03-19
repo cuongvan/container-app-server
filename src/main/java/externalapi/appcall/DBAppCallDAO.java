@@ -85,10 +85,10 @@ public class DBAppCallDAO implements AppCallDAO {
         try (Connection conn = dbPool.getConnection()) {
             try (PreparedStatement stmt = conn.prepareStatement(query))
             {
-                stmt.setLong(1, callResult.getElapsedSeconds());
-                stmt.setString(2, callResult.getCallStatus().name());
-                stmt.setString(3, callResult.getOutput());
-                stmt.setString(4, callResult.getAppCallId());
+                stmt.setLong(1, callResult.elapsedSeconds);
+                stmt.setString(2, callResult.callStatus.name());
+                stmt.setString(3, callResult.output);
+                stmt.setString(4, callResult.appCallId);
                 stmt.executeUpdate();
             }
         } catch (SQLException ex) {
