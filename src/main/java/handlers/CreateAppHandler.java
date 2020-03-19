@@ -4,12 +4,14 @@ import common.Constants;
 import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
 import helpers.MiscHelper;
+import java.io.File;
 import java.io.IOException;
 import static java.lang.String.format;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.inject.Inject;
+import org.apache.commons.io.FileUtils;
 
 public class CreateAppHandler {
     
@@ -27,10 +29,13 @@ public class CreateAppHandler {
         Files.write(codePath, codeFile);
         app.withCodePath(codePath.toString());
         
+        Path avatarPath = avatarPath(appId);
+        app.withAvatarUrl(avatarPath.toString());
         if (avatarFile != null) {
-            Path avatarPath = avatarPath(appId);
             Files.write(avatarPath, avatarFile);
-            app.withAvatarUrl(avatarPath.toString());
+        } else {
+            String defaultAvatarPath = Constants.APP_DEFAULT_AVATAR_PATH;
+            FileUtils.copyFile(new File(defaultAvatarPath), avatarPath.toFile());
         }
         
         appInfoDAO.createApp(appId, app);
