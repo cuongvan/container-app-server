@@ -65,4 +65,23 @@ public class AppInfoEndpoint {
                 .build();
         }
     }
+    
+    @Path("/{appId}/avatar")
+    @GET
+    public Response getAvatarFile(@PathParam("appId") String appId) throws IOException {
+        AppInfo appInfo = appInfoDAO.getById(appId);
+        if (appInfo != null) {
+            String avatarPath = appInfo.getAvatarUrl();
+            byte[] file = Files.readAllBytes(Paths.get(avatarPath));
+            return Response
+                .ok(file, "application/octet-stream")
+                .build();
+        } else {
+            return Response
+                .status(Status.NOT_FOUND)
+                .type("application/json")
+                .entity(new FailedResponse("App not found"))
+                .build();
+        }
+    }
 }

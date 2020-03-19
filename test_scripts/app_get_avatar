@@ -1,0 +1,16 @@
+#! /usr/bin/env python3
+import requests, sys, json
+from io import BytesIO
+from PIL import Image
+
+if len(sys.argv) == 1:
+    sys.exit('Missing appId')
+
+app_id = sys.argv[1]
+r = requests.get('http://localhost:5001/app/{}/avatar'.format(app_id))
+if r.status_code == 200:
+    image = Image.open(BytesIO(r.content))
+    image.show()
+else:
+    print('status code:', r.status_code)
+    print(json.dumps(r.json(), indent=4))
