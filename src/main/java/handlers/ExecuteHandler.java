@@ -53,7 +53,7 @@ public class ExecuteHandler {
         
         // execute docker
         Map<String, String> environments = new HashMap<>();
-        Map<String, String> mounts = new HashMap<>();;
+        Map<String, String> mounts = new HashMap<>();
         
         for (CallParam param : callParams) {
             if (param.type == ParamType.FILE) {

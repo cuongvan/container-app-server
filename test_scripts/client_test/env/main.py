@@ -7,7 +7,6 @@ for env_key, env_val in os.environ.items():
     if not env_key.startswith('ckan.input'):
         continue
 
-
     if env_key.startswith('ckan.input.text'):
         value = env_val
     elif env_key.startswith('ckan.input.textlist') or env_key.startswith('ckan.input.numberlist'):
@@ -19,7 +18,7 @@ for env_key, env_val in os.environ.items():
     else:
         value = env_val
     
-    print('{:30s}\t: {}\t{}'.format(env_key, type(value).__name__, value))
+    print('{:35s}\t: {}\t{}'.format(env_key, type(value).__name__, value))
     param = env_key.rpartition('.')[2]
     params[param] = value
 
@@ -27,5 +26,6 @@ for env_key, env_val in os.environ.items():
 # for param, value in params:
 #     print('{:30s}\t: {}\t{}'.format(param, type(value).__name__, value))
 
+print('\nClient lib will parse to this:')
 from pprint import pprint
 pprint(params)

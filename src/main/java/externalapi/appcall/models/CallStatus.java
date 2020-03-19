@@ -10,5 +10,5 @@ package externalapi.appcall.models;
  * @author cuong
  */
 public enum CallStatus {
-    SUCCESS, FAILED, TIMEOUT
+    STARTED, SUCCESS, FAILED, TIMEOUT
 }

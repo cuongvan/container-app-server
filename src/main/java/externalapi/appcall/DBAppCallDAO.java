@@ -55,10 +55,11 @@ public class DBAppCallDAO implements AppCallDAO {
 
     private void insertAppCallRow(Connection conn, String callId, String appId, String userId) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement (
-            "INSERT INTO app_call (call_id, app_id, user_id) VALUES (?, ?, ?)")) {
+            "INSERT INTO app_call (call_id, app_id, user_id, call_status) VALUES (?, ?, ?, ?)")) {
             stmt.setString(1, callId);
             stmt.setString(2, appId);
             stmt.setString(3, userId);
+            stmt.setString(4, CallStatus.STARTED.name());
             int nrows = stmt.executeUpdate();
         }
     }
