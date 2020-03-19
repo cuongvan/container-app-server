@@ -42,6 +42,9 @@ code_dir = './env'
 temp_name = tempfile.mkstemp()[1]
 zip_file = shutil.make_archive(temp_name, 'zip', root_dir=code_dir, base_dir='./')
 
+def show(r):
+    print(json.dumps(r.json(), indent=4))
+
 # make app
 print('Create app')
 r = requests.post('http://localhost:5001/app/create', files={
@@ -50,7 +53,8 @@ r = requests.post('http://localhost:5001/app/create', files={
 })
 
 app_id = r.json()['app_id']
-print('app_id\t', app_id)
+show(r)
+print('-------------------------------------------------------------')
 
 # wait for build
 while True:
@@ -73,7 +77,8 @@ r = requests.post('http://localhost:5001/app/{}/execute'.format(app_id), files={
 })
 
 call_id = r.json()['call_id']
-print('call_id\t', call_id)
+show(r)
+print('-------------------------------------------------------------')
 
 # get result
 print('Get result')
@@ -81,12 +86,11 @@ while True:
     r = requests.get('http://localhost:5001/call/{}'.format(call_id))
     t = r.json()
     if r.ok:
-        print('call_output')
         if t['call_detail']['call_status'] == 'STARTED':
             time.sleep(0.5)
             continue
         else:
-            print('-------------------------------------------------------------')
+            print('----------------')
             output = t['call_detail']['output']
             print(output)
             print('-------------------------------------------------------------')
