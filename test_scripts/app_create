@@ -7,7 +7,7 @@ app_info = {
     "params": [
         {
             "name": "algorithm",
-            "type": "KEY_VALUE",
+            "type": "TEXT",
             "label": "Algorithm",
             "description": "Algorithm to anonymize dataset"
         },

@@ -37,7 +37,7 @@ public class CreateAppTest {
             .withLanguage(SupportLanguage.PYTHON)
             .addParam(AppParam.builder()
                 .withName("algorithm")
-                .withType(ParamType.KEY_VALUE)
+                .withType(ParamType.TEXT)
                 .withLabel("Algorithm").build())
             .addParam(AppParam.builder()
                 .withName("file2anonymize")

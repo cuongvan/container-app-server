@@ -205,7 +205,7 @@ public class DBAppCallDAO implements AppCallDAO {
     
     CallParam create(ParamType type, String name, String value) {
         switch (type) {
-            case KEY_VALUE:
+            case TEXT:
                 return new KeyValueParam(name, value);
             case FILE:
                 return new FileParam(name, value);

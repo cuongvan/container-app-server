@@ -20,7 +20,7 @@ public class Constants {
     
     public static final String CONTAINER_INPUT_FILES_MOUNT_DIR = "/files";
     public static final String CONTAINER_ID_LABEL_KEY = "ckan.callid";
-    public static final String CONTAINER_ENV_KEY_VALUE_PREFIX = "ckan.input.keyvalue";
+    public static final String CONTAINER_ENV_TEXT_PARAM_PREFIX = "ckan.input.text";
     
     public static final String CKAN_WEBHOOK_HOST = "http://127.0.0.1:5002";
 }

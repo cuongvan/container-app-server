@@ -78,12 +78,12 @@ public class ExecuteHandler {
     }
 
     private static String keyValueEnvName(KeyValueParam p) {
-        return format("%s.%s", Constants.CONTAINER_ENV_KEY_VALUE_PREFIX, p.getName());
+        return format("%s.%s", Constants.CONTAINER_ENV_TEXT_PARAM_PREFIX, p.getName());
     }
     
     private CallParam processParam(String callId, AppParam appParam, byte[] fileContent) throws IOException {
         switch (appParam.getType()) {
-            case KEY_VALUE: {
+            case TEXT: {
                 String value = new String(fileContent);
                 return new KeyValueParam(appParam.getName(), value);
             }

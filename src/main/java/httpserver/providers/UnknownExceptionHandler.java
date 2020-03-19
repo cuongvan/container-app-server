@@ -5,6 +5,7 @@
  */
 package httpserver.providers;
 
+import httpserver.common.FailedResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import javax.ws.rs.NotAllowedException;
@@ -23,40 +24,36 @@ import org.slf4j.LoggerFactory;
 public class UnknownExceptionHandler implements ExceptionMapper<Exception> {
     static Logger logger = LoggerFactory.getLogger("Exception handler");
     
-    public static class ErrorResponse {
-        public String error;
-    }
-    
     @Override
     public Response toResponse(Exception e) {
         e.printStackTrace();
-        ErrorResponse r = new ErrorResponse();
+        String error;
         int status;
         if (e instanceof SQLException) {
             status = 500;
-            r.error = String.format("SQL exception: %s", e.getMessage());
+            error = String.format("SQL exception: %s", e.getMessage());
         }
         else if (e instanceof NotFoundException) {
             status = 404;
-            r.error = "Invalid path";
+            error = "Invalid path";
         }
         else if (e instanceof NotAllowedException) {
             status = 404;
-            r.error = "Method not allowed";
+            error = "Method not allowed";
         }
         else if (e instanceof IOException) {
             status = 500;
-            r.error = "IOException: " + e.getMessage();
+            error = "IOException: " + e.getMessage();
         }
         else {
             status = 500;
-            r.error = String.format("Unknown error: %s: %s", e, e.getMessage());
+            error = String.format("Unknown error: %s: %s", e, e.getMessage());
         }
         
         return Response
             .status(status)
             .type(MediaType.APPLICATION_JSON)
-            .entity(r)
+            .entity(new FailedResponse(error))
             .build();
     }
 }

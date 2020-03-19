@@ -37,7 +37,7 @@ public class DBAppParamDAOTest {
         List<AppParam> params = Arrays.asList(
             AppParam.builder()
                 .withName("algorithm")
-                .withType(ParamType.KEY_VALUE)
+                .withType(ParamType.TEXT)
                 .withLabel("Algorithm").build(),
             AppParam.builder()
                 .withName("file2anonymize")

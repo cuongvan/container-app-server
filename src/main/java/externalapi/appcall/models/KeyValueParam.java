@@ -13,7 +13,7 @@ public class KeyValueParam extends CallParam {
 
     @Override
     public ParamType getType() {
-        return ParamType.KEY_VALUE;
+        return ParamType.TEXT;
     }
     
     

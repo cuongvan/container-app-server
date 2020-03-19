@@ -15,6 +15,7 @@ import externalapi.appinfo.models.AppType;
 import externalapi.appinfo.models.ParamType;
 import handlers.BuildAppHandler;
 import handlers.CreateAppHandler;
+import httpserver.common.FailedResponse;
 import httpserver.common.SuccessResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -42,16 +43,22 @@ public class CreateApp {
         @FormDataParam("avatar_file") byte[] avatarFile
     ) throws IOException, SQLException
     {
-        AppInfo_ request = new ObjectMapper().readValue(appInfo, AppInfo_.class);
-        AppInfo app = translate(request);
-        String appId = createAppHandler.createApp(app, codeFile, avatarFile);
-        buildAppHandler.buildApp(appId, new ByteArrayInputStream(codeFile));
-        
-        
-        return Response
-            .status(Response.Status.CREATED)
-            .entity(new CreateAppResponse(appId))
-            .build();
+        try {
+            AppInfo_ request = new ObjectMapper().readValue(appInfo, AppInfo_.class);
+            AppInfo app = translate(request);
+            String appId = createAppHandler.createApp(app, codeFile, avatarFile);
+            buildAppHandler.buildApp(appId, new ByteArrayInputStream(codeFile));
+
+            return Response
+                .status(Response.Status.CREATED)
+                .entity(new CreateAppResponse(appId))
+                .build();
+        } catch (Exception exec) {
+            return Response
+                .status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(new FailedResponse(exec.toString()))
+                .build();
+        }
     }
 
     public static AppInfo translate(AppInfo_ request) {
@@ -92,13 +99,9 @@ public class CreateApp {
     
     public static class AppParam_ {
         public String name;
-        public ParamType_ type;
+        public ParamType type;
         public String label;
         public String description;
-    }
-    
-    private enum ParamType_ {
-        KEY_VALUE, FILE
     }
     
     public static class CreateAppResponse extends SuccessResponse {

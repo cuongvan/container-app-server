@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-import requests, sys, shutil, tempfile, json
+import requests, sys, shutil, tempfile, json, time
 
 app_info = {
     "app_name": "Anonymize data file",
@@ -7,14 +7,9 @@ app_info = {
     "params": [
         {
             "name": "algorithm",
-            "type": "KEY_VALUE",
+            "type": "TEXT",
             "label": "Algorithm",
             "description": "Algorithm to anonymize dataset"
-        },
-        {
-            "name": "keyvalue_field_2",
-            "type": "KEY_VALUE",
-            "label": "Another test field",
         },
         {
             "name": "file_to_anonymize",
@@ -25,8 +20,7 @@ app_info = {
     ]
 }
 
-code_dir = './env'
-
+code_dir = '../example_apps/python/hello-world'
 temp_name = tempfile.mkstemp()[1]
 zip_file = shutil.make_archive(temp_name, 'zip', root_dir=code_dir, base_dir='./')
 
@@ -36,25 +30,26 @@ r = requests.post('http://localhost:5001/app/create', files={
     'code_file': ('code.zip', open(zip_file, 'rb'))
 })
 
+print(json.dumps(r.json(), indent=4))
 app_id = r.json()['app_id']
-print('app_id', app_id)
 
 
 # call
 r = requests.post('http://localhost:5001/app/{}/execute'.format(app_id), files={
     'algorithm': (None, 'Do anything you like'),
-    'keyvalue_field_2': (None, 'Another key value'),
-    'file_to_anonymize': ('file', open('./env/main.py', 'rb'))
+    'file_to_anonymize': ('file', open('../README.md', 'rb'))
 })
 
+print(json.dumps(r.json(), indent=4))
 call_id = r.json()['call_id']
-print('call_id', call_id)
+
+time.sleep(1)
 
 # get result
-while True:
-    r = requests.get('http://localhost:5001/call/{}'.format(call_id))
-    if r.ok:
-        output = r.json()['output']
-        print('call_output:', output)
-        break
-
+r = requests.get('http://localhost:5001/call/{}'.format(call_id))
+if r.ok:
+    output = r.json()['output']
+    print('call_output:', output)
+    print(json.dumps(r.json(), indent=4))
+else:
+    print(json.dumps(r.json(), indent=4))
