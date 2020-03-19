@@ -10,7 +10,6 @@ public class Constants {
     
     public static final String DOCKER_BUILD_TEMPLATE_DIR = "./templates/docker_build";
     public static final String DOCKER_BUILD_DIR = "../ckanapp/builds";
-    public static final String DOCKER_BUILD_FAILED_DIR = "../ckanapp/builds-failed";
     public static final String DOCKER_BUILD_EXTRACE_CODE_DIR = "code";
     
     public static final String APP_CODE_FILES_DIR = "../ckanapp/codes";

@@ -7,12 +7,9 @@ import externalapi.appinfo.models.AppInfo;
 import externalapi.appinfo.models.AppStatus;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +37,9 @@ public class BuildAppHandler {
             String imageId = docker.buildImage(dir.toString(), appInfo.getImage());
             updateAppBuildDone(appId, imageId);
             LOG.info("Image built: " + imageId);
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (Exception ex) {
             LOG.info("Build app image failed, appId = {}, {}", appId, ex);
+            ex.printStackTrace();
             updateAppBuildFailed(appId);
         }
     }
@@ -56,15 +53,7 @@ public class BuildAppHandler {
         return tempDir;
     }
     
-    private void moveBuildFailBuildDir(AppInfo appInfo, String dir) throws IOException {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime now = LocalDateTime.now();
-        String newFolderName = String.format("%s-%s-%s", appInfo.getImage(), appInfo.getLanguage(), dtf.format(now));
-        Path dest = Paths.get(Constants.DOCKER_BUILD_FAILED_DIR, newFolderName);
-        MyFileUtils.moveDirectory(dir, dest.toString());
-    }
-    
-     private void updateAppBuildDone(String appId, String imageId) {
+    private void updateAppBuildDone(String appId, String imageId) {
         appInfoDAO.updateImageId(appId, imageId, AppStatus.BUILD_DONE);
     }
     
