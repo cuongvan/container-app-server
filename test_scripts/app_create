@@ -29,7 +29,7 @@ zip_file = shutil.make_archive(temp_name, 'zip', root_dir=code_dir, base_dir='./
 r = requests.post('http://localhost:5001/app/create', files={
     'app_info': (None, json.dumps(app_info)),
     'code_file': ('code.zip', open(zip_file, 'rb')),
-    # 'avatar_file': ('avatar', requests.get(avatar_url).content)
+    'avatar_file': ('avatar', requests.get(avatar_url).content)
 })
 
 print(json.dumps(r.json(), indent=4))

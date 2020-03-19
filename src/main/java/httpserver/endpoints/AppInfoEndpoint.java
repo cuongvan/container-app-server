@@ -71,7 +71,7 @@ public class AppInfoEndpoint {
     public Response getAvatarFile(@PathParam("appId") String appId) throws IOException {
         AppInfo appInfo = appInfoDAO.getById(appId);
         if (appInfo != null) {
-            String avatarPath = appInfo.getAvatarUrl();
+            String avatarPath = appInfo.getAvatarPath();
             byte[] file = Files.readAllBytes(Paths.get(avatarPath));
             return Response
                 .ok(file, "application/octet-stream")

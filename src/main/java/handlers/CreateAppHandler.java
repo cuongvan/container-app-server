@@ -30,7 +30,7 @@ public class CreateAppHandler {
         app.withCodePath(codePath.toString());
         
         Path avatarPath = avatarPath(appId);
-        app.withAvatarUrl(avatarPath.toString());
+        app.setAvatarPath(avatarPath.toString());
         if (avatarFile != null) {
             Files.write(avatarPath, avatarFile);
         } else {

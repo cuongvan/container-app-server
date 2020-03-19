@@ -30,7 +30,7 @@ public class AppInfo {
         return appName;
     }
     
-    public String getAvatarUrl() {
+    public String getAvatarPath() {
         return avatarUrl;
     }
 
@@ -143,7 +143,7 @@ public class AppInfo {
         return this;
     }
 
-    public AppInfo withAvatarUrl(String avatarUrl) {
+    public AppInfo setAvatarPath(String avatarUrl) {
         this.avatarUrl = avatarUrl;
         return this;
     }

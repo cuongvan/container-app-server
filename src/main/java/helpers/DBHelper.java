@@ -26,7 +26,7 @@ public class DBHelper {
             "CREATE TABLE IF NOT EXISTS app_info (\n" +
             "    app_id TEXT PRIMARY KEY,\n" +
             "    app_name TEXT NOT NULL,\n" +
-            "    ava_url TEXT,\n" +
+            "    avatar_path TEXT,\n" +
             "    type TEXT,\n" +
             "    slug_name TEXT,\n" +
             "    code_path TEXT,\n" +

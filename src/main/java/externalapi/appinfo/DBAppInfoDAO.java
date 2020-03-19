@@ -26,7 +26,7 @@ public class DBAppInfoDAO implements AppInfoDAO {
     @Override
     public void createApp(String appId, AppInfo app) {
         String insertAppInfo = "INSERT INTO app_info(\n" +
-            "app_id, app_name, ava_url, type, slug_name, code_path, image, owner, description, language, status)\n" +
+            "app_id, app_name, avatar_path, type, slug_name, code_path, image, owner, description, language, status)\n" +
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         String insertAppParams = "INSERT INTO app_param(\n" +
             "	app_id, name, type, label, description)\n" +
@@ -37,7 +37,7 @@ public class DBAppInfoDAO implements AppInfoDAO {
             try (PreparedStatement stmt = connection.prepareStatement(insertAppInfo)) {
                 stmt.setString(1, appId);
                 stmt.setString(2, app.getAppName());
-                stmt.setString(3, app.getAvatarUrl());
+                stmt.setString(3, app.getAvatarPath());
                 stmt.setString(4, app.getType().name());
                 stmt.setString(5, app.getSlugName());
                 stmt.setString(6, app.getCodePath());
@@ -72,7 +72,7 @@ public class DBAppInfoDAO implements AppInfoDAO {
 
     @Override
     public AppInfo getById(String appId) {
-        String selectAppInfo = "SELECT app_id, app_name, ava_url, type, slug_name, code_path, image, image_id, "
+        String selectAppInfo = "SELECT app_id, app_name, avatar_path, type, slug_name, code_path, image, image_id, "
             + "owner, description, language, status\n" 
             + "FROM app_info WHERE app_id = ?";
         
@@ -91,7 +91,7 @@ public class DBAppInfoDAO implements AppInfoDAO {
                     app
                         .withAppId(appId)
                         .withAppName(rs.getString("app_name"))
-                        .withAvatarUrl(rs.getString("ava_url"))
+                        .setAvatarPath(rs.getString("avatar_path"))
                         .withType(AppType.valueOf(rs.getString("type")))
                         .withSlugName(rs.getString("slug_name"))
                         .withCodePath(rs.getString("code_path"))
