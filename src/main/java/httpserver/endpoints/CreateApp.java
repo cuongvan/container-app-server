@@ -8,6 +8,7 @@ package httpserver.endpoints;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import externalapi.appinfo.models.SupportLanguage;
 import externalapi.appinfo.models.AppInfo;
 import externalapi.appinfo.models.AppParam;
@@ -15,11 +16,9 @@ import externalapi.appinfo.models.AppType;
 import externalapi.appinfo.models.ParamType;
 import handlers.BuildAppHandler;
 import handlers.CreateAppHandler;
-import httpserver.common.FailedResponse;
 import httpserver.common.SuccessResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -41,24 +40,17 @@ public class CreateApp {
         @FormDataParam("app_info") byte[] appInfo,
         @FormDataParam("code_file") byte [] codeFile,
         @FormDataParam("avatar_file") byte[] avatarFile
-    ) throws IOException, SQLException
+    ) throws IOException, Exception
     {
-        try {
-            AppInfo_ request = new ObjectMapper().readValue(appInfo, AppInfo_.class);
-            AppInfo app = translate(request);
-            String appId = createAppHandler.createApp(app, codeFile, avatarFile);
-            buildAppHandler.buildApp(appId, new ByteArrayInputStream(codeFile));
+        AppInfo_ request = new ObjectMapper().readValue(appInfo, AppInfo_.class);
+        AppInfo app = translate(request);
+        String appId = createAppHandler.createApp(app, codeFile, avatarFile);
+        buildAppHandler.buildApp(appId, new ByteArrayInputStream(codeFile));
 
-            return Response
-                .status(Response.Status.CREATED)
-                .entity(new CreateAppResponse(appId))
-                .build();
-        } catch (Exception exec) {
-            return Response
-                .status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(new FailedResponse(exec.toString()))
-                .build();
-        }
+        return Response
+            .status(Response.Status.CREATED)
+            .entity(new CreateAppResponse(appId))
+            .build();
     }
 
     public static AppInfo translate(AppInfo_ request) {

@@ -21,39 +21,33 @@ import org.slf4j.LoggerFactory;
  */
 
 @Provider
-public class UnknownExceptionHandler implements ExceptionMapper<Exception> {
+public class UnknownExceptionHandler implements ExceptionMapper<Throwable> {
     static Logger logger = LoggerFactory.getLogger("Exception handler");
     
     @Override
-    public Response toResponse(Exception e) {
+    public Response toResponse(Throwable e) {
         e.printStackTrace();
-        String error;
         int status;
         if (e instanceof SQLException) {
             status = 500;
-            error = String.format("SQL exception: %s", e.getMessage());
         }
         else if (e instanceof NotFoundException) {
             status = 404;
-            error = "Invalid path";
         }
         else if (e instanceof NotAllowedException) {
             status = 404;
-            error = "Method not allowed";
         }
         else if (e instanceof IOException) {
             status = 500;
-            error = "IOException: " + e.getMessage();
         }
         else {
             status = 500;
-            error = String.format("Unknown error: %s: %s", e, e.getMessage());
         }
         
         return Response
             .status(status)
             .type(MediaType.APPLICATION_JSON)
-            .entity(new FailedResponse(error))
+            .entity(new FailedResponse(e.toString()))
             .build();
     }
 }
