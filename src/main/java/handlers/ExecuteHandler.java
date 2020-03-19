@@ -57,9 +57,10 @@ public class ExecuteHandler {
         for (CallParam param : callParams) {
             switch (param.type) {
                 case TEXT:
-                    environments.put(keyValueEnvName(param.name), param.value);
+                    environments.put(envKey(Constants.TEXT_PARAM_PREFIX, param.name), param.value);
                     break;
                 case NUMBER:
+                    environments.put(envKey(Constants.NUMBER_PARAM_PREFIX, param.name), param.value);
                     break;
                 case FILE:
                     mounts.put(param.value, fileParamMountPath(param.name));
@@ -79,13 +80,13 @@ public class ExecuteHandler {
         docker.createAndStartContainer(appInfo.getImageId(), environments, mounts, labels);
         return callId;
     }
-
-    private static String keyValueEnvName(String paramName) {
-        return format("%s.%s", Constants.CONTAINER_ENV_TEXT_PARAM_PREFIX, paramName);
+    
+    private String envKey(String prefix, String paramName) {
+        return prefix + "." + paramName;
     }
     
     private CallParam processParam(String callId, AppParam appParam, byte[] fileContent) throws IOException {
-        String value = "";
+        String value;
         switch (appParam.getType()) {
             case TEXT:
             case NUMBER:
@@ -102,7 +103,6 @@ public class ExecuteHandler {
             }
             default:
                 value = new String(fileContent);
-                //throw new AssertionError(appParam.getType().name());
         }
         
         return new CallParam(appParam.getType(), appParam.getName(), value);

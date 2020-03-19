@@ -1,9 +1,12 @@
 import os
 
 print()
+
+params = {}
 for env_key, env_val in os.environ.items():
     if not env_key.startswith('ckan.input'):
         continue
+
 
     if env_key.startswith('ckan.input.text'):
         value = env_val
@@ -11,5 +14,14 @@ for env_key, env_val in os.environ.items():
         value = float(env_val)
     else:
         value = env_val
+    
+    print('{:30s}\t: {}\t{}'.format(env_key, type(value).__name__, value))
+    param = env_key.rpartition('.')[2]
+    params[param] = value
 
-    print('{}: ({}) {}'.format(env_key, type(value), value))
+
+# for param, value in params:
+#     print('{:30s}\t: {}\t{}'.format(param, type(value).__name__, value))
+
+from pprint import pprint
+pprint(params)

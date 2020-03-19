@@ -35,7 +35,7 @@ r = requests.post('http://localhost:5001/app/create', files={
 })
 
 app_id = r.json()['app_id']
-print('app_id', app_id)
+print('app_id\t', app_id)
 
 
 # call
@@ -46,13 +46,14 @@ r = requests.post('http://localhost:5001/app/{}/execute'.format(app_id), files={
 })
 
 call_id = r.json()['call_id']
-print('call_id', call_id)
+print('call_id\t', call_id)
 
 # get result
 while True:
     r = requests.get('http://localhost:5001/call/{}'.format(call_id))
     if r.ok:
+        print('call_output')
         output = r.json()['output']
-        print('call_output:', output)
+        print(output)
         break
 
