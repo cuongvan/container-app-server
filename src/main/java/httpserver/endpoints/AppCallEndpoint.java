@@ -3,7 +3,7 @@ package httpserver.endpoints;
 import externalapi.appcall.models.CallDetail;
 import externalapi.appcall.AppCallDAO;
 import externalapi.appcall.models.CallParam;
-import externalapi.appcall.models.FileParam;
+import externalapi.appinfo.models.ParamType;
 import httpserver.common.FailedResponse;
 import httpserver.common.SuccessResponse;
 import java.io.IOException;
@@ -68,7 +68,7 @@ public class AppCallEndpoint {
         }
         
         Optional<CallParam> paramOpt = callDetail.getParams().stream()
-            .filter(p -> p.getName().equals(fileParamName))
+            .filter(p -> p.name.equals(fileParamName))
             .findFirst();
         
         if (!paramOpt.isPresent()) {
@@ -80,7 +80,7 @@ public class AppCallEndpoint {
         }
         
         CallParam param = paramOpt.get();
-        if (!(param instanceof FileParam)) {
+        if (!(param.type == ParamType.FILE)) {
             return Response
                 .status(Response.Status.BAD_REQUEST)
                 .type("application/json")
@@ -88,7 +88,7 @@ public class AppCallEndpoint {
                 .build();
         }
         
-        String filePath = ((FileParam) param).getFilePath();
+        String filePath = param.value;
         try {
             byte[] file = Files.readAllBytes(Paths.get(filePath));
             return Response

@@ -2,8 +2,6 @@ package externalapi.appcall;
 
 import externalapi.appcall.models.AppCallResult;
 import externalapi.appcall.models.BatchAppCallResult;
-import externalapi.appcall.models.FileParam;
-import externalapi.appcall.models.KeyValueParam;
 import externalapi.DBConnectionPool;
 import externalapi.appcall.models.CallDetail;
 import externalapi.appcall.models.CallParam;
@@ -41,9 +39,9 @@ public class DBAppCallDAO implements AppCallDAO {
 
                 for (CallParam p : callParams) {
                     stmt.setString(1, callId);
-                    stmt.setString(2, p.getName());
-                    stmt.setString(3, p.getType().name());
-                    stmt.setString(4, p.getValue());
+                    stmt.setString(2, p.name);
+                    stmt.setString(3, p.type.name());
+                    stmt.setString(4, p.value);
                     stmt.addBatch();
                 }
                 stmt.executeBatch();
@@ -184,10 +182,10 @@ public class DBAppCallDAO implements AppCallDAO {
                 stmt.setString(1, callId);
                 try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {
-                        String paramName = rs.getString("name");
+                        String name = rs.getString("name");
                         ParamType type = ParamType.valueOf(rs.getString("type"));
                         String value = rs.getString("value");
-                        CallParam param = create(type, paramName, value);
+                        CallParam param = new CallParam(type, name, value);
                         callDetail.addCallParam(param);
                     }
                 }
@@ -200,17 +198,6 @@ public class DBAppCallDAO implements AppCallDAO {
             throw new RuntimeException(ex);
         } finally {
             DBHelper.close(connection);
-        }
-    }
-    
-    CallParam create(ParamType type, String name, String value) {
-        switch (type) {
-            case TEXT:
-                return new KeyValueParam(name, value);
-            case FILE:
-                return new FileParam(name, value);
-            default:
-                throw new AssertionError(type.name());
         }
     }
 }

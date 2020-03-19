@@ -6,21 +6,19 @@ app_info = {
     "language": "PYTHON",
     "params": [
         {
-            "name": "algorithm",
+            "name": "mytext",
             "type": "TEXT",
-            "label": "Algorithm",
-            "description": "Algorithm to anonymize dataset"
+            "label": "",
         },
         {
-            "name": "keyvalue_field_2",
-            "type": "TEXT",
-            "label": "Another test field",
+            "name": "mynumber",
+            "type": "NUMBER",
+            "label": "",
         },
         {
-            "name": "file_to_anonymize",
+            "name": "myfile",
             "type": "FILE",
-            "label": "File to anonymize",
-            "description": "A csv data file"
+            "label": "",
         }
     ]
 }
@@ -42,9 +40,9 @@ print('app_id', app_id)
 
 # call
 r = requests.post('http://localhost:5001/app/{}/execute'.format(app_id), files={
-    'algorithm': (None, 'Do anything you like'),
-    'keyvalue_field_2': (None, 'Another key value'),
-    'file_to_anonymize': ('file', open('./env/main.py', 'rb'))
+    'mytext': (None, 'Do anything you like'),
+    'mynumber': (None, '100'),
+    'myfile': ('file', open('./env/main.py', 'rb'))
 })
 
 call_id = r.json()['call_id']

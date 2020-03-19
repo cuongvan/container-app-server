@@ -2,17 +2,14 @@ package externalapi.appcall.models;
 
 import externalapi.appinfo.models.ParamType;
 
-public abstract class CallParam {
-    private String name;
+public class CallParam {
+    public final ParamType type;
+    public final String name;
+    public final String value;
 
-    public CallParam(String name) {
+    public CallParam(ParamType type, String name, String value) {
+        this.type = type;
         this.name = name;
+        this.value = value;
     }
-
-    public String getName() {
-        return name;
-    }
-    
-    abstract public ParamType getType();
-    abstract public String getValue();
 }

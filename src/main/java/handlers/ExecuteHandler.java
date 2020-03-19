@@ -4,8 +4,6 @@ import common.Constants;
 import docker.DockerAdapter;
 import externalapi.appcall.AppCallDAO;
 import externalapi.appcall.models.CallParam;
-import externalapi.appcall.models.FileParam;
-import externalapi.appcall.models.KeyValueParam;
 import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
 import externalapi.appinfo.models.AppParam;
@@ -19,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import static java.util.stream.Collectors.toMap;
 import javax.inject.Inject;
 
 public class ExecuteHandler {
@@ -58,11 +55,17 @@ public class ExecuteHandler {
         Map<String, String> mounts = new HashMap<>();;
         
         for (CallParam param : callParams) {
-            if (param instanceof KeyValueParam) {
-                environments.put(keyValueEnvName((KeyValueParam) param), param.getValue());
-            } else if (param instanceof FileParam) {
-                mounts.put(((FileParam) param).getFilePath(), param.getValue());
-            } else {
+            switch (param.type) {
+                case TEXT:
+                    environments.put(keyValueEnvName(param.name), param.value);
+                    break;
+                case NUMBER:
+                    break;
+                case FILE:
+                    mounts.put(param.value, fileParamMountPath(param.name));
+                    break;
+                default:
+                    throw new AssertionError(param.type.name());
                 
             }
         }
@@ -77,26 +80,32 @@ public class ExecuteHandler {
         return callId;
     }
 
-    private static String keyValueEnvName(KeyValueParam p) {
-        return format("%s.%s", Constants.CONTAINER_ENV_TEXT_PARAM_PREFIX, p.getName());
+    private static String keyValueEnvName(String paramName) {
+        return format("%s.%s", Constants.CONTAINER_ENV_TEXT_PARAM_PREFIX, paramName);
     }
     
     private CallParam processParam(String callId, AppParam appParam, byte[] fileContent) throws IOException {
+        String value = "";
         switch (appParam.getType()) {
-            case TEXT: {
-                String value = new String(fileContent);
-                return new KeyValueParam(appParam.getName(), value);
+            case TEXT:
+            case NUMBER:
+            {
+                value = new String(fileContent);
+                break;
             }
             case FILE: {
                 String filename = format("%s-%s", callId, appParam.getName());
                 Path filePath = Paths.get(Constants.APP_INPUT_FILES_DIR, filename).toAbsolutePath().normalize();
-
                 Files.write(filePath, fileContent);
-                return new FileParam(appParam.getName(), filePath.toString());
+                value = filePath.toString();
+                break;
             }
             default:
-                throw new AssertionError(appParam.getType().name());
+                value = new String(fileContent);
+                //throw new AssertionError(appParam.getType().name());
         }
+        
+        return new CallParam(appParam.getType(), appParam.getName(), value);
     }
     
     private String fileParamMountPath(String paramName) {
