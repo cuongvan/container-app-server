@@ -4,7 +4,6 @@ import common.Constants;
 import externalapi.appinfo.AppInfoDAO;
 import externalapi.appinfo.models.AppInfo;
 import helpers.MiscHelper;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import static java.lang.String.format;
@@ -38,7 +37,7 @@ public class CreateAppHandler {
         }
         
         appInfoDAO.createApp(appId, app);
-        buildAppHandler.buildApp(appId, new ByteArrayInputStream(codeFile));
+        buildAppHandler.buildApp(appId, codeFile);
         return appId;
     }
     

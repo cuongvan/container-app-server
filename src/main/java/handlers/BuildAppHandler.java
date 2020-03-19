@@ -29,14 +29,13 @@ public class BuildAppHandler {
     
     private final Logger LOG = LoggerFactory.getLogger(BuildAppHandler.class);
     
-    public void buildApp(String appId, InputStream codeZipFile) throws IOException {
+    public void buildApp(String appId, byte[] codeZipFile) throws IOException {
         AppInfo appInfo = appInfoDAO.getById(appId);
         {
             String templateDir = Paths.get(Constants.DOCKER_BUILD_TEMPLATE_DIR, appInfo.getLanguage().name().toLowerCase()).toString();
             Path dir = createRandomDirAt(Constants.DOCKER_BUILD_DIR);
-            MyFileUtils.unzipStreamToDir(codeZipFile, dir.resolve(Constants.DOCKER_BUILD_EXTRACE_CODE_DIR).toString());
+            MyFileUtils.unzipBytesToDir(codeZipFile, dir.resolve(Constants.DOCKER_BUILD_EXTRACE_CODE_DIR).toString());
             MyFileUtils.copyDirectory(templateDir, dir.toString());
-            codeZipFile.close();
             String imageId = docker.buildImage(dir.toString(), appInfo.getImage());
             LOG.info("Image built: " + imageId);
             appInfoDAO.updateImageId(appId, imageId);
