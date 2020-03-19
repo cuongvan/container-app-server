@@ -8,6 +8,7 @@ import externalapi.DBConnectionPool;
 import externalapi.appcall.models.CallDetail;
 import externalapi.appcall.models.CallParam;
 import externalapi.appcall.models.CallStatus;
+import externalapi.appinfo.models.ParamType;
 import helpers.DBHelper;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -35,11 +36,27 @@ public class DBAppCallDAO implements AppCallDAO {
             
             insertAppCallRow(conn, callId, appId, userId);
             
-            for (KeyValueParam p : keyValueParams)
-                insertTextCallParam(conn, callId, p);
+            try (PreparedStatement stmt = conn.prepareStatement(
+                "INSERT INTO call_param (call_id, name, type, value) VALUES (?, ?, ?, ?)")) {
+
+                for (CallParam p : keyValueParams) {
+                    stmt.setString(1, callId);
+                    stmt.setString(2, p.getName());
+                    stmt.setString(3, p.getType().name());
+                    stmt.setString(4, p.getValue());
+                    stmt.addBatch();
+                }
+                for (FileParam p : fileParams) {
+                    stmt.setString(1, callId);
+                    stmt.setString(2, p.getName());
+                    stmt.setString(3, p.getType().name());
+                    stmt.setString(4, p.getValue());
+                    stmt.addBatch();
+                }
+                
+                stmt.executeBatch();
+            }
             
-            for (FileParam p : fileParams)
-                insertFileCallParam(conn, callId, p);
             conn.commit();
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
@@ -55,29 +72,19 @@ public class DBAppCallDAO implements AppCallDAO {
             int nrows = stmt.executeUpdate();
         }
     }
+    
+    private void insertParam(Connection conn, String callId, String name, ParamType type, String value) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement(
+            "INSERT INTO call_param (call_id, name, type, value) VALUES (?, ?, ?)")) {
+            
+            stmt.setString(1, callId);
+            stmt.setString(2, name);
+            stmt.setString(3, type.name());
+            stmt.setString(4, value);
+            stmt.executeUpdate();
+        }
+    }
 
-    private void insertTextCallParam(Connection conn, String callId, KeyValueParam param) throws SQLException {
-        try (PreparedStatement stmt = conn.prepareStatement(
-            "INSERT INTO call_param (call_id, param_name, text_value) VALUES (?, ?, ?)")) {
-            
-            stmt.setString(1, callId);
-            stmt.setString(2, param.getName());
-            stmt.setString(3, param.getValue());
-            stmt.executeUpdate();
-        }
-    }
-    
-    private void insertFileCallParam(Connection conn, String callId, FileParam param) throws SQLException {
-        try (PreparedStatement stmt = conn.prepareStatement(
-            "INSERT INTO call_param (call_id, param_name, file_path) VALUES (?, ?, ?)")) {
-            
-            stmt.setString(1, callId);
-            stmt.setString(2, param.getName());
-            stmt.setString(3, param.getFilePath());
-            stmt.executeUpdate();
-        }
-    }
-    
     @Override
     public void updateFinishedAppCall(AppCallResult callResult) {
         //String query = "SELECT call_id, elapsed_seconds, call_status, output FROM app_call WHERE call_id = ? FOR UPDATE";
@@ -181,20 +188,14 @@ public class DBAppCallDAO implements AppCallDAO {
             }
             
             try (PreparedStatement stmt = connection.prepareStatement(
-                "SELECT param_name, text_value, file_path FROM call_param WHERE call_id = ?")) {
+                "SELECT name, type, value FROM call_param WHERE call_id = ?")) {
                 stmt.setString(1, callId);
                 try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {
-                        String paramName = rs.getString("param_name");
-                        CallParam param;
-                        String keyValue = rs.getString("text_value");
-                        String filePath = rs.getString("file_path");
-                        if (keyValue != null) {
-                            param = new KeyValueParam(paramName, keyValue);
-                        } else {
-                            param = new FileParam(paramName, filePath);
-                        }
-                        
+                        String paramName = rs.getString("name");
+                        ParamType type = ParamType.valueOf(rs.getString("type"));
+                        String value = rs.getString("value");
+                        CallParam param = create(type, paramName, value);
                         callDetail.addCallParam(param);
                     }
                 }
@@ -207,6 +208,17 @@ public class DBAppCallDAO implements AppCallDAO {
             throw new RuntimeException(ex);
         } finally {
             DBHelper.close(connection);
+        }
+    }
+    
+    CallParam create(ParamType type, String name, String value) {
+        switch (type) {
+            case KEY_VALUE:
+                return new KeyValueParam(name, value);
+            case FILE:
+                return new FileParam(name, value);
+            default:
+                throw new AssertionError(type.name());
         }
     }
 }

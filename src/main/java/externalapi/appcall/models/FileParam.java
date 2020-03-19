@@ -18,4 +18,9 @@ public class FileParam extends CallParam {
     public String getFilePath() {
         return filePath;
     }
+
+    @Override
+    public String getValue() {
+        return getFilePath();
+    }
 }

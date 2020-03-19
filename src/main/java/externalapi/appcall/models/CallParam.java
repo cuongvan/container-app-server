@@ -14,4 +14,5 @@ public abstract class CallParam {
     }
     
     abstract public ParamType getType();
+    abstract public String getValue();
 }

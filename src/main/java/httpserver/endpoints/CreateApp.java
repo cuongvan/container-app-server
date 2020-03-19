@@ -79,7 +79,7 @@ public class CreateApp {
     }
     
     
-    @JsonNaming(PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy.class)
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class AppInfo_ {
         public String appName;
         public String slugName;

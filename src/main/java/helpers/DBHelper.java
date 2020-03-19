@@ -67,13 +67,13 @@ public class DBHelper {
     
     private static void createCallParamTable() {
         update(
-            "CREATE TABLE IF NOT EXISTS call_param(\n" +
+            "CREATE TABLE IF NOT EXISTS call_param (\n" +
             "    call_id TEXT REFERENCES app_call(call_id) ON DELETE CASCADE,\n" +
-            "    param_name TEXT NOT NULL,\n" +
-            "    text_value TEXT,\n" +
-            "    file_path TEXT,\n" +
-            "    PRIMARY KEY(call_id, param_name)\n" +
-            ")"
+            "    name TEXT NOT NULL,\n" +
+            "    type TEXT NOT NULL,\n" +
+            "    value TEXT,\n" +
+            "    PRIMARY KEY(call_id, name)\n" +
+            ");"
         );
     }
     

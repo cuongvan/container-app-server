@@ -33,10 +33,10 @@ CREATE TABLE IF NOT EXISTS app_call (
 
 CREATE TABLE IF NOT EXISTS call_param (
     call_id TEXT REFERENCES app_call(call_id) ON DELETE CASCADE,
-    param_name TEXT NOT NULL,
-    text_value TEXT,
-    file_path TEXT,
-    PRIMARY KEY(call_id, param_name)
+    name TEXT NOT NULL,
+    type TEXT NOT NULL,
+    value TEXT,
+    PRIMARY KEY(call_id, name)
 );
 
 -- app_call.status: STARTED, SUCCESS, FAILED
