@@ -65,8 +65,7 @@ public class ExecuteHandler {
         // execute docker
         Map<String, String> environments = keyValueParams
             .stream()
-            .collect(toMap(
-                KeyValueParam::getName,
+            .collect(toMap(p -> keyValueEnvName(p),
                 KeyValueParam::getValue
             ));
         environments.put("CKAN_HOST", "http://localhost:5000");
@@ -84,6 +83,10 @@ public class ExecuteHandler {
         
         docker.createAndStartContainer(appInfo.getImageId(), environments, mounts, labels);
         return callId;
+    }
+
+    private static String keyValueEnvName(KeyValueParam p) {
+        return format("%s.%s", Constants.CONTAINER_ENV_KEY_VALUE_PREFIX, p.getName());
     }
     
     private KeyValueParam processKeyValueParam(AppParam appParam, byte[] fileContent) {

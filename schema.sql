@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS app_info (
     app_id TEXT PRIMARY KEY,
     app_name TEXT NOT NULL,
-    ava_url TEXT,
+    avatar_path TEXT,
     type TEXT,
     slug_name TEXT,
     code_path TEXT,
