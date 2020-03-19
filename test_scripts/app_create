@@ -32,4 +32,10 @@ r = requests.post('http://localhost:5001/app/create', files={
     'avatar_file': ('avatar', requests.get(avatar_url).content)
 })
 
+print('status:', r.status_code)
 print(json.dumps(r.json(), indent=4))
+
+error = r.json()['error']
+if error != "":
+    print()
+    print(error)

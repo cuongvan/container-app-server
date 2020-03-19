@@ -8,7 +8,6 @@ package httpserver.endpoints;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import externalapi.appinfo.models.SupportLanguage;
 import externalapi.appinfo.models.AppInfo;
 import externalapi.appinfo.models.AppParam;
@@ -16,6 +15,7 @@ import externalapi.appinfo.models.AppType;
 import externalapi.appinfo.models.ParamType;
 import handlers.BuildAppHandler;
 import handlers.CreateAppHandler;
+import httpserver.common.FailedResponse;
 import httpserver.common.SuccessResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -42,11 +42,19 @@ public class CreateApp {
         @FormDataParam("avatar_file") byte[] avatarFile
     ) throws IOException, Exception
     {
-        AppInfo_ request = new ObjectMapper().readValue(appInfo, AppInfo_.class);
+        AppInfo_ request;
+        try {
+            request = new ObjectMapper().readValue(appInfo, AppInfo_.class);
+        } catch (Exception exec) {
+            return Response
+                .status(Response.Status.BAD_REQUEST)
+                .entity(new FailedResponse(exec.toString()))
+                .build();
+        }
         AppInfo app = translate(request);
+        
         String appId = createAppHandler.createApp(app, codeFile, avatarFile);
         buildAppHandler.buildApp(appId, new ByteArrayInputStream(codeFile));
-
         return Response
             .status(Response.Status.CREATED)
             .entity(new CreateAppResponse(appId))
