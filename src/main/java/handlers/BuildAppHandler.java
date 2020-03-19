@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import helpers.MyFileUtils;
 import javax.inject.Singleton;
+import org.apache.commons.io.FileUtils;
 
 @Singleton
 public class BuildAppHandler {
@@ -32,11 +33,15 @@ public class BuildAppHandler {
             AppInfo appInfo = appInfoDAO.getById(appId);
             String templateDir = Paths.get(Constants.DOCKER_BUILD_TEMPLATE_DIR, appInfo.getLanguage().name().toLowerCase()).toString();
             Path dir = createRandomDirAt(Constants.DOCKER_BUILD_DIR);
-            MyFileUtils.unzipBytesToDir(codeZipFile, dir.resolve(Constants.DOCKER_BUILD_EXTRACE_CODE_DIR).toString());
-            MyFileUtils.copyDirectory(templateDir, dir.toString());
-            String imageId = docker.buildImage(dir.toString(), appInfo.getImage());
-            updateAppBuildDone(appId, imageId);
-            LOG.info("Image built: " + imageId);
+            try {
+                MyFileUtils.unzipBytesToDir(codeZipFile, dir.resolve(Constants.DOCKER_BUILD_EXTRACE_CODE_DIR).toString());
+                MyFileUtils.copyDirectory(templateDir, dir.toString());
+                String imageId = docker.buildImage(dir.toString(), appInfo.getImage());
+                updateAppBuildDone(appId, imageId);
+                LOG.info("Image built: " + imageId);
+            } finally {
+                FileUtils.forceDelete(dir.toFile());
+            }
         } catch (Exception ex) {
             LOG.info("Build app image failed, appId = {}, {}", appId, ex);
             ex.printStackTrace();

@@ -79,18 +79,8 @@ public class MyFileUtils {
     
     public static void createRequiredDirs() throws IOException {
         FileUtils.forceMkdir(new File(Constants.DOCKER_BUILD_DIR));
-        
         FileUtils.forceMkdir(new File(Constants.APP_CODE_FILES_DIR));
         FileUtils.forceMkdir(new File(Constants.APP_AVATARS_DIR));
         FileUtils.forceMkdir(new File(Constants.APP_INPUT_FILES_DIR));
-    }
-    
-    
-    public static void deleteAppDirs() throws IOException {
-        FileUtils.deleteDirectory(new File(Constants.DOCKER_BUILD_DIR));
-        
-        FileUtils.deleteDirectory(new File(Constants.APP_CODE_FILES_DIR));
-        FileUtils.deleteDirectory(new File(Constants.APP_AVATARS_DIR));
-        FileUtils.deleteDirectory(new File(Constants.APP_INPUT_FILES_DIR));
     }
 }
