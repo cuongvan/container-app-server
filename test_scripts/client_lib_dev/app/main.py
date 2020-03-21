@@ -40,20 +40,19 @@ def write_output(meta):
     with open(OUTPUT_INFO_FILE, 'w') as f:
         f.write(json.dumps(meta, indent=4))
 
-write_output({
-    'fields': []
-})
+write_output([])
 
+???
 
 def put_key_value_(name, type, value: str):
-    output = read_output_meta()
-    output['fields'].append({
+    outputs = read_output_meta()
+    outputs.append({
         'type': type,
         'name': name,
         'value': value,
     })
 
-    write_output(output)
+    write_output(outputs)
 
 def put_text(name, text: str):
     put_key_value_(name, 'TEXT', text)

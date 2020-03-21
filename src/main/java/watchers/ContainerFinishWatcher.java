@@ -5,6 +5,7 @@
  */
 package watchers;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.github.dockerjava.api.command.InspectContainerResponse;
@@ -23,6 +24,8 @@ import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -84,18 +87,26 @@ public class ContainerFinishWatcher {
         }
         
         String callId = getAppCallId(inspect);
+        
+        List<CallOutputEntry> callOutputs;
         try {
-            File outputDir = copyContainerOutput(containerId, callId);
-            CallOutput callOutput = getCallOutput(outputDir);
-            
-            getFileOutputs(outputDir)
-                .map(outputFile -> 
-                    new CallOutputEntry(OutputFieldType.FILE, outputFile.getName(), outputFile.getAbsolutePath()))
-                .forEach(callOutput.fields::add);
-                    
+            try {
+                File outputDir = copyContainerOutput(containerId, callId);
+                callOutputs = getNormalOutputFields(outputDir);
+
+                getFileOutputs(outputDir)
+                    .map(outputFile -> 
+                        new CallOutputEntry(OutputFieldType.FILE, outputFile.getName(), outputFile.getAbsolutePath()))
+                    .forEach(callOutputs::add);
+                
+            } catch (DockerAdapter.DockerOutputPathNotFound ex) {
+                LOG.info("Cannot initialize /outputs in app container. Client code failed before initialization. Check docker logs!");
+                callOutputs = Collections.emptyList();
+                ex.printStackTrace();
+            }
             
             CallResult r = gatherCallResultInfo(inspect);
-            appCallDAO.updateCallResult(callId, r, callOutput.fields);
+            appCallDAO.updateCallResult(callId, r, callOutputs);
             LOG.info("App call {} finished: {}", callId, r);
         } catch (IOException ex) {
             LOG.info("Failed copy output data out of container, callID = {}", callId);
@@ -104,7 +115,7 @@ public class ContainerFinishWatcher {
             LOG.info("Failed to insert result to DB, callID = {}", callId);
             ex.printStackTrace();
         } finally {
-            //docker.deleteContainer(containerId);
+            docker.deleteContainer(containerId);
         }
     }
 
@@ -114,13 +125,13 @@ public class ContainerFinishWatcher {
         return callId;
     }
     
-    private File copyContainerOutput(String containerId, String callId) throws IOException {
+    private File copyContainerOutput(String containerId, String callId) throws IOException, DockerAdapter.DockerOutputPathNotFound {
         File dest = new File(Constants.APP_OUTPUT_FILES_DIR, callId);
         docker.copyDirectory(containerId, Constants.CONTAINER_OUTPUT_FILES_DIR, dest);
         return dest;
     }
     
-    private CallOutput getCallOutput(File outputDir) throws IOException {
+    private List<CallOutputEntry> getNormalOutputFields(File outputDir) throws IOException {
         File metadataFile = new File(outputDir, Constants.CONTAINER_OUTPUT_FILE_RELATIVE_PATH);
         FileInputStream in = new FileInputStream(metadataFile);
         return OBJECT_READER.readValue(in);
@@ -149,5 +160,5 @@ public class ContainerFinishWatcher {
     }
     
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final ObjectReader OBJECT_READER = OBJECT_MAPPER.readerFor(CallOutput.class);
+    private static final ObjectReader OBJECT_READER = OBJECT_MAPPER.readerFor(new TypeReference<List<CallOutputEntry>>() {});
 }

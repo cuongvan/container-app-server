@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import javax.inject.Singleton;
 import com.github.dockerjava.api.command.BuildImageResultCallback;
+import com.github.dockerjava.api.exception.NotFoundException;
 import helpers.MyFileUtils;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -195,7 +196,7 @@ public class DockerAdapter {
         }
     }
     
-    public void copyDirectory(String containerId, String containerDirPath, File hostPath) throws IOException {
+    public void copyDirectory(String containerId, String containerDirPath, File hostPath) throws IOException, DockerOutputPathNotFound {
         DockerClient docker = DockerAdapter.newClient();
         try {
             
@@ -212,8 +213,17 @@ public class DockerAdapter {
             File untaredRootDir = new File(tempDir, untaredRootDirName);
             FileUtils.moveDirectory(untaredRootDir, hostPath);
             tempDir.delete();
+        } catch(NotFoundException ex) {
+            ex.printStackTrace();
+            throw new DockerOutputPathNotFound(ex);
         } finally {
             close(docker);
+        }
+    }
+    
+    public static class DockerOutputPathNotFound extends Exception {
+        public DockerOutputPathNotFound(Throwable ex) {
+            super(ex);
         }
     }
 }
