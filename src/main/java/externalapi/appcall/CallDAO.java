@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import watchers.CallOutputEntry;
-import watchers.OutputFieldType;
+import externalapi.appcall.models.CallOutputEntry;
+import externalapi.appcall.models.OutputFieldType;
 
 @Singleton
 public class CallDAO {

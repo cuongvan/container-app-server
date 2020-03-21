@@ -11,17 +11,22 @@ import com.github.dockerjava.api.command.InspectContainerResponse;
 import common.Constants;
 import docker.DockerAdapter;
 import externalapi.appcall.CallDAO;
+import externalapi.appcall.models.CallOutputEntry;
 import externalapi.appcall.models.CallResult;
 import externalapi.appcall.models.CallStatus;
+import externalapi.appcall.models.OutputFieldType;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
@@ -82,6 +87,13 @@ public class ContainerFinishWatcher {
         try {
             File outputDir = copyContainerOutput(containerId, callId);
             CallOutput callOutput = getCallOutput(outputDir);
+            
+            getFileOutputs(outputDir)
+                .map(outputFile -> 
+                    new CallOutputEntry(OutputFieldType.FILE, outputFile.getName(), outputFile.getAbsolutePath()))
+                .forEach(callOutput.fields::add);
+                    
+            
             CallResult r = gatherCallResultInfo(inspect);
             appCallDAO.updateCallResult(callId, r, callOutput.fields);
             LOG.info("App call {} finished: {}", callId, r);
@@ -94,17 +106,6 @@ public class ContainerFinishWatcher {
         } finally {
             docker.deleteContainer(containerId);
         }
-    }
-
-    private CallResult gatherCallResultInfo(InspectContainerResponse inspect) {
-        int exitCode = inspect.getState().getExitCode();
-        CallStatus status = (exitCode == 0) ? CallStatus.SUCCESS : CallStatus.FAILED;
-        
-        Instant t1 = Instant.parse(inspect.getState().getStartedAt());
-        Instant t2 = Instant.parse(inspect.getState().getFinishedAt());
-        long duration = Duration.between(t1, t2).getSeconds();
-        
-        return new CallResult(status, duration);
     }
 
     private String getAppCallId(InspectContainerResponse inspect) {
@@ -120,11 +121,31 @@ public class ContainerFinishWatcher {
     }
     
     private CallOutput getCallOutput(File outputDir) throws IOException {
-        File metadataFile = new File(outputDir, Constants.OUTPUT_FILE_RELATIVE_PATH);
-        //System.out.println(FileUtils.readFileToString(metadataFile, UTF_8));
-        
+        File metadataFile = new File(outputDir, Constants.CONTAINER_OUTPUT_FILE_RELATIVE_PATH);
         FileInputStream in = new FileInputStream(metadataFile);
         return OBJECT_READER.readValue(in);
+    }
+    
+    
+    private Stream<File> getFileOutputs(File outputDir) {
+        File binaryFilesDir = new File(outputDir, Constants.CONTAINER_OUTPUT_BINARY_FILES_RELATIVE_PATH);
+        
+        return Arrays.stream(binaryFilesDir.listFiles())
+            .map(File::toPath)
+            .map(Path::toAbsolutePath)
+            .map(Path::normalize)
+            .map(Path::toFile);
+    }
+    
+    private CallResult gatherCallResultInfo(InspectContainerResponse inspect) {
+        int exitCode = inspect.getState().getExitCode();
+        CallStatus status = (exitCode == 0) ? CallStatus.SUCCESS : CallStatus.FAILED;
+        
+        Instant t1 = Instant.parse(inspect.getState().getStartedAt());
+        Instant t2 = Instant.parse(inspect.getState().getFinishedAt());
+        long duration = Duration.between(t1, t2).getSeconds();
+        
+        return new CallResult(status, duration);
     }
     
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

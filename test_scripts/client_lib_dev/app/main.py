@@ -25,7 +25,7 @@ def get_input_params():
 
     return params
 
-OUTPUT_ROOT = pathlib.Path('/output')
+OUTPUT_ROOT = pathlib.Path('/outputs')
 OUTPUT_INFO_FILE = OUTPUT_ROOT / "output.json"
 OUTPUT_FILES_DIR = OUTPUT_ROOT / "files"
 
@@ -76,7 +76,7 @@ def put_file(filename, data: bytes):
 from pprint import pprint
 pprint(get_input_params())
 
-# put_file('myfile', b'this is the file content')
+put_file('myfile', b'this is the file content')
 put_text('mytext', 'value of text param')
 put_list('mylist', [1, 2, 3])
 put_boolean('myboolean', True)

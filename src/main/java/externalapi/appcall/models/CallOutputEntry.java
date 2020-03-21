@@ -1,4 +1,4 @@
-package watchers;
+package externalapi.appcall.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
