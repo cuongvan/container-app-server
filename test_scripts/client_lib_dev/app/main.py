@@ -26,7 +26,7 @@ def get_input_params():
     return params
 
 OUTPUT_ROOT = pathlib.Path('/output')
-OUTPUT_INFO_FILE = OUTPUT_ROOT / "metadata"
+OUTPUT_INFO_FILE = OUTPUT_ROOT / "output.json"
 OUTPUT_FILES_DIR = OUTPUT_ROOT / "files"
 
 OUTPUT_ROOT.mkdir(exist_ok=True)
