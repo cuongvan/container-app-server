@@ -45,7 +45,14 @@ temp_name = tempfile.mkstemp()[1]
 zip_file = shutil.make_archive(temp_name, 'zip', root_dir=str(app_dir), base_dir='.')
 
 def show(r):
-    print(json.dumps(r.json(), indent=4))
+    if type(r) is requests.Response:
+        print(json.dumps(r.json(), indent=4))
+    elif type(r) in [dict, list]:
+        print(json.dumps(r, indent=4))
+    else:
+        print('??? type', type(r))
+        print(r)
+
 ######################################################################
 # make app
 print('Create app')
@@ -87,14 +94,14 @@ print('-------------------------------------------------------------')
 print('Get result')
 for i in range(2):
     r = requests.get('http://localhost:5001/call/{}'.format(call_id))
-    t = r.json()
+    data = r.json()['call_detail']
     if r.ok:
-        if t['call_detail']['call_status'] == 'STARTED':
+        if data['call_status'] == 'STARTED':
             time.sleep(1)
             continue
         else:
             print('----------------')
-            show(r)
+            show(data['outputs'])
             print('-------------------------------------------------------------')
             break
 

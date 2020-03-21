@@ -61,6 +61,14 @@ def put_text(name, text: str):
 def put_list(name, val: list):
     put_key_value_(name, 'LIST', str(val))
 
+def put_boolean(name, val: bool):
+    if val is True:
+        text = 'true'
+    else:
+        text = 'false'
+
+    put_key_value_(name, 'BOOLEAN', text)
+
 def put_file(filename, data: bytes):
     with open(OUTPUT_FILES_DIR / filename, 'wb') as f:
         f.write(data)
@@ -71,3 +79,4 @@ pprint(get_input_params())
 # put_file('myfile', b'this is the file content')
 put_text('mytext', 'value of text param')
 put_list('mylist', [1, 2, 3])
+put_boolean('myboolean', True)

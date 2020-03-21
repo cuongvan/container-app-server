@@ -1,5 +1,5 @@
 package watchers;
 
 public enum OutputFieldType {
-    TEXT, LIST, FILE
+    TEXT, LIST, FILE, BOOLEAN
 }
