@@ -2,6 +2,7 @@ import os, json
 
 print()
 
+
 def get_input_params():
     params = {}
     for env_key, env_val in os.environ.items():
@@ -16,17 +17,13 @@ def get_input_params():
             value = float(env_val)
         elif env_key.startswith('ckan.input.boolean'):
             value = True if env_val == 'true' else False
-        else:
-            value = env_val
-        
-        print('{:35s}\t: {}\t{}'.format(env_key, type(value).__name__, value))
+        elif env_key.startswith('ckan.input.file'):
+            with open(env_val, 'rb') as f:
+                value = f.read()
         param = env_key.rpartition('.')[2]
         params[param] = value
 
     return params
-# for param, value in params:
-#     print('{:30s}\t: {}\t{}'.format(param, type(value).__name__, value))
 
-print('\nClient lib will parse to this:')
 from pprint import pprint
-pprint(params)
+pprint(get_input_params())

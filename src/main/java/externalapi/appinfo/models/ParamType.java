@@ -9,12 +9,16 @@ public enum ParamType {
     
     BOOLEAN("ckan.input.boolean"),
     
-    FILE(null);
+    FILE("ckan.input.file");
     
     
     public final String prefix;
 
     private ParamType(String prefix) {
         this.prefix = prefix;
+    }
+    
+    public String toEnvKey(String paramName) {
+        return prefix + "." + paramName;
     }
 }

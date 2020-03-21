@@ -63,9 +63,12 @@ public class ExecuteHandler {
         
         for (CallParam param : callParams) {
             if (param.type == ParamType.FILE) {
-                mounts.put(param.value, fileParamMountPath(param.name));
+                String hostFilePath = param.value;
+                String containerFilePath = fileParamMountPath(param.name);
+                environments.put(param.type.toEnvKey(param.name), containerFilePath);
+                mounts.put(hostFilePath, containerFilePath);
             } else {
-                environments.put(envKey(param.type.prefix, param.name), param.value);
+                environments.put(param.type.toEnvKey(param.name), param.value);
             }
         }
         
@@ -77,10 +80,6 @@ public class ExecuteHandler {
         
         docker.createAndStartContainer(appInfo.getImageId(), environments, mounts, labels);
         return callId;
-    }
-    
-    private String envKey(String prefix, String paramName) {
-        return prefix + "." + paramName;
     }
     
     private CallParam processParam(String callId, AppParam appParam, byte[] fileContent) throws IOException {
