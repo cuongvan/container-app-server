@@ -12,16 +12,18 @@ public class CallDetail {
     public final String userId;
     public final long elapsedSeconds;
     public final CallStatus callStatus;
+    public final String createdAt;
     public final List<CallInputEntry> inputs;
     public final List<CallOutputEntry> outputs;
 
-    public CallDetail(String callId, String appId, String userId, long elapsedSeconds, CallStatus callStatus, List<CallInputEntry> params, List<CallOutputEntry> outputs) {
+    public CallDetail(String callId, String appId, String userId, long elapsedSeconds, CallStatus callStatus, String createdAt, List<CallInputEntry> inputs, List<CallOutputEntry> outputs) {
         this.callId = callId;
         this.appId = appId;
         this.userId = userId;
         this.elapsedSeconds = elapsedSeconds;
         this.callStatus = callStatus;
-        this.inputs = params;
+        this.createdAt = createdAt;
+        this.inputs = inputs;
         this.outputs = outputs;
     }
 }

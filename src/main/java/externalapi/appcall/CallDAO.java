@@ -11,6 +11,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -129,10 +131,10 @@ public class CallDAO {
             String userId;
             long elapsed;
             CallStatus callStatus;
+            String createdAt;
             
             try (PreparedStatement stmt = connection.prepareStatement(
-                "SELECT call_id, app_id, user_id, elapsed_seconds, call_status "
-                + "FROM app_call WHERE call_id = ?")) {
+                "SELECT * FROM app_call WHERE call_id = ?")) {
                 stmt.setString(1, callId);
                 try (ResultSet callRs = stmt.executeQuery()) {
                     if (!callRs.next())
@@ -142,6 +144,8 @@ public class CallDAO {
                     userId = callRs.getString("user_id");
                     elapsed = callRs.getLong("elapsed_seconds");
                     callStatus = CallStatus.valueOf(callRs.getString("call_status"));
+                    Timestamp time = callRs.getTimestamp("created_at");
+                    createdAt = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(time.toLocalDateTime());
                 }
             }
             
@@ -177,7 +181,7 @@ public class CallDAO {
             }
             
             connection.commit();
-            return new CallDetail(callId, appId, userId, elapsed, callStatus, inputs, outputs);
+            return new CallDetail(callId, appId, userId, elapsed, callStatus, createdAt, inputs, outputs);
         } catch (SQLException ex) {
             DBHelper.rollback(connection);
             throw ex;
