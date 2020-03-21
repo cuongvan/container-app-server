@@ -2,6 +2,7 @@ package httpserver.endpoints;
 
 import externalapi.appinfo.AppDAO;
 import externalapi.appinfo.models.AppDetail;
+import handlers.exceptions.AppNotFound;
 import httpserver.common.FailedResponse;
 import httpserver.common.SuccessResponse;
 import java.io.IOException;
@@ -86,6 +87,23 @@ public class AppEndpoint {
                 .ok(file, "application/octet-stream")
                 .build();
         } else {
+            return Response
+                .status(Status.NOT_FOUND)
+                .type("application/json")
+                .entity(new FailedResponse("App not found"))
+                .build();
+        }
+    }
+    
+    @Path("/{appId}")
+    @DELETE
+    public Response deleteApp(@PathParam("appId") String appId) {
+        try {
+            appDAO.deleteById(appId);
+            return Response
+                .ok(new SuccessResponse(), "application/json")
+                .build();
+        } catch (AppNotFound ex) {
             return Response
                 .status(Status.NOT_FOUND)
                 .type("application/json")

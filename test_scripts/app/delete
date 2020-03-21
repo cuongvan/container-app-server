@@ -1,0 +1,6 @@
+#! /usr/bin/env python3
+import requests, sys, shutil, tempfile, json
+
+r = requests.delete('http://localhost:5001/app/' + sys.argv[1])
+
+print(json.dumps(r.json(), indent=4))

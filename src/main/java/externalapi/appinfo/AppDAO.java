@@ -8,6 +8,7 @@ import externalapi.DBConnectionPool;
 import externalapi.appinfo.models.AppParam;
 import externalapi.appinfo.models.ParamType;
 import externalapi.appinfo.models.SysStatus;
+import handlers.exceptions.AppNotFound;
 import helpers.DBHelper;
 import java.sql.*;
 import javax.inject.*;
@@ -129,13 +130,15 @@ public class AppDAO {
         }
     }
 
-    public void deleteById(String appId) {
+    public void deleteById(String appId) throws AppNotFound {
         String query = "DELETE FROM app_info WHERE app_id = ?";
         try (Connection connection = dbPool.getConnection();
             PreparedStatement stmt = connection.prepareStatement(query);
         ) {
             stmt.setString(1, appId);
-            stmt.executeUpdate();
+            int n = stmt.executeUpdate();
+            if (n == 0)
+                throw new AppNotFound();
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
