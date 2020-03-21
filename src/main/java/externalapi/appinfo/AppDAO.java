@@ -15,11 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Singleton
-public class AppInfoDAO {
+public class AppDAO {
     private DBConnectionPool dbPool;
 
     @Inject
-    public AppInfoDAO(DBConnectionPool dbPool) {
+    public AppDAO(DBConnectionPool dbPool) {
         this.dbPool = dbPool;
     }
     

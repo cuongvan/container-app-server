@@ -1,7 +1,7 @@
 package httpserver.endpoints;
 
 import externalapi.appcall.models.CallDetail;
-import externalapi.appcall.AppCallDAO;
+import externalapi.appcall.CallDAO;
 import externalapi.appcall.models.CallParam;
 import externalapi.appinfo.models.ParamType;
 import httpserver.common.FailedResponse;
@@ -18,7 +18,7 @@ import javax.ws.rs.core.Response;
 @Path("/call")
 public class AppCallEndpoint {
     @Inject
-    private AppCallDAO appCallDAO;
+    private CallDAO appCallDAO;
     
     @Path("/")
     @GET

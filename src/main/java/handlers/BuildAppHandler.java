@@ -2,7 +2,7 @@ package handlers;
 
 import common.Constants;
 import docker.DockerAdapter;
-import externalapi.appinfo.AppInfoDAO;
+import externalapi.appinfo.AppDAO;
 import externalapi.appinfo.models.AppDetail;
 import externalapi.appinfo.models.AppStatus;
 import java.io.File;
@@ -24,7 +24,7 @@ public class BuildAppHandler {
     private DockerAdapter docker;
     
     @Inject
-    private AppInfoDAO appInfoDAO;
+    private AppDAO appInfoDAO;
     
     private final Logger LOG = LoggerFactory.getLogger(BuildAppHandler.class);
     

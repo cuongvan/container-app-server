@@ -17,13 +17,13 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class AppCallDAO {
+public class CallDAO {
     private DBConnectionPool dbPool;
     
     public static final String ANONYMOUS_USER = null;
     
     @Inject
-    public AppCallDAO(DBConnectionPool dbPool) {
+    public CallDAO(DBConnectionPool dbPool) {
         this.dbPool = dbPool;
     }
 

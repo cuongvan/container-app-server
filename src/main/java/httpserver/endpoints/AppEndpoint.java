@@ -1,6 +1,6 @@
 package httpserver.endpoints;
 
-import externalapi.appinfo.AppInfoDAO;
+import externalapi.appinfo.AppDAO;
 import externalapi.appinfo.models.AppDetail;
 import httpserver.common.FailedResponse;
 import httpserver.common.SuccessResponse;
@@ -14,15 +14,15 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 @Path("/app")
-public class AppInfoEndpoint {
+public class AppEndpoint {
     @Inject
-    private AppInfoDAO appInfoDAO;
+    private AppDAO appDAO;
     
     @Path("/")
     @GET
     @Produces("application/json")
     public GetAllResponse getAllApps() {
-        List<String> params = appInfoDAO.getAllAppIds();
+        List<String> params = appDAO.getAllAppIds();
         return new GetAllResponse(params);
     }
     
@@ -38,7 +38,7 @@ public class AppInfoEndpoint {
     @GET
     @Produces("application/json")
     public Response getAppInfo(@PathParam("appId") String appId) {
-        AppDetail appInfo = appInfoDAO.getById(appId);
+        AppDetail appInfo = appDAO.getById(appId);
         if (appInfo != null) {
             return Response
                 .ok(new GetAppResponse(appInfo)).build();
@@ -61,7 +61,7 @@ public class AppInfoEndpoint {
     @Path("/{appId}/codefile")
     @GET
     public Response getCodeFile(@PathParam("appId") String appId) throws IOException {
-        AppDetail appInfo = appInfoDAO.getById(appId);
+        AppDetail appInfo = appDAO.getById(appId);
         if (appInfo != null) {
             String codePath = appInfo.getCodePath();
             byte[] codeFile = Files.readAllBytes(Paths.get(codePath));
@@ -78,7 +78,7 @@ public class AppInfoEndpoint {
     @Path("/{appId}/avatar")
     @GET
     public Response getAvatarFile(@PathParam("appId") String appId) throws IOException {
-        AppDetail appInfo = appInfoDAO.getById(appId);
+        AppDetail appInfo = appDAO.getById(appId);
         if (appInfo != null) {
             String avatarPath = appInfo.getAvatarPath();
             byte[] file = Files.readAllBytes(Paths.get(avatarPath));

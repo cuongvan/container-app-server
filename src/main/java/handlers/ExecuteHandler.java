@@ -5,9 +5,9 @@ import handlers.exceptions.AppNotDoneBuilding;
 import handlers.exceptions.AppNotFound;
 import common.Constants;
 import docker.DockerAdapter;
-import externalapi.appcall.AppCallDAO;
+import externalapi.appcall.CallDAO;
 import externalapi.appcall.models.CallParam;
-import externalapi.appinfo.AppInfoDAO;
+import externalapi.appinfo.AppDAO;
 import externalapi.appinfo.models.AppDetail;
 import externalapi.appinfo.models.AppParam;
 import externalapi.appinfo.models.AppStatus;
@@ -27,11 +27,11 @@ import javax.inject.Inject;
 public class ExecuteHandler {
     
     private DockerAdapter docker;
-    private AppInfoDAO appInfoDAO;
-    private AppCallDAO appCallDAO;
+    private AppDAO appInfoDAO;
+    private CallDAO appCallDAO;
 
     @Inject
-    public ExecuteHandler(DockerAdapter docker, AppInfoDAO appInfoDAO, AppCallDAO appCallDAO) {
+    public ExecuteHandler(DockerAdapter docker, AppDAO appInfoDAO, CallDAO appCallDAO) {
         this.docker = docker;
         this.appInfoDAO = appInfoDAO;
         this.appCallDAO = appCallDAO;

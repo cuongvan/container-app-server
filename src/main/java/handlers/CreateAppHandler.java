@@ -1,7 +1,7 @@
 package handlers;
 
 import common.Constants;
-import externalapi.appinfo.AppInfoDAO;
+import externalapi.appinfo.AppDAO;
 import externalapi.appinfo.models.AppDetail;
 import externalapi.appinfo.models.AppStatus;
 import externalapi.appinfo.models.SysStatus;
@@ -17,7 +17,7 @@ import org.apache.commons.io.FileUtils;
 
 public class CreateAppHandler {
     @Inject
-    private AppInfoDAO appInfoDAO;
+    private AppDAO appInfoDAO;
     
     public String createApp(AppDetail app, byte[] codeFile, byte[] avatarFile) throws IOException {
         String appId = MiscHelper.newId();

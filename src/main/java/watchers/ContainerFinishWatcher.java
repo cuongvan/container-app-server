@@ -8,7 +8,7 @@ package watchers;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import common.Constants;
 import docker.DockerAdapter;
-import externalapi.appcall.AppCallDAO;
+import externalapi.appcall.CallDAO;
 import externalapi.appcall.models.AppCallResult;
 import externalapi.appcall.models.CallStatus;
 import java.time.Duration;
@@ -28,12 +28,12 @@ public class ContainerFinishWatcher {
     private final Logger LOG = LoggerFactory.getLogger(ContainerFinishWatcher.class);
     
     private DockerAdapter docker;
-    private AppCallDAO appCallDAO;
+    private CallDAO appCallDAO;
     private ExecutorService executor;
     private Notifier notifier;
     
     @Inject
-    public ContainerFinishWatcher(DockerAdapter dockerAdapter, AppCallDAO appCallDAO, Notifier notifier) {
+    public ContainerFinishWatcher(DockerAdapter dockerAdapter, CallDAO appCallDAO, Notifier notifier) {
         this.docker = dockerAdapter;
         this.appCallDAO = appCallDAO;
         executor = Executors.newSingleThreadExecutor();
