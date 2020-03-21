@@ -11,6 +11,7 @@ import docker.DockerAdapter;
 import externalapi.appcall.CallDAO;
 import externalapi.appcall.models.AppCallResult;
 import externalapi.appcall.models.CallStatus;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
@@ -70,11 +71,13 @@ public class ContainerFinishWatcher {
             return;
         }
         
+        AppCallResult r = gatherCallResultInfo(inspect);
         try {
-            AppCallResult r = gatherCallResultInfo(inspect);
             appCallDAO.updateFinishedAppCall(r);
             notifier.executeDone(r.appCallId);
             LOG.info("App call {} finished: {}", r.appCallId, r);
+        } catch (SQLException ex) {
+            LOG.info("Failed to insert result to DB, callID = {}", r.appCallId);
         } finally {
             docker.deleteContainer(containerId);
         }

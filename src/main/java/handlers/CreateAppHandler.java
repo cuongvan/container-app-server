@@ -12,6 +12,7 @@ import static java.lang.String.format;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import javax.inject.Inject;
 import org.apache.commons.io.FileUtils;
 
@@ -19,7 +20,7 @@ public class CreateAppHandler {
     @Inject
     private AppDAO appInfoDAO;
     
-    public String createApp(AppDetail app, byte[] codeFile, byte[] avatarFile) throws IOException {
+    public String createApp(AppDetail app, byte[] codeFile, byte[] avatarFile) throws IOException, SQLException {
         String appId = MiscHelper.newId();
         
         Path codePath = codePath(appId);

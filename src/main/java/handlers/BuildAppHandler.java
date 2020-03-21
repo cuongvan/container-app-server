@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import helpers.MyFileUtils;
+import java.sql.SQLException;
 import javax.inject.Singleton;
 import org.apache.commons.io.FileUtils;
 
@@ -45,7 +46,12 @@ public class BuildAppHandler {
         } catch (Exception ex) {
             LOG.info("Build app image failed, appId = {}, {}", appId, ex);
             ex.printStackTrace();
-            updateAppBuildFailed(appId);
+            try {
+                updateAppBuildFailed(appId);
+            } catch (SQLException ex1) {
+                LOG.info("Failed to update image build status to {}, appId = {}, {}", AppStatus.BUILD_FAILED, appId, ex);
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -58,11 +64,11 @@ public class BuildAppHandler {
         return tempDir;
     }
     
-    private void updateAppBuildDone(String appId, String imageId) {
+    private void updateAppBuildDone(String appId, String imageId) throws SQLException {
         appInfoDAO.updateImageId(appId, imageId, AppStatus.BUILD_DONE);
     }
     
-    private void updateAppBuildFailed(String appId) {
+    private void updateAppBuildFailed(String appId) throws SQLException {
         appInfoDAO.updateImageId(appId, null, AppStatus.BUILD_FAILED);
     }
 }

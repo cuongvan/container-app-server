@@ -18,6 +18,7 @@ import static java.lang.String.format;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +39,7 @@ public class ExecuteHandler {
     }
 
 
-    public String execute(String appId, String userId, Map<String, byte[]> files) throws IOException, AppNotDoneBuilding, AppNotFound, AppBuildFailed {
+    public String execute(String appId, String userId, Map<String, byte[]> files) throws IOException, AppNotDoneBuilding, AppNotFound, AppBuildFailed, SQLException {
         AppDetail appInfo = appInfoDAO.getById(appId);
         if (appInfo == null)
             throw new AppNotFound();

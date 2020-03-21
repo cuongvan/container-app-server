@@ -25,7 +25,7 @@ public class AppDAO {
     }
     
 
-    public void insertApp(String appId, AppDetail app) {
+    public void insertApp(String appId, AppDetail app) throws SQLException {
         String insertAppInfo = "INSERT INTO app_info(" +
             "app_id, app_name, avatar_path, type, slug_name, code_path, image, owner, description, language, app_status, sys_status) " +
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -67,13 +67,13 @@ public class AppDAO {
             connection.commit();
         } catch (SQLException ex) {
             DBHelper.rollback(connection);
-            throw new RuntimeException(ex);
+            throw ex;
         } finally {
             DBHelper.close(connection);
         }
     }
 
-    public AppDetail getById(String appId) {
+    public AppDetail getById(String appId) throws SQLException {
         String selectAppInfo = "SELECT * FROM app_info WHERE app_id = ?";
         
         String selectAppParams = "SELECT name, type, label, description\n" +
@@ -124,13 +124,13 @@ public class AppDAO {
             return app;
         } catch (SQLException ex) {
             DBHelper.rollback(connection);
-            throw new RuntimeException(ex);
+            throw ex;
         } finally {
             DBHelper.close(connection);
         }
     }
 
-    public void deleteById(String appId) throws AppNotFound {
+    public void deleteById(String appId) throws AppNotFound, SQLException {
         String query = "DELETE FROM app_info WHERE app_id = ?";
         try (Connection connection = dbPool.getConnection();
             PreparedStatement stmt = connection.prepareStatement(query);
@@ -139,12 +139,10 @@ public class AppDAO {
             int n = stmt.executeUpdate();
             if (n == 0)
                 throw new AppNotFound();
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
         }
     }
     
-    public void updateImageId(String appId, String imageId, AppStatus appStatus) {
+    public void updateImageId(String appId, String imageId, AppStatus appStatus) throws SQLException {
         String query = "UPDATE app_info SET image_id = ?, app_status = ? WHERE app_id = ?";
         try (Connection connection = dbPool.getConnection();
             PreparedStatement stmt = connection.prepareStatement(query);
@@ -153,12 +151,10 @@ public class AppDAO {
             stmt.setString(2, appStatus.name());
             stmt.setString(3, appId);
             stmt.executeUpdate();
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
         }
     }
     
-    public List<String> getAllAppIds() {
+    public List<String> getAllAppIds() throws SQLException {
         String query = "SELECT app_id FROM app_info";
         try (Connection connection = dbPool.getConnection();
             PreparedStatement stmt = connection.prepareStatement(query);
@@ -170,8 +166,6 @@ public class AppDAO {
             }
             
             return ids;
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
         }
     }
 }

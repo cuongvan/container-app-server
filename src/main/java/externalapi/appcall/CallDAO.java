@@ -27,7 +27,7 @@ public class CallDAO {
         this.dbPool = dbPool;
     }
 
-    public void createNewCall(String callId, String appId, String userId, List<CallParam> callParams) {
+    public void createNewCall(String callId, String appId, String userId, List<CallParam> callParams) throws SQLException {
         try (Connection conn = dbPool.getNonAutoCommitConnection()) {
             
             insertAppCallRow(conn, callId, appId, userId);
@@ -46,8 +46,6 @@ public class CallDAO {
             }
             
             conn.commit();
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
         }
     }
 
@@ -62,7 +60,7 @@ public class CallDAO {
         }
     }
     
-    public void updateFinishedAppCall(AppCallResult callResult) {
+    public void updateFinishedAppCall(AppCallResult callResult) throws SQLException {
         //String query = "SELECT call_id, elapsed_seconds, call_status, output FROM app_call WHERE call_id = ? FOR UPDATE";
         String query = "UPDATE app_call SET elapsed_seconds = ?, call_status = ?, output = ? WHERE call_id = ?";
         try (Connection conn = dbPool.getConnection()) {
@@ -74,13 +72,11 @@ public class CallDAO {
                 stmt.setString(4, callResult.appCallId);
                 stmt.executeUpdate();
             }
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
         }
     }
 
 
-    public void updateStartedAppCall(String callId, String containerId) {
+    public void updateStartedAppCall(String callId, String containerId) throws SQLException {
         String query = "UPDATE app_call SET status = ?, container_id = ? WHERE call_id = ?";
         // update call status
         try (
@@ -91,12 +87,10 @@ public class CallDAO {
             stmt.setString(2, containerId);
             stmt.setString(3, callId);
             stmt.executeUpdate();
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
-        } 
+        }
     }
 
-    public List<String> getAllCallIds() {
+    public List<String> getAllCallIds() throws SQLException {
         String query = "SELECT call_id FROM app_call";
         try (Connection connection = dbPool.getConnection();
             PreparedStatement stmt = connection.prepareStatement(query);
@@ -108,12 +102,10 @@ public class CallDAO {
             }
             
             return ids;
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
         }
     }
 
-    public CallDetail getById(String callId) {
+    public CallDetail getById(String callId) throws SQLException {
         Connection connection = null;
         try {
             connection = dbPool.getNonAutoCommitConnection();
@@ -160,7 +152,7 @@ public class CallDAO {
             }
         } catch (SQLException ex) {
             DBHelper.rollback(connection);
-            throw new RuntimeException(ex);
+            throw ex;
         } finally {
             DBHelper.close(connection);
         }

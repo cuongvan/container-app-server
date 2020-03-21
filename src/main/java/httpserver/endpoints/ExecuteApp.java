@@ -12,6 +12,7 @@ import handlers.ExecuteHandler;
 import httpserver.common.FailedResponse;
 import httpserver.common.SuccessResponse;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -37,7 +38,7 @@ public class ExecuteApp {
         @PathParam("appId") String appId,
         @QueryParam("userId") String userId,
         FormDataMultiPart body
-    ) throws IOException 
+    ) throws IOException, SQLException 
     {
         Map<String, byte[]> fields = getFieldsContent(body);
         try {

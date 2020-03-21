@@ -15,6 +15,6 @@ public class AppCallResult {
 
     @Override
     public String toString() {
-        return "AppCallResult{" + "appCallId=" + appCallId + ", callStatus=" + callStatus + ", elapsedSeconds=" + elapsedSeconds + ", output=" + output + '}';
+        return "AppCallResult{" + "appCallId=" + appCallId + ", callStatus=" + callStatus + ", elapsedSeconds=" + elapsedSeconds + ", output size=" + output.length() + '}';
     }
 }

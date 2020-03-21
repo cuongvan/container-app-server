@@ -9,6 +9,7 @@ import httpserver.common.SuccessResponse;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -23,7 +24,7 @@ public class AppCallEndpoint {
     @Path("/")
     @GET
     @Produces("application/json")
-    public GetAllResponse getAllCallIds() {
+    public GetAllResponse getAllCallIds() throws SQLException {
         List<String> callIds = appCallDAO.getAllCallIds();
         return new GetAllResponse(callIds);
     }
@@ -40,7 +41,7 @@ public class AppCallEndpoint {
     @Path("/{callId}")
     @GET
     @Produces("application/json")
-    public Response getAppInfo(@PathParam("callId") String callId) {
+    public Response getAppInfo(@PathParam("callId") String callId) throws SQLException {
         CallDetail callDetail = appCallDAO.getById(callId);
         if (callDetail != null) {
             return Response
@@ -64,7 +65,9 @@ public class AppCallEndpoint {
     
     @Path("/{callId}/{fileParamName}")
     @GET
-    public Response getCodeFile(@PathParam("callId") String callId, @PathParam("fileParamName") String fileParamName) {
+    public Response getCodeFile(
+        @PathParam("callId") String callId,
+        @PathParam("fileParamName") String fileParamName) throws SQLException {
         CallDetail callDetail = appCallDAO.getById(callId);
         
         if (callDetail == null) {

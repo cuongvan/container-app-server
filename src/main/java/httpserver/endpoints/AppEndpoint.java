@@ -8,6 +8,7 @@ import httpserver.common.SuccessResponse;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -22,7 +23,7 @@ public class AppEndpoint {
     @Path("/")
     @GET
     @Produces("application/json")
-    public GetAllResponse getAllApps() {
+    public GetAllResponse getAllApps() throws SQLException {
         List<String> params = appDAO.getAllAppIds();
         return new GetAllResponse(params);
     }
@@ -38,7 +39,7 @@ public class AppEndpoint {
     @Path("/{appId}")
     @GET
     @Produces("application/json")
-    public Response getAppInfo(@PathParam("appId") String appId) {
+    public Response getAppInfo(@PathParam("appId") String appId) throws SQLException {
         AppDetail appInfo = appDAO.getById(appId);
         if (appInfo != null) {
             return Response
@@ -61,7 +62,7 @@ public class AppEndpoint {
     
     @Path("/{appId}/codefile")
     @GET
-    public Response getCodeFile(@PathParam("appId") String appId) throws IOException {
+    public Response getCodeFile(@PathParam("appId") String appId) throws IOException, SQLException {
         AppDetail appInfo = appDAO.getById(appId);
         if (appInfo != null) {
             String codePath = appInfo.getCodePath();
@@ -78,7 +79,7 @@ public class AppEndpoint {
     
     @Path("/{appId}/avatar")
     @GET
-    public Response getAvatarFile(@PathParam("appId") String appId) throws IOException {
+    public Response getAvatarFile(@PathParam("appId") String appId) throws IOException, SQLException {
         AppDetail appInfo = appDAO.getById(appId);
         if (appInfo != null) {
             String avatarPath = appInfo.getAvatarPath();
@@ -97,7 +98,7 @@ public class AppEndpoint {
     
     @Path("/{appId}")
     @DELETE
-    public Response deleteApp(@PathParam("appId") String appId) {
+    public Response deleteApp(@PathParam("appId") String appId) throws SQLException {
         try {
             appDAO.deleteById(appId);
             return Response
