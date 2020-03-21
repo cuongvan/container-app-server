@@ -78,6 +78,8 @@ public class AppDetail {
     }
     
     public String getCreatedAt() {
+        if (createdAt == null)
+            return null;
         return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(createdAt);
     }
     
