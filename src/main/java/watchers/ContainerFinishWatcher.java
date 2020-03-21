@@ -5,12 +5,16 @@
  */
 package watchers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import common.Constants;
 import docker.DockerAdapter;
 import externalapi.appcall.CallDAO;
 import externalapi.appcall.models.AppCallResult;
 import externalapi.appcall.models.CallStatus;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
@@ -19,7 +23,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import notify.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,18 +34,21 @@ public class ContainerFinishWatcher {
     private DockerAdapter docker;
     private CallDAO appCallDAO;
     private ExecutorService executor;
-    private Notifier notifier;
     
     @Inject
-    public ContainerFinishWatcher(DockerAdapter dockerAdapter, CallDAO appCallDAO, Notifier notifier) {
+    public ContainerFinishWatcher(DockerAdapter dockerAdapter, CallDAO appCallDAO) {
         this.docker = dockerAdapter;
         this.appCallDAO = appCallDAO;
         executor = Executors.newSingleThreadExecutor();
-        this.notifier = notifier;
     }
     
     public void runForever() {
         executor.submit(() -> loopTask());
+    }
+    
+    public void stop() {
+        LOG.info("Stop now");
+        executor.shutdown();
     }
     
     private void loopTask() {
@@ -71,21 +77,22 @@ public class ContainerFinishWatcher {
             return;
         }
         
-        AppCallResult r = gatherCallResultInfo(inspect);
+        String callId = getAppCallId(inspect);
         try {
-            appCallDAO.updateFinishedAppCall(r);
-            notifier.executeDone(r.appCallId);
-            LOG.info("App call {} finished: {}", r.appCallId, r);
+            AppCallResult r = gatherCallResultInfo(inspect);
+            copyContainerOutput(containerId, callId);
+            appCallDAO.updateFinishedAppCall(callId, r);
+            LOG.info("App call {} finished: {}", callId, r);
+        } catch (IOException ex) {
+            LOG.info("Failed copy output data out of container, callID = {}", callId);
         } catch (SQLException ex) {
-            LOG.info("Failed to insert result to DB, callID = {}", r.appCallId);
+            LOG.info("Failed to insert result to DB, callID = {}", callId);
         } finally {
-            //docker.deleteContainer(containerId);
+            docker.deleteContainer(containerId);
         }
     }
 
     private AppCallResult gatherCallResultInfo(InspectContainerResponse inspect) {
-        Map<String, String> labels = inspect.getConfig().getLabels();
-        String callId = labels.get(Constants.CONTAINER_ID_LABEL_KEY);
         int exitCode = inspect.getState().getExitCode();
         CallStatus status = (exitCode == 0) ? CallStatus.SUCCESS : CallStatus.FAILED;
         
@@ -94,11 +101,20 @@ public class ContainerFinishWatcher {
         long duration = Duration.between(t1, t2).getSeconds();
         
         String output = docker.getContainerLog(inspect.getId());
-        return new AppCallResult(callId, status, duration, output);
+        return new AppCallResult(status, duration, output, null);
+    }
+
+    private String getAppCallId(InspectContainerResponse inspect) {
+        Map<String, String> labels = inspect.getConfig().getLabels();
+        String callId = labels.get(Constants.CONTAINER_ID_LABEL_KEY);
+        return callId;
     }
     
-    public void stop() {
-        LOG.info("Stop now");
-        executor.shutdown();
+    private void copyContainerOutput(String containerId, String callId) throws IOException {
+        String dest = Paths.get(Constants.APP_OUTPUT_FILES_DIR, callId).toString();
+        docker.copyDirectory(containerId, Constants.CONTAINER_OUTPUT_FILES_DIR, dest);
     }
+    
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectReader OBJECT_READER = OBJECT_MAPPER.readerFor(OutputMedata.class);
 }

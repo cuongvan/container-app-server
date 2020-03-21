@@ -10,7 +10,11 @@ import java.util.*;
 import java.util.function.Consumer;
 import javax.inject.Singleton;
 import com.github.dockerjava.api.command.BuildImageResultCallback;
+import helpers.MyFileUtils;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import static java.util.stream.Collectors.toList;
+import org.apache.commons.io.FileUtils;
 
 @Singleton
 public class DockerAdapter {
@@ -186,6 +190,28 @@ public class DockerAdapter {
                         handler.accept(item.getId());
                     }
                 }).awaitCompletion();
+        } finally {
+            close(docker);
+        }
+    }
+    
+    public void copyDirectory(String containerId, String containerDirPath, String hostPath) throws IOException {
+        DockerClient docker = DockerAdapter.newClient();
+        try {
+            
+            File tempDir = Files.createTempDirectory("").toFile();
+            
+            {
+                InputStream tarStream = docker
+                    .copyArchiveFromContainerCmd(containerId, containerDirPath)
+                    .exec();
+                MyFileUtils.untar(tarStream, tempDir);
+            }
+            
+            String untaredRootDirName = Paths.get(containerDirPath).getFileName().toString();
+            File untaredRootDir = new File(tempDir, untaredRootDirName);
+            FileUtils.moveDirectory(untaredRootDir, new File(hostPath));
+            tempDir.delete();
         } finally {
             close(docker);
         }

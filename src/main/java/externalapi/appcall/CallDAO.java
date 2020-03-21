@@ -60,7 +60,7 @@ public class CallDAO {
         }
     }
     
-    public void updateFinishedAppCall(AppCallResult callResult) throws SQLException {
+    public void updateFinishedAppCall(String callId, AppCallResult callResult) throws SQLException {
         //String query = "SELECT call_id, elapsed_seconds, call_status, output FROM app_call WHERE call_id = ? FOR UPDATE";
         String query = "UPDATE app_call SET elapsed_seconds = ?, call_status = ?, output = ? WHERE call_id = ?";
         try (Connection conn = dbPool.getConnection()) {
@@ -69,7 +69,7 @@ public class CallDAO {
                 stmt.setLong(1, callResult.elapsedSeconds);
                 stmt.setString(2, callResult.callStatus.name());
                 stmt.setString(3, callResult.output);
-                stmt.setString(4, callResult.appCallId);
+                stmt.setString(4, callId);
                 stmt.executeUpdate();
             }
         }

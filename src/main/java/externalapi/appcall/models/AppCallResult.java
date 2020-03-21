@@ -1,20 +1,22 @@
 package externalapi.appcall.models;
 
+import java.util.List;
+
 public class AppCallResult {
-    public final String appCallId;
     public final CallStatus callStatus;
     public final long elapsedSeconds;
     public final String output;
+    public final List<CallOutput> outputs;
 
-    public AppCallResult(String appCallId, CallStatus callStatus, long elapsedSeconds, String output) {
-        this.appCallId = appCallId;
+    public AppCallResult(CallStatus callStatus, long elapsedSeconds, String output, List<CallOutput> outputs) {
         this.callStatus = callStatus;
         this.elapsedSeconds = elapsedSeconds;
         this.output = output;
+        this.outputs = outputs;
     }
-
+    
     @Override
     public String toString() {
-        return "AppCallResult{" + "appCallId=" + appCallId + ", callStatus=" + callStatus + ", elapsedSeconds=" + elapsedSeconds + ", output size=" + output.length() + '}';
+        return "AppCallResult{" + ", callStatus=" + callStatus + ", elapsedSeconds=" + elapsedSeconds + ", output size=" + output.length() + '}';
     }
 }

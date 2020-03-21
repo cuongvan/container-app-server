@@ -6,6 +6,7 @@
 package helpers;
 
 import common.Constants;
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,6 +17,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -75,6 +78,21 @@ public class MyFileUtils {
         }
          
         return destFile;
+    }
+    
+    public static void untar(InputStream tarStream, File destDirectory) throws IOException {
+        try (
+            TarArchiveInputStream tarIn = new TarArchiveInputStream(new BufferedInputStream(tarStream))) {
+            TarArchiveEntry tarEntry;
+            while ((tarEntry = tarIn.getNextTarEntry()) != null) {
+                File dest = new File(destDirectory, tarEntry.getName());
+                if (tarEntry.isDirectory()) {
+                    dest.mkdirs();
+                } else {
+                    Files.copy(tarIn, dest.toPath());
+                }
+            }
+        }
     }
     
     public static void createRequiredDirs() throws IOException {
