@@ -110,12 +110,15 @@ public class ContainerFinishWatcher {
             LOG.info("App call {} finished: {}", callId, r);
         } catch (IOException ex) {
             LOG.info("Failed copy output data out of container, callID = {}", callId);
+            String containerLog = docker.getContainerLog(containerId);
+            System.out.println("Failed container logs: ");
+            System.out.println(containerLog);
             ex.printStackTrace();
         } catch (SQLException ex) {
             LOG.info("Failed to insert result to DB, callID = {}", callId);
             ex.printStackTrace();
         } finally {
-            docker.deleteContainer(containerId);
+            //docker.deleteContainer(containerId);
         }
     }
 

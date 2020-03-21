@@ -1,3 +1,5 @@
+import os, json, pathlib
+
 OUTPUT_ROOT = pathlib.Path('/outputs')
 OUTPUT_INFO_FILE = OUTPUT_ROOT / "output.json"
 OUTPUT_FILES_DIR = OUTPUT_ROOT / "files"
@@ -5,7 +7,6 @@ OUTPUT_FILES_DIR = OUTPUT_ROOT / "files"
 # init
 OUTPUT_ROOT.mkdir(exist_ok=True)
 OUTPUT_FILES_DIR.mkdir(exist_ok=True)
-_write_output([])
 
 def get_input_params():
     params = {}
@@ -29,20 +30,21 @@ def get_input_params():
 
     return params
 
-def _write_output(meta):
-    with open(OUTPUT_INFO_FILE, 'w') as f:
-        f.write(json.dumps(meta, indent=4))
-
 def put_key_value_(name, type, value: str):
-    with open(OUTPUT_INFO_FILE) as f:
-        outputs = json.load(f)
+    if OUTPUT_INFO_FILE.is_file():
+        with open(OUTPUT_INFO_FILE) as f:
+            outputs = json.load(f)
+    else:
+        outputs = []
+
     outputs.append({
         'type': type,
         'name': name,
         'value': value,
     })
 
-    _write_output(outputs)
+    with open(OUTPUT_INFO_FILE, 'w') as f:
+        json.dump(outputs, f, indent=4)
 
 def put_text(name, text: str):
     put_key_value_(name, 'TEXT', text)

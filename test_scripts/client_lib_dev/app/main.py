@@ -1,10 +1,8 @@
-import os, json, pathlib
 import ckanapplib
 
 from pprint import pprint
 inputs = ckanapplib.get_input_params()
 pprint(inputs)
-
 
 ckanapplib.put_file('myfile', b'this is the file content')
 ckanapplib.put_text('mytext', 'value of text param')
