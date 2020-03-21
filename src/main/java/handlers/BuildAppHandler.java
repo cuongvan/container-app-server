@@ -3,7 +3,7 @@ package handlers;
 import common.Constants;
 import docker.DockerAdapter;
 import externalapi.appinfo.AppInfoDAO;
-import externalapi.appinfo.models.AppInfo;
+import externalapi.appinfo.models.AppDetail;
 import externalapi.appinfo.models.AppStatus;
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +30,7 @@ public class BuildAppHandler {
     
     public void buildApp(String appId, byte[] codeZipFile) {
         try {
-            AppInfo appInfo = appInfoDAO.getById(appId);
+            AppDetail appInfo = appInfoDAO.getById(appId);
             String templateDir = Paths.get(Constants.DOCKER_BUILD_TEMPLATE_DIR, appInfo.getLanguage().name().toLowerCase()).toString();
             Path dir = createRandomDirAt(Constants.DOCKER_BUILD_DIR);
             try {

@@ -2,8 +2,9 @@ package handlers;
 
 import common.Constants;
 import externalapi.appinfo.AppInfoDAO;
-import externalapi.appinfo.models.AppInfo;
+import externalapi.appinfo.models.AppDetail;
 import externalapi.appinfo.models.AppStatus;
+import externalapi.appinfo.models.SysStatus;
 import helpers.MiscHelper;
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +19,7 @@ public class CreateAppHandler {
     @Inject
     private AppInfoDAO appInfoDAO;
     
-    public String createApp(AppInfo app, byte[] codeFile, byte[] avatarFile) throws IOException {
+    public String createApp(AppDetail app, byte[] codeFile, byte[] avatarFile) throws IOException {
         String appId = MiscHelper.newId();
         
         Path codePath = codePath(appId);
@@ -35,7 +36,8 @@ public class CreateAppHandler {
         }
         
         app.setAppStatus(AppStatus.BUILDING);
-        appInfoDAO.createApp(appId, app);
+        app.setSysStatus(SysStatus.DEBUG);
+        appInfoDAO.insertApp(appId, app);
         
         return appId;
     }

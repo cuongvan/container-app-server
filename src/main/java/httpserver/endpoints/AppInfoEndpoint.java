@@ -1,7 +1,7 @@
 package httpserver.endpoints;
 
 import externalapi.appinfo.AppInfoDAO;
-import externalapi.appinfo.models.AppInfo;
+import externalapi.appinfo.models.AppDetail;
 import httpserver.common.FailedResponse;
 import httpserver.common.SuccessResponse;
 import java.io.IOException;
@@ -38,7 +38,7 @@ public class AppInfoEndpoint {
     @GET
     @Produces("application/json")
     public Response getAppInfo(@PathParam("appId") String appId) {
-        AppInfo appInfo = appInfoDAO.getById(appId);
+        AppDetail appInfo = appInfoDAO.getById(appId);
         if (appInfo != null) {
             return Response
                 .ok(new GetAppResponse(appInfo)).build();
@@ -51,9 +51,9 @@ public class AppInfoEndpoint {
     }
     
     private static class GetAppResponse extends SuccessResponse {
-        public final AppInfo appDetail;
+        public final AppDetail appDetail;
 
-        public GetAppResponse(AppInfo appDetail) {
+        public GetAppResponse(AppDetail appDetail) {
             this.appDetail = appDetail;
         }
     }
@@ -61,7 +61,7 @@ public class AppInfoEndpoint {
     @Path("/{appId}/codefile")
     @GET
     public Response getCodeFile(@PathParam("appId") String appId) throws IOException {
-        AppInfo appInfo = appInfoDAO.getById(appId);
+        AppDetail appInfo = appInfoDAO.getById(appId);
         if (appInfo != null) {
             String codePath = appInfo.getCodePath();
             byte[] codeFile = Files.readAllBytes(Paths.get(codePath));
@@ -78,7 +78,7 @@ public class AppInfoEndpoint {
     @Path("/{appId}/avatar")
     @GET
     public Response getAvatarFile(@PathParam("appId") String appId) throws IOException {
-        AppInfo appInfo = appInfoDAO.getById(appId);
+        AppDetail appInfo = appInfoDAO.getById(appId);
         if (appInfo != null) {
             String avatarPath = appInfo.getAvatarPath();
             byte[] file = Files.readAllBytes(Paths.get(avatarPath));

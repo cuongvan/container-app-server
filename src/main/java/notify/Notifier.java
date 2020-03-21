@@ -11,10 +11,9 @@ import org.apache.http.impl.client.HttpClients;
 
 public class Notifier {
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     
     public void executeDone(String callId) {
-        System.out.println(">>> execute done: " + callId);
         String postEndpoint = Constants.CKAN_WEBHOOK_HOST + "/execute/done";
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 
@@ -35,7 +34,6 @@ public class Notifier {
         
 		try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
         } catch (IOException ex) {
-            //ex.printStackTrace();
             System.out.println(">> webhook server not connectable");
         }
     }

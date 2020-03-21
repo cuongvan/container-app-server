@@ -1,7 +1,10 @@
 package externalapi.appcall.models;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.util.List;
 
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class CallDetail {
     public final String callId;
     public final String appId;

@@ -8,7 +8,7 @@ import docker.DockerAdapter;
 import externalapi.appcall.AppCallDAO;
 import externalapi.appcall.models.CallParam;
 import externalapi.appinfo.AppInfoDAO;
-import externalapi.appinfo.models.AppInfo;
+import externalapi.appinfo.models.AppDetail;
 import externalapi.appinfo.models.AppParam;
 import externalapi.appinfo.models.AppStatus;
 import externalapi.appinfo.models.ParamType;
@@ -39,7 +39,7 @@ public class ExecuteHandler {
 
 
     public String execute(String appId, String userId, Map<String, byte[]> files) throws IOException, AppNotDoneBuilding, AppNotFound, AppBuildFailed {
-        AppInfo appInfo = appInfoDAO.getById(appId);
+        AppDetail appInfo = appInfoDAO.getById(appId);
         if (appInfo == null)
             throw new AppNotFound();
         

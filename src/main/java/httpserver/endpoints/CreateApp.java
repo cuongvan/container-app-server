@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import externalapi.appinfo.models.SupportLanguage;
-import externalapi.appinfo.models.AppInfo;
+import externalapi.appinfo.models.AppDetail;
 import externalapi.appinfo.models.AppParam;
 import externalapi.appinfo.models.AppType;
 import externalapi.appinfo.models.ParamType;
@@ -52,7 +52,7 @@ public class CreateApp {
                 .entity(new FailedResponse(exec.toString()))
                 .build();
         }
-        AppInfo app = translate(request);
+        AppDetail app = translate(request);
         
         String appId = createAppHandler.createApp(app, codeFile, avatarFile);
         
@@ -65,8 +65,8 @@ public class CreateApp {
             .build();
     }
 
-    public static AppInfo translate(AppInfo_ request) {
-        AppInfo app = new AppInfo()
+    public static AppDetail translate(AppInfo_ request) {
+        AppDetail app = new AppDetail()
             .setAppName(request.appName)
             .setSlugName(request.slugName)
             .setImage(request.image)

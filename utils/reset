@@ -31,8 +31,9 @@ def create():
             owner TEXT,
             description TEXT,
             language TEXT,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             app_status TEXT,
-            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            sys_status TEXT
         );
     ''')
 

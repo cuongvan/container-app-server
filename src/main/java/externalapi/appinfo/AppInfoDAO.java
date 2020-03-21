@@ -1,12 +1,13 @@
 package externalapi.appinfo;
 
-import externalapi.appinfo.models.AppInfo;
+import externalapi.appinfo.models.AppDetail;
 import externalapi.appinfo.models.AppStatus;
 import externalapi.appinfo.models.AppType;
 import externalapi.appinfo.models.SupportLanguage;
 import externalapi.DBConnectionPool;
 import externalapi.appinfo.models.AppParam;
 import externalapi.appinfo.models.ParamType;
+import externalapi.appinfo.models.SysStatus;
 import helpers.DBHelper;
 import java.sql.*;
 import javax.inject.*;
@@ -23,13 +24,14 @@ public class AppInfoDAO {
     }
     
 
-    public void createApp(String appId, AppInfo app) {
-        String insertAppInfo = "INSERT INTO app_info(\n" +
-            "app_id, app_name, avatar_path, type, slug_name, code_path, image, owner, description, language, app_status)\n" +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        String insertAppParams = "INSERT INTO app_param(\n" +
-            "	app_id, name, type, label, description)\n" +
-            "	VALUES (?, ?, ?, ?, ?);";
+    public void insertApp(String appId, AppDetail app) {
+        String insertAppInfo = "INSERT INTO app_info(" +
+            "app_id, app_name, avatar_path, type, slug_name, code_path, image, owner, description, language, app_status, sys_status) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        String insertAppParams = "INSERT INTO app_param(app_id, name, type, label, description) " +
+            " VALUES (?, ?, ?, ?, ?);";
+        
         Connection connection = null;
         try {
             connection = dbPool.getNonAutoCommitConnection();
@@ -45,6 +47,7 @@ public class AppInfoDAO {
                 stmt.setString(9, app.getDescription());
                 stmt.setString(10, app.getLanguage().name());
                 stmt.setString(11, app.getAppStatus().name());
+                stmt.setString(12, app.getSysStatus().name());
                 stmt.executeUpdate();
             }
             
@@ -69,16 +72,14 @@ public class AppInfoDAO {
         }
     }
 
-    public AppInfo getById(String appId) {
-        String selectAppInfo = "SELECT app_id, app_name, avatar_path, type, slug_name, code_path, image, image_id, "
-            + "owner, description, language, app_status, created_at\n" 
-            + "FROM app_info WHERE app_id = ?";
+    public AppDetail getById(String appId) {
+        String selectAppInfo = "SELECT * FROM app_info WHERE app_id = ?";
         
         String selectAppParams = "SELECT name, type, label, description\n" +
                        "FROM app_param WHERE app_id = ?";
         
         Connection connection = null;
-        AppInfo app = new AppInfo();
+        AppDetail app = new AppDetail();
         try {
             connection = dbPool.getNonAutoCommitConnection();
             try (PreparedStatement stmt = connection.prepareStatement(selectAppInfo)) {
@@ -99,6 +100,7 @@ public class AppInfoDAO {
                         .setDescription(rs.getString("description"))
                         .setLanguage(SupportLanguage.valueOf(rs.getString("language")))
                         .setAppStatus(AppStatus.valueOf(rs.getString("app_status")))
+                        .setSysStatus(SysStatus.valueOf(rs.getString("sys_status")))
                         .setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime())
                         ;
                 }
