@@ -1,4 +1,4 @@
-import os, json
+import os, json, pathlib
 
 print()
 
@@ -25,5 +25,39 @@ def get_input_params():
 
     return params
 
+OUTPUT_ROOT = pathlib.Path('/output')
+OUTPUT_INFO_FILE = OUTPUT_ROOT / "metadata"
+OUTPUT_FILES_DIR = OUTPUT_ROOT / "files"
+
+OUTPUT_ROOT.mkdir(exist_ok=True)
+OUTPUT_FILES_DIR.mkdir(exist_ok=True)
+
+def read_output_meta():
+    with open(OUTPUT_INFO_FILE) as f:
+        return json.load(f)
+
+def write_output_meta(meta):
+    with open(OUTPUT_INFO_FILE, 'w') as f:
+        f.write(json.dumps(meta))
+
+write_output_meta({})
+
+def put_output_string(key, value):
+    meta = read_output_meta()
+    write_output_meta({
+        **read_output_meta(),
+        key: value
+    })
+
+def put_file(filename, data: bytes):
+    # out_path = OUTPUT_FILES_DIR / filename
+    # put_output_string(filename, out_path)
+    with open(OUTPUT_FILES_DIR / filename, 'wb') as f:
+        f.write(data)
+
 from pprint import pprint
 pprint(get_input_params())
+
+put_output_string('myoutput', 'Hello you')
+put_file('myfile', b'this is the file content')
+print(read_output_meta())

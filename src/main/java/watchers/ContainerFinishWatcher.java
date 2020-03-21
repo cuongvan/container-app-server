@@ -79,7 +79,7 @@ public class ContainerFinishWatcher {
         } catch (SQLException ex) {
             LOG.info("Failed to insert result to DB, callID = {}", r.appCallId);
         } finally {
-            docker.deleteContainer(containerId);
+            //docker.deleteContainer(containerId);
         }
     }
 
