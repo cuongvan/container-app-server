@@ -11,9 +11,8 @@ import com.github.dockerjava.api.command.InspectContainerResponse;
 import common.Constants;
 import docker.DockerAdapter;
 import externalapi.appcall.CallDAO;
-import externalapi.appcall.models.AppCallResult;
+import externalapi.appcall.models.CallResult;
 import externalapi.appcall.models.CallStatus;
-import static io.netty.util.CharsetUtil.UTF_8;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -25,7 +24,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,25 +80,23 @@ public class ContainerFinishWatcher {
         
         String callId = getAppCallId(inspect);
         try {
-            AppCallResult r = gatherCallResultInfo(inspect);
             File outputDir = copyContainerOutput(containerId, callId);
-            
             CallOutput callOutput = getCallOutput(outputDir);
-            System.out.println(">>> " + callOutput);
-            
-            appCallDAO.updateFinishedAppCall(callId, r);
+            CallResult r = gatherCallResultInfo(inspect);
+            appCallDAO.updateCallResult(callId, r, callOutput.fields);
             LOG.info("App call {} finished: {}", callId, r);
         } catch (IOException ex) {
             LOG.info("Failed copy output data out of container, callID = {}", callId);
             ex.printStackTrace();
         } catch (SQLException ex) {
             LOG.info("Failed to insert result to DB, callID = {}", callId);
+            ex.printStackTrace();
         } finally {
             docker.deleteContainer(containerId);
         }
     }
 
-    private AppCallResult gatherCallResultInfo(InspectContainerResponse inspect) {
+    private CallResult gatherCallResultInfo(InspectContainerResponse inspect) {
         int exitCode = inspect.getState().getExitCode();
         CallStatus status = (exitCode == 0) ? CallStatus.SUCCESS : CallStatus.FAILED;
         
@@ -108,8 +104,7 @@ public class ContainerFinishWatcher {
         Instant t2 = Instant.parse(inspect.getState().getFinishedAt());
         long duration = Duration.between(t1, t2).getSeconds();
         
-        String output = docker.getContainerLog(inspect.getId());
-        return new AppCallResult(status, duration, output, null);
+        return new CallResult(status, duration);
     }
 
     private String getAppCallId(InspectContainerResponse inspect) {

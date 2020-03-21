@@ -6,7 +6,7 @@ import handlers.exceptions.AppNotFound;
 import common.Constants;
 import docker.DockerAdapter;
 import externalapi.appcall.CallDAO;
-import externalapi.appcall.models.CallParam;
+import externalapi.appcall.models.CallInputEntry;
 import externalapi.appinfo.AppDAO;
 import externalapi.appinfo.models.AppDetail;
 import externalapi.appinfo.models.AppParam;
@@ -51,7 +51,7 @@ public class ExecuteHandler {
         
         String callId = MiscHelper.newId();
         
-        List<CallParam> callParams = new ArrayList<>();
+        List<CallInputEntry> callParams = new ArrayList<>();
         for (AppParam appParam : appInfo.getParams()) {
             callParams.add(processParam(callId, appParam, files.get(appParam.name)));
         }
@@ -62,7 +62,7 @@ public class ExecuteHandler {
         Map<String, String> environments = new HashMap<>();
         Map<String, String> mounts = new HashMap<>();
         
-        for (CallParam param : callParams) {
+        for (CallInputEntry param : callParams) {
             if (param.type == ParamType.FILE) {
                 String hostFilePath = param.value;
                 String containerFilePath = fileParamMountPath(param.name);
@@ -83,7 +83,7 @@ public class ExecuteHandler {
         return callId;
     }
     
-    private CallParam processParam(String callId, AppParam appParam, byte[] fileContent) throws IOException {
+    private CallInputEntry processParam(String callId, AppParam appParam, byte[] fileContent) throws IOException {
         String value;
         switch (appParam.type) {
             case TEXT:
@@ -103,7 +103,7 @@ public class ExecuteHandler {
                 value = new String(fileContent);
         }
         
-        return new CallParam(appParam.type, appParam.name, value);
+        return new CallInputEntry(appParam.type, appParam.name, value);
     }
     
     private String fileParamMountPath(String paramName) {

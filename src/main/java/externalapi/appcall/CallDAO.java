@@ -1,9 +1,9 @@
 package externalapi.appcall;
 
-import externalapi.appcall.models.AppCallResult;
+import externalapi.appcall.models.CallResult;
 import externalapi.DBConnectionPool;
 import externalapi.appcall.models.CallDetail;
-import externalapi.appcall.models.CallParam;
+import externalapi.appcall.models.CallInputEntry;
 import externalapi.appcall.models.CallStatus;
 import externalapi.appinfo.models.ParamType;
 import helpers.DBHelper;
@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import watchers.CallOutputEntry;
+import watchers.OutputFieldType;
 
 @Singleton
 public class CallDAO {
@@ -27,7 +29,7 @@ public class CallDAO {
         this.dbPool = dbPool;
     }
 
-    public void createNewCall(String callId, String appId, String userId, List<CallParam> callParams) throws SQLException {
+    public void createNewCall(String callId, String appId, String userId, List<CallInputEntry> callParams) throws SQLException {
         try (Connection conn = dbPool.getNonAutoCommitConnection()) {
             
             insertAppCallRow(conn, callId, appId, userId);
@@ -35,7 +37,7 @@ public class CallDAO {
             try (PreparedStatement stmt = conn.prepareStatement(
                 "INSERT INTO call_param (call_id, name, type, value) VALUES (?, ?, ?, ?)")) {
 
-                for (CallParam p : callParams) {
+                for (CallInputEntry p : callParams) {
                     stmt.setString(1, callId);
                     stmt.setString(2, p.name);
                     stmt.setString(3, p.type.name());
@@ -60,16 +62,33 @@ public class CallDAO {
         }
     }
     
-    public void updateFinishedAppCall(String callId, AppCallResult callResult) throws SQLException {
-        String query = "UPDATE app_call SET elapsed_seconds = ?, call_status = ? WHERE call_id = ?";
-        try (Connection conn = dbPool.getConnection()) {
-            try (PreparedStatement stmt = conn.prepareStatement(query))
-            {
+    public void updateCallResult(String callId, CallResult callResult, List<CallOutputEntry> fields) throws SQLException {
+        Connection conn = dbPool.getNonAutoCommitConnection();
+        try {
+            try (PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE app_call SET elapsed_seconds = ?, call_status = ? WHERE call_id = ?")) {
                 stmt.setLong(1, callResult.elapsedSeconds);
                 stmt.setString(2, callResult.callStatus.name());
                 stmt.setString(3, callId);
                 stmt.executeUpdate();
             }
+            
+            try (PreparedStatement stmt = conn.prepareStatement(
+                "INSERT INTO call_output(call_id, name, type, value) VALUES (?, ?, ?, ?)")) {
+                for (CallOutputEntry field : fields) {
+                    stmt.setString(1, callId);
+                    stmt.setString(2, field.name);
+                    stmt.setString(3, field.type.name());
+                    stmt.setString(4, field.value);
+                    stmt.addBatch();
+                }
+                stmt.executeBatch();
+            }
+            
+            conn.commit();
+        } catch (SQLException ex) {
+            conn.rollback();
+            throw ex;
         }
     }
 
@@ -104,16 +123,12 @@ public class CallDAO {
     }
 
     public CallDetail getById(String callId) throws SQLException {
-        Connection connection = null;
+        Connection connection = dbPool.getNonAutoCommitConnection();
         try {
-            connection = dbPool.getNonAutoCommitConnection();
-            
-            
             String appId;
             String userId;
             long elapsed;
             CallStatus callStatus;
-            List<CallParam> params = new ArrayList<>();
             
             try (PreparedStatement stmt = connection.prepareStatement(
                 "SELECT call_id, app_id, user_id, elapsed_seconds, call_status "
@@ -128,24 +143,41 @@ public class CallDAO {
                     elapsed = callRs.getLong("elapsed_seconds");
                     callStatus = CallStatus.valueOf(callRs.getString("call_status"));
                 }
-                
-                try (PreparedStatement stmt2 = connection.prepareStatement(
-                    "SELECT name, type, value FROM call_param WHERE call_id = ?")) {
-                    stmt2.setString(1, callId);
-                    try (ResultSet rs = stmt2.executeQuery()) {
-                        while (rs.next()) {
-                            String name = rs.getString("name");
-                            ParamType type = ParamType.valueOf(rs.getString("type"));
-                            String value = rs.getString("value");
-                            CallParam param = new CallParam(type, name, value);
-                            params.add(param);
-                        }
+            }
+            
+            List<CallInputEntry> inputs = new ArrayList<>();
+            try (PreparedStatement stmt2 = connection.prepareStatement(
+                "SELECT name, type, value FROM call_param WHERE call_id = ?")) {
+                stmt2.setString(1, callId);
+                try (ResultSet rs = stmt2.executeQuery()) {
+                    while (rs.next()) {
+                        String name = rs.getString("name");
+                        ParamType type = ParamType.valueOf(rs.getString("type"));
+                        String value = rs.getString("value");
+                        CallInputEntry input = new CallInputEntry(type, name, value);
+                        inputs.add(input);
                     }
                 }
-
-                connection.commit();
-                return new CallDetail(callId, appId, userId, elapsed, callStatus, params);
             }
+            
+            List<CallOutputEntry> outputs = new ArrayList<>();
+            try (PreparedStatement stmt2 = connection.prepareStatement(
+                "SELECT name, type, value FROM call_output WHERE call_id = ?")) {
+                stmt2.setString(1, callId);
+                try (ResultSet rs = stmt2.executeQuery()) {
+                    while (rs.next()) {
+                        String name = rs.getString("name");
+                        OutputFieldType type = OutputFieldType.valueOf(rs.getString("type"));
+                        String value = rs.getString("value");
+                        
+                        CallOutputEntry output = new CallOutputEntry(type, name, value);
+                        outputs.add(output);
+                    }
+                }
+            }
+            
+            connection.commit();
+            return new CallDetail(callId, appId, userId, elapsed, callStatus, inputs, outputs);
         } catch (SQLException ex) {
             DBHelper.rollback(connection);
             throw ex;

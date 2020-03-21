@@ -2,7 +2,7 @@ package httpserver.endpoints;
 
 import externalapi.appcall.models.CallDetail;
 import externalapi.appcall.CallDAO;
-import externalapi.appcall.models.CallParam;
+import externalapi.appcall.models.CallInputEntry;
 import externalapi.appinfo.models.ParamType;
 import httpserver.common.FailedResponse;
 import httpserver.common.SuccessResponse;
@@ -78,7 +78,7 @@ public class AppCallEndpoint {
                 .build();
         }
         
-        Optional<CallParam> paramOpt = callDetail.params.stream()
+        Optional<CallInputEntry> paramOpt = callDetail.inputs.stream()
             .filter(p -> p.name.equals(fileParamName))
             .findFirst();
         
@@ -90,7 +90,7 @@ public class AppCallEndpoint {
                 .build();
         }
         
-        CallParam param = paramOpt.get();
+        CallInputEntry param = paramOpt.get();
         if (!(param.type == ParamType.FILE)) {
             return Response
                 .status(Response.Status.BAD_REQUEST)

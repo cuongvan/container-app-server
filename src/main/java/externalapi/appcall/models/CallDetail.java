@@ -3,6 +3,7 @@ package externalapi.appcall.models;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.util.List;
+import watchers.CallOutputEntry;
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class CallDetail {
@@ -11,14 +12,16 @@ public class CallDetail {
     public final String userId;
     public final long elapsedSeconds;
     public final CallStatus callStatus;
-    public final List<CallParam> params;
+    public final List<CallInputEntry> inputs;
+    public final List<CallOutputEntry> outputs;
 
-    public CallDetail(String callId, String appId, String userId, long elapsedSeconds, CallStatus callStatus, List<CallParam> params) {
+    public CallDetail(String callId, String appId, String userId, long elapsedSeconds, CallStatus callStatus, List<CallInputEntry> params, List<CallOutputEntry> outputs) {
         this.callId = callId;
         this.appId = appId;
         this.userId = userId;
         this.elapsedSeconds = elapsedSeconds;
         this.callStatus = callStatus;
-        this.params = params;
+        this.inputs = params;
+        this.outputs = outputs;
     }
 }

@@ -68,4 +68,14 @@ def create():
         );
     ''')
 
+    db.execute('''
+        CREATE TABLE call_output (
+            call_id TEXT REFERENCES app_call(call_id) ON DELETE CASCADE,
+            name TEXT NOT NULL,
+            type TEXT NOT NULL,
+            value TEXT,
+            PRIMARY KEY(call_id, name)
+        );
+    ''')
+
 main()

@@ -1,5 +1,5 @@
 package watchers;
 
-public enum OutputParamType {
+public enum OutputFieldType {
     TEXT, LIST, FILE
 }
