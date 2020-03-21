@@ -3,6 +3,8 @@ package httpserver.endpoints;
 import externalapi.appcall.models.CallDetail;
 import externalapi.appcall.CallDAO;
 import externalapi.appcall.models.CallInputEntry;
+import externalapi.appcall.models.CallOutputEntry;
+import externalapi.appcall.models.OutputFieldType;
 import externalapi.appinfo.models.InputFieldType;
 import httpserver.common.FailedResponse;
 import httpserver.common.SuccessResponse;
@@ -63,11 +65,12 @@ public class AppCallEndpoint {
         }
     }
     
-    @Path("/{callId}/{fileParamName}")
+    @Path("/{callId}/input/{fileParamName}")
     @GET
-    public Response getCodeFile(
+    public Response getInputFile(
         @PathParam("callId") String callId,
         @PathParam("fileParamName") String fileParamName) throws SQLException {
+        
         CallDetail callDetail = appCallDAO.getById(callId);
         
         if (callDetail == null) {
@@ -103,14 +106,66 @@ public class AppCallEndpoint {
         try {
             byte[] file = Files.readAllBytes(Paths.get(filePath));
             return Response
-                .ok(file)
-                .type("application/octet-stream")
+                .ok(file, "application/octet-stream")
                 .build();
         } catch (IOException ex) {
             return Response
                 .status(Response.Status.INTERNAL_SERVER_ERROR)
                 .type("application/json")
                 .entity(new FailedResponse("Input file not found. It may have been deleted"))
+                .build();
+        }
+    }
+    
+    @Path("/{callId}/output/{fieldName}")
+    @GET
+    public Response getOutputFile(
+        @PathParam("callId") String callId,
+        @PathParam("fieldName") String outputFieldName) throws SQLException
+    {
+        CallDetail callDetail = appCallDAO.getById(callId);
+        
+        if (callDetail == null) {
+            return Response
+                .status(Response.Status.NOT_FOUND)
+                .type("application/json")
+                .entity(new FailedResponse("App call not found"))
+                .build();
+        }
+        
+        Optional<CallOutputEntry> outputOpt = callDetail.outputs
+            .stream()
+            .filter(entry -> entry.name.equals(outputFieldName))
+            .findFirst();
+        
+        if (!outputOpt.isPresent()) {
+            return Response
+                .status(Response.Status.NOT_FOUND)
+                .type("application/json")
+                .entity(new FailedResponse("Ouput field not found"))
+                .build();
+        }
+        
+        CallOutputEntry outputEntry = outputOpt.get();
+        if (outputEntry.type != OutputFieldType.FILE)
+            return Response
+                .status(Response.Status.BAD_REQUEST)
+                .type("application/json")
+                .entity(new FailedResponse(
+                    String.format("Field '%s' is %s, not %s", outputEntry.type, OutputFieldType.FILE)))
+                .build();
+       
+        String filePath = outputEntry.value;
+        try {
+            byte[] file = Files.readAllBytes(Paths.get(filePath));
+            return Response
+                .ok(file, "application/octet-stream")
+                .build();
+        } catch (IOException ex) {
+            return Response
+                .status(Response.Status.INTERNAL_SERVER_ERROR)
+                .type("application/json")
+                .entity(new FailedResponse("File not found. It may have been deleted"))
                 .build();
         }
     }
