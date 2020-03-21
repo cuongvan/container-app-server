@@ -1,0 +1,11 @@
+#! /usr/bin/env python3
+import requests, sys, shutil, tempfile, json
+
+_, call_id, file_field = sys.argv
+
+r = requests.get('http://localhost:5001/call/{}/output/{}'.format(call_id, file_field))
+
+if r.ok:
+    print(r.content)
+else:
+    print(json.dumps(r.json(), indent=4))

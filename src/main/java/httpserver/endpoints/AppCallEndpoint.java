@@ -65,24 +65,24 @@ public class AppCallEndpoint {
         }
     }
     
-    @Path("/{callId}/input/{fileParamName}")
+    @Path("/{callId}/input/{fieldName}")
     @GET
     public Response getInputFile(
         @PathParam("callId") String callId,
-        @PathParam("fileParamName") String fileParamName) throws SQLException {
+        @PathParam("fieldName") String fieldName) throws SQLException {
         
         CallDetail callDetail = appCallDAO.getById(callId);
         
         if (callDetail == null) {
             return Response
                 .status(Response.Status.NOT_FOUND)
-                .entity(new FailedResponse("App call not found"))
                 .type("application/json")
+                .entity(new FailedResponse("App call not found"))
                 .build();
         }
         
         Optional<CallInputEntry> paramOpt = callDetail.inputs.stream()
-            .filter(p -> p.name.equals(fileParamName))
+            .filter(p -> p.name.equals(fieldName))
             .findFirst();
         
         if (!paramOpt.isPresent()) {
@@ -98,12 +98,14 @@ public class AppCallEndpoint {
             return Response
                 .status(Response.Status.BAD_REQUEST)
                 .type("application/json")
-                .entity(new FailedResponse("Not a file param"))
+                .entity(new FailedResponse(
+                    String.format("Field '%s' is %s, not %s",
+                        param.name, param.type.name(), InputFieldType.FILE.name())))
                 .build();
         }
         
-        String filePath = param.value;
         try {
+            String filePath = param.value;
             byte[] file = Files.readAllBytes(Paths.get(filePath));
             return Response
                 .ok(file, "application/octet-stream")
@@ -112,7 +114,7 @@ public class AppCallEndpoint {
             return Response
                 .status(Response.Status.INTERNAL_SERVER_ERROR)
                 .type("application/json")
-                .entity(new FailedResponse("Input file not found. It may have been deleted"))
+                .entity(new FailedResponse("File not found. It may have been deleted"))
                 .build();
         }
     }
@@ -152,11 +154,12 @@ public class AppCallEndpoint {
                 .status(Response.Status.BAD_REQUEST)
                 .type("application/json")
                 .entity(new FailedResponse(
-                    String.format("Field '%s' is %s, not %s", outputEntry.type, OutputFieldType.FILE)))
+                    String.format("Field '%s' is %s, not %s",
+                        outputEntry.name, outputEntry.type.name(), OutputFieldType.FILE.name())))
                 .build();
        
-        String filePath = outputEntry.value;
         try {
+            String filePath = outputEntry.value;
             byte[] file = Files.readAllBytes(Paths.get(filePath));
             return Response
                 .ok(file, "application/octet-stream")
