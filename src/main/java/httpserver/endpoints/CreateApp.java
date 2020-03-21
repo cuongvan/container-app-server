@@ -12,7 +12,7 @@ import externalapi.appinfo.models.SupportLanguage;
 import externalapi.appinfo.models.AppDetail;
 import externalapi.appinfo.models.AppParam;
 import externalapi.appinfo.models.AppType;
-import externalapi.appinfo.models.ParamType;
+import externalapi.appinfo.models.InputFieldType;
 import handlers.BuildAppHandler;
 import handlers.CreateAppHandler;
 import httpserver.common.FailedResponse;
@@ -97,7 +97,7 @@ public class CreateApp {
     
     public static class AppParam_ {
         public String name;
-        public ParamType type;
+        public InputFieldType type;
         public String label;
         public String description;
     }

@@ -11,7 +11,7 @@ import externalapi.appinfo.AppDAO;
 import externalapi.appinfo.models.AppDetail;
 import externalapi.appinfo.models.AppParam;
 import externalapi.appinfo.models.AppStatus;
-import externalapi.appinfo.models.ParamType;
+import externalapi.appinfo.models.InputFieldType;
 import helpers.MiscHelper;
 import java.io.IOException;
 import static java.lang.String.format;
@@ -63,7 +63,7 @@ public class ExecuteHandler {
         Map<String, String> mounts = new HashMap<>();
         
         for (CallInputEntry param : callParams) {
-            if (param.type == ParamType.FILE) {
+            if (param.type == InputFieldType.FILE) {
                 String hostFilePath = param.value;
                 String containerFilePath = fileParamMountPath(param.name);
                 environments.put(param.type.toEnvKey(param.name), containerFilePath);

@@ -1,6 +1,6 @@
 package externalapi.appinfo.models;
 
-public enum ParamType {
+public enum InputFieldType {
     TEXT("ckan.input.text"),
     TEXT_LIST("ckan.input.testlist"),
     
@@ -14,7 +14,7 @@ public enum ParamType {
     
     public final String prefix;
 
-    private ParamType(String prefix) {
+    private InputFieldType(String prefix) {
         this.prefix = prefix;
     }
     

@@ -4,11 +4,11 @@ import java.util.Objects;
 
 public class AppParam {
     public final String name;
-    public final ParamType type;
+    public final InputFieldType type;
     public final String label;
     public final String description;
 
-    public AppParam(String name, ParamType type, String label, String description) {
+    public AppParam(String name, InputFieldType type, String label, String description) {
         this.name = name;
         this.type = type;
         this.label = label;

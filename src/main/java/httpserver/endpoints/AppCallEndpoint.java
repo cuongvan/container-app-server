@@ -3,7 +3,7 @@ package httpserver.endpoints;
 import externalapi.appcall.models.CallDetail;
 import externalapi.appcall.CallDAO;
 import externalapi.appcall.models.CallInputEntry;
-import externalapi.appinfo.models.ParamType;
+import externalapi.appinfo.models.InputFieldType;
 import httpserver.common.FailedResponse;
 import httpserver.common.SuccessResponse;
 import java.io.IOException;
@@ -91,7 +91,7 @@ public class AppCallEndpoint {
         }
         
         CallInputEntry param = paramOpt.get();
-        if (!(param.type == ParamType.FILE)) {
+        if (!(param.type == InputFieldType.FILE)) {
             return Response
                 .status(Response.Status.BAD_REQUEST)
                 .type("application/json")

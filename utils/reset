@@ -15,7 +15,7 @@ def delete_data_dir():
         shutil.rmtree(str(dir))
 
 def drop():
-    db.execute('DROP TABLE IF EXISTS app_info, app_param, app_call, call_param')
+    db.execute('DROP TABLE IF EXISTS call_input, call_output, app_call, app_param, app_info')
 
 def create():
     db.execute('''
@@ -59,7 +59,7 @@ def create():
     ''')
 
     db.execute('''
-        CREATE TABLE call_param (
+        CREATE TABLE call_input (
             call_id TEXT REFERENCES app_call(call_id) ON DELETE CASCADE,
             name TEXT NOT NULL,
             type TEXT NOT NULL,

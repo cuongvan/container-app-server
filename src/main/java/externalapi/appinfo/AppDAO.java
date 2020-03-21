@@ -6,7 +6,7 @@ import externalapi.appinfo.models.AppType;
 import externalapi.appinfo.models.SupportLanguage;
 import externalapi.DBConnectionPool;
 import externalapi.appinfo.models.AppParam;
-import externalapi.appinfo.models.ParamType;
+import externalapi.appinfo.models.InputFieldType;
 import externalapi.appinfo.models.SysStatus;
 import handlers.exceptions.AppNotFound;
 import helpers.DBHelper;
@@ -113,7 +113,7 @@ public class AppDAO {
                     while (rs.next()) {
                         app.addParam(new AppParam(
                             rs.getString("name"),
-                            ParamType.valueOf(rs.getString("type")),
+                            InputFieldType.valueOf(rs.getString("type")),
                             rs.getString("label"),
                             rs.getString("description")));
                     }

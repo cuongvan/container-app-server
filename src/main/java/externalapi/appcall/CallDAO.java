@@ -5,7 +5,7 @@ import externalapi.DBConnectionPool;
 import externalapi.appcall.models.CallDetail;
 import externalapi.appcall.models.CallInputEntry;
 import externalapi.appcall.models.CallStatus;
-import externalapi.appinfo.models.ParamType;
+import externalapi.appinfo.models.InputFieldType;
 import helpers.DBHelper;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -35,7 +35,7 @@ public class CallDAO {
             insertAppCallRow(conn, callId, appId, userId);
             
             try (PreparedStatement stmt = conn.prepareStatement(
-                "INSERT INTO call_param (call_id, name, type, value) VALUES (?, ?, ?, ?)")) {
+                "INSERT INTO call_input (call_id, name, type, value) VALUES (?, ?, ?, ?)")) {
 
                 for (CallInputEntry p : callParams) {
                     stmt.setString(1, callId);
@@ -147,12 +147,12 @@ public class CallDAO {
             
             List<CallInputEntry> inputs = new ArrayList<>();
             try (PreparedStatement stmt2 = connection.prepareStatement(
-                "SELECT name, type, value FROM call_param WHERE call_id = ?")) {
+                "SELECT name, type, value FROM call_input WHERE call_id = ?")) {
                 stmt2.setString(1, callId);
                 try (ResultSet rs = stmt2.executeQuery()) {
                     while (rs.next()) {
                         String name = rs.getString("name");
-                        ParamType type = ParamType.valueOf(rs.getString("type"));
+                        InputFieldType type = InputFieldType.valueOf(rs.getString("type"));
                         String value = rs.getString("value");
                         CallInputEntry input = new CallInputEntry(type, name, value);
                         inputs.add(input);
