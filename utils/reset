@@ -54,8 +54,7 @@ def create():
             app_id TEXT NOT NULL,
             user_id TEXT,
             elapsed_seconds BIGINT,
-            call_status TEXT,
-            output TEXT
+            call_status TEXT
         );
     ''')
 

@@ -45,21 +45,21 @@ write_output({
 })
 
 
-def put_key_value(name, type, value: str):
+def put_key_value_(name, type, value: str):
     output = read_output_meta()
     output['fields'].append({
         'type': type,
         'name': name,
         'value': value,
     })
-    print('update:', output)
+
     write_output(output)
 
 def put_text(name, text: str):
-    put_key_value(name, 'TEXT', text)
+    put_key_value_(name, 'TEXT', text)
 
 def put_list(name, val: list):
-    put_key_value(name, 'LIST', str(val))
+    put_key_value_(name, 'LIST', str(val))
 
 def put_file(filename, data: bytes):
     with open(OUTPUT_FILES_DIR / filename, 'wb') as f:
@@ -68,7 +68,6 @@ def put_file(filename, data: bytes):
 from pprint import pprint
 pprint(get_input_params())
 
-# put_key_value('myoutput', 'Hello you')
 # put_file('myfile', b'this is the file content')
 put_text('mytext', 'value of text param')
 put_list('mylist', [1, 2, 3])

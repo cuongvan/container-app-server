@@ -94,8 +94,7 @@ for i in range(2):
             continue
         else:
             print('----------------')
-            output = t['call_detail']['output']
-            print(output)
+            show(r)
             print('-------------------------------------------------------------')
             break
 

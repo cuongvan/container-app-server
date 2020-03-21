@@ -61,15 +61,13 @@ public class CallDAO {
     }
     
     public void updateFinishedAppCall(String callId, AppCallResult callResult) throws SQLException {
-        //String query = "SELECT call_id, elapsed_seconds, call_status, output FROM app_call WHERE call_id = ? FOR UPDATE";
-        String query = "UPDATE app_call SET elapsed_seconds = ?, call_status = ?, output = ? WHERE call_id = ?";
+        String query = "UPDATE app_call SET elapsed_seconds = ?, call_status = ? WHERE call_id = ?";
         try (Connection conn = dbPool.getConnection()) {
             try (PreparedStatement stmt = conn.prepareStatement(query))
             {
                 stmt.setLong(1, callResult.elapsedSeconds);
                 stmt.setString(2, callResult.callStatus.name());
-                stmt.setString(3, callResult.output);
-                stmt.setString(4, callId);
+                stmt.setString(3, callId);
                 stmt.executeUpdate();
             }
         }
@@ -115,11 +113,10 @@ public class CallDAO {
             String userId;
             long elapsed;
             CallStatus callStatus;
-            String output;
             List<CallParam> params = new ArrayList<>();
             
             try (PreparedStatement stmt = connection.prepareStatement(
-                "SELECT call_id, app_id, user_id, elapsed_seconds, call_status, output "
+                "SELECT call_id, app_id, user_id, elapsed_seconds, call_status "
                 + "FROM app_call WHERE call_id = ?")) {
                 stmt.setString(1, callId);
                 try (ResultSet callRs = stmt.executeQuery()) {
@@ -130,7 +127,6 @@ public class CallDAO {
                     userId = callRs.getString("user_id");
                     elapsed = callRs.getLong("elapsed_seconds");
                     callStatus = CallStatus.valueOf(callRs.getString("call_status"));
-                    output = callRs.getString("output");
                 }
                 
                 try (PreparedStatement stmt2 = connection.prepareStatement(
@@ -148,7 +144,7 @@ public class CallDAO {
                 }
 
                 connection.commit();
-                return new CallDetail(callId, appId, userId, elapsed, callStatus, output, params);
+                return new CallDetail(callId, appId, userId, elapsed, callStatus, params);
             }
         } catch (SQLException ex) {
             DBHelper.rollback(connection);
