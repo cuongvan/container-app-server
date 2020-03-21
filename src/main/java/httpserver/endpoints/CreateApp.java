@@ -67,23 +67,17 @@ public class CreateApp {
 
     public static AppInfo translate(AppInfo_ request) {
         AppInfo app = new AppInfo()
-            .withAppName(request.appName)
-            .withSlugName(request.slugName)
-            .withImage(request.image)
-            .withOwner(request.owner)
-            .withDescription(request.description)
-            .withLanguage(request.language)
-            .withType(AppType.BATCH)//EXTRA: remove field
+            .setAppName(request.appName)
+            .setSlugName(request.slugName)
+            .setImage(request.image)
+            .setOwner(request.owner)
+            .setDescription(request.description)
+            .setLanguage(request.language)
+            .setType(AppType.BATCH)//EXTRA: remove field
             ;
         
         for (AppParam_ p : request.params) {
-            app.addParam(AppParam.builder()
-                .withName(p.name)
-                .withType(ParamType.valueOf(p.type.name()))
-                .withLabel(p.label)
-                .withDescription(p.description)
-                .build()
-            );
+            app.addParam(new AppParam(p.name, p.type, p.label, p.description));
         }
         
         return app;

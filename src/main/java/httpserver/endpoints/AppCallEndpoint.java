@@ -75,7 +75,7 @@ public class AppCallEndpoint {
                 .build();
         }
         
-        Optional<CallParam> paramOpt = callDetail.getParams().stream()
+        Optional<CallParam> paramOpt = callDetail.params.stream()
             .filter(p -> p.name.equals(fileParamName))
             .findFirst();
         

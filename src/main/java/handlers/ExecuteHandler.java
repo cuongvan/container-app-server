@@ -1,5 +1,8 @@
 package handlers;
 
+import handlers.exceptions.AppBuildFailed;
+import handlers.exceptions.AppNotDoneBuilding;
+import handlers.exceptions.AppNotFound;
 import common.Constants;
 import docker.DockerAdapter;
 import externalapi.appcall.AppCallDAO;
@@ -49,7 +52,7 @@ public class ExecuteHandler {
         
         List<CallParam> callParams = new ArrayList<>();
         for (AppParam appParam : appInfo.getParams()) {
-            callParams.add(processParam(callId, appParam, files.get(appParam.getName())));
+            callParams.add(processParam(callId, appParam, files.get(appParam.name)));
         }
         
         appCallDAO.createNewCall(callId, appId, userId, callParams);
@@ -82,7 +85,7 @@ public class ExecuteHandler {
     
     private CallParam processParam(String callId, AppParam appParam, byte[] fileContent) throws IOException {
         String value;
-        switch (appParam.getType()) {
+        switch (appParam.type) {
             case TEXT:
             case NUMBER:
             {
@@ -90,7 +93,7 @@ public class ExecuteHandler {
                 break;
             }
             case FILE: {
-                String filename = format("%s-%s", callId, appParam.getName());
+                String filename = format("%s-%s", callId, appParam.name);
                 Path filePath = Paths.get(Constants.APP_INPUT_FILES_DIR, filename).toAbsolutePath().normalize();
                 Files.write(filePath, fileContent);
                 value = filePath.toString();
@@ -100,7 +103,7 @@ public class ExecuteHandler {
                 value = new String(fileContent);
         }
         
-        return new CallParam(appParam.getType(), appParam.getName(), value);
+        return new CallParam(appParam.type, appParam.name, value);
     }
     
     private String fileParamMountPath(String paramName) {

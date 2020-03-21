@@ -5,9 +5,9 @@
  */
 package httpserver.endpoints;
 
-import handlers.AppBuildFailed;
-import handlers.AppNotDoneBuilding;
-import handlers.AppNotFound;
+import handlers.exceptions.AppBuildFailed;
+import handlers.exceptions.AppNotDoneBuilding;
+import handlers.exceptions.AppNotFound;
 import handlers.ExecuteHandler;
 import httpserver.common.FailedResponse;
 import httpserver.common.SuccessResponse;

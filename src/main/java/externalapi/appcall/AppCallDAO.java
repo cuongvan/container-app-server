@@ -115,42 +115,49 @@ public class AppCallDAO {
 
     public CallDetail getById(String callId) {
         Connection connection = null;
-        CallDetail callDetail = new CallDetail();
         try {
             connection = dbPool.getNonAutoCommitConnection();
+            
+            
+            String appId;
+            String userId;
+            long elapsed;
+            CallStatus callStatus;
+            String output;
+            List<CallParam> params = new ArrayList<>();
+            
             try (PreparedStatement stmt = connection.prepareStatement(
                 "SELECT call_id, app_id, user_id, elapsed_seconds, call_status, output "
                 + "FROM app_call WHERE call_id = ?")) {
                 stmt.setString(1, callId);
-                try (ResultSet rs = stmt.executeQuery()) {
-                    if (!rs.next())
+                try (ResultSet callRs = stmt.executeQuery()) {
+                    if (!callRs.next())
                         return null;
-                    callDetail
-                        .withCallId(callId)
-                        .withAppId(rs.getString("app_id"))
-                        .withUserId(rs.getString("user_id"))
-                        .withElapsedSeconds(rs.getLong("elapsed_seconds"))
-                        .withCallStatus(CallStatus.valueOf(rs.getString("call_status")))
-                        .withOutput(rs.getString("output"));
+                    
+                    appId = callRs.getString("app_id");
+                    userId = callRs.getString("user_id");
+                    elapsed = callRs.getLong("elapsed_seconds");
+                    callStatus = CallStatus.valueOf(callRs.getString("call_status"));
+                    output = callRs.getString("output");
                 }
-            }
-            
-            try (PreparedStatement stmt = connection.prepareStatement(
-                "SELECT name, type, value FROM call_param WHERE call_id = ?")) {
-                stmt.setString(1, callId);
-                try (ResultSet rs = stmt.executeQuery()) {
-                    while (rs.next()) {
-                        String name = rs.getString("name");
-                        ParamType type = ParamType.valueOf(rs.getString("type"));
-                        String value = rs.getString("value");
-                        CallParam param = new CallParam(type, name, value);
-                        callDetail.addCallParam(param);
+                
+                try (PreparedStatement stmt2 = connection.prepareStatement(
+                    "SELECT name, type, value FROM call_param WHERE call_id = ?")) {
+                    stmt2.setString(1, callId);
+                    try (ResultSet rs = stmt2.executeQuery()) {
+                        while (rs.next()) {
+                            String name = rs.getString("name");
+                            ParamType type = ParamType.valueOf(rs.getString("type"));
+                            String value = rs.getString("value");
+                            CallParam param = new CallParam(type, name, value);
+                            params.add(param);
+                        }
                     }
                 }
+
+                connection.commit();
+                return new CallDetail(callId, appId, userId, elapsed, callStatus, output, params);
             }
-            
-            connection.commit();
-            return callDetail;
         } catch (SQLException ex) {
             DBHelper.rollback(connection);
             throw new RuntimeException(ex);

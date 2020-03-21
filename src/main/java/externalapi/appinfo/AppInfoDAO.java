@@ -51,10 +51,10 @@ public class AppInfoDAO {
             try (PreparedStatement stmt = connection.prepareStatement(insertAppParams)) {
                 for (AppParam param : app.getParams()) {
                     stmt.setString(1, appId);
-                    stmt.setString(2, param.getName());
-                    stmt.setString(3, param.getType().name());
-                    stmt.setString(4, param.getLabel());
-                    stmt.setString(5, param.getDescription());
+                    stmt.setString(2, param.name);
+                    stmt.setString(3, param.type.name());
+                    stmt.setString(4, param.label);
+                    stmt.setString(5, param.description);
                     stmt.addBatch();
                     stmt.executeBatch();
                 }
@@ -87,17 +87,17 @@ public class AppInfoDAO {
                     if (!rs.next())
                         return null;
                     app
-                        .withAppId(appId)
-                        .withAppName(rs.getString("app_name"))
+                        .setAppId(appId)
+                        .setAppName(rs.getString("app_name"))
                         .setAvatarPath(rs.getString("avatar_path"))
-                        .withType(AppType.valueOf(rs.getString("type")))
-                        .withSlugName(rs.getString("slug_name"))
-                        .withCodePath(rs.getString("code_path"))
-                        .withImage(rs.getString("image"))
-                        .withImageId(rs.getString("image_id"))
-                        .withOwner(rs.getString("owner"))
-                        .withDescription(rs.getString("description"))
-                        .withLanguage(SupportLanguage.valueOf(rs.getString("language")))
+                        .setType(AppType.valueOf(rs.getString("type")))
+                        .setSlugName(rs.getString("slug_name"))
+                        .setCodePath(rs.getString("code_path"))
+                        .setImage(rs.getString("image"))
+                        .setImageId(rs.getString("image_id"))
+                        .setOwner(rs.getString("owner"))
+                        .setDescription(rs.getString("description"))
+                        .setLanguage(SupportLanguage.valueOf(rs.getString("language")))
                         .setAppStatus(AppStatus.valueOf(rs.getString("app_status")))
                         .setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime())
                         ;
@@ -108,11 +108,11 @@ public class AppInfoDAO {
                 stmt.setString(1, appId);
                 try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {
-                        app.addParam(AppParam.builder()
-                            .withName(rs.getString("name"))
-                            .withType(ParamType.valueOf(rs.getString("type")))
-                            .withLabel(rs.getString("label"))
-                            .withDescription(rs.getString("description")).build());
+                        app.addParam(new AppParam(
+                            rs.getString("name"),
+                            ParamType.valueOf(rs.getString("type")),
+                            rs.getString("label"),
+                            rs.getString("description")));
                     }
                 }
             }
@@ -153,29 +153,6 @@ public class AppInfoDAO {
         }
     }
     
-    public List<AppParam> getAppParams(String appId) {
-        String query = "SELECT name, type, label, description\n" +
-                       "FROM app_param WHERE app_id = ?";
-        try (Connection connection = dbPool.getConnection();
-            PreparedStatement stmt = connection.prepareStatement(query);
-        ) {
-            stmt.setString(1, appId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                List<AppParam> params = new ArrayList<>();
-                while (rs.next()) {
-                    params.add(AppParam.builder()
-                        .withName(rs.getString("name"))
-                        .withType(ParamType.valueOf(rs.getString("type")))
-                        .withLabel(rs.getString("label"))
-                        .withDescription(rs.getString("description")).build());
-                }
-                return params;
-            }
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
     public List<String> getAllAppIds() {
         String query = "SELECT app_id FROM app_info";
         try (Connection connection = dbPool.getConnection();

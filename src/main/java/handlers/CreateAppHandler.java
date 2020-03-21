@@ -23,7 +23,7 @@ public class CreateAppHandler {
         
         Path codePath = codePath(appId);
         Files.write(codePath, codeFile);
-        app.withCodePath(codePath.toString());
+        app.setCodePath(codePath.toString());
         
         Path avatarPath = avatarPath(appId);
         app.setAvatarPath(avatarPath.toString());

@@ -140,12 +140,12 @@ public class AppInfo {
         return "AppInfo{" + "appId=" + appId + ", appName=" + appName + ", avatarUrl=" + avatarUrl + ", type=" + type + ", slugName=" + slugName + ", image=" + image + ", owner=" + owner + ", description=" + description + ", language=" + language + ", status=" + appStatus + ", params=" + params + '}';
     }
 
-    public AppInfo withAppId(String appId) {
+    public AppInfo setAppId(String appId) {
         this.appId = appId;
         return this;
     }
 
-    public AppInfo withAppName(String appName) {
+    public AppInfo setAppName(String appName) {
         this.appName = appName;
         return this;
     }
@@ -155,42 +155,42 @@ public class AppInfo {
         return this;
     }
 
-    public AppInfo withType(AppType type) {
+    public AppInfo setType(AppType type) {
         this.type = type;
         return this;
     }
 
-    public AppInfo withSlugName(String slugName) {
+    public AppInfo setSlugName(String slugName) {
         this.slugName = slugName;
         return this;
     }
 
-    public AppInfo withCodePath(String codePath) {
+    public AppInfo setCodePath(String codePath) {
         this.codePath = codePath;
         return this;
     }
 
-    public AppInfo withImage(String image) {
+    public AppInfo setImage(String image) {
         this.image = image;
         return this;
     }
 
-    public AppInfo withImageId(String imageId) {
+    public AppInfo setImageId(String imageId) {
         this.imageId = imageId;
         return this;
     }
 
-    public AppInfo withOwner(String owner) {
+    public AppInfo setOwner(String owner) {
         this.owner = owner;
         return this;
     }
 
-    public AppInfo withDescription(String description) {
+    public AppInfo setDescription(String description) {
         this.description = description;
         return this;
     }
 
-    public AppInfo withLanguage(SupportLanguage language) {
+    public AppInfo setLanguage(SupportLanguage language) {
         this.language = language;
         return this;
     }
