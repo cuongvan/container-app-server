@@ -2,7 +2,7 @@ package watchers;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class OutputMedata {
+public class CallOutput {
     @JsonProperty("TEXT")
     public String freeTextOuput;
 }

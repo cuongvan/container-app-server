@@ -13,8 +13,9 @@ import docker.DockerAdapter;
 import externalapi.appcall.CallDAO;
 import externalapi.appcall.models.AppCallResult;
 import externalapi.appcall.models.CallStatus;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
@@ -80,11 +81,16 @@ public class ContainerFinishWatcher {
         String callId = getAppCallId(inspect);
         try {
             AppCallResult r = gatherCallResultInfo(inspect);
-            copyContainerOutput(containerId, callId);
+            File outputDir = copyContainerOutput(containerId, callId);
+            
+            CallOutput callOutput = getCallOutput(outputDir);
+            System.out.println(">>> " + callOutput.freeTextOuput);
+            
             appCallDAO.updateFinishedAppCall(callId, r);
             LOG.info("App call {} finished: {}", callId, r);
         } catch (IOException ex) {
             LOG.info("Failed copy output data out of container, callID = {}", callId);
+            ex.printStackTrace();
         } catch (SQLException ex) {
             LOG.info("Failed to insert result to DB, callID = {}", callId);
         } finally {
@@ -110,11 +116,18 @@ public class ContainerFinishWatcher {
         return callId;
     }
     
-    private void copyContainerOutput(String containerId, String callId) throws IOException {
-        String dest = Paths.get(Constants.APP_OUTPUT_FILES_DIR, callId).toString();
+    private File copyContainerOutput(String containerId, String callId) throws IOException {
+        File dest = new File(Constants.APP_OUTPUT_FILES_DIR, callId);
         docker.copyDirectory(containerId, Constants.CONTAINER_OUTPUT_FILES_DIR, dest);
+        return dest;
+    }
+    
+    private CallOutput getCallOutput(File outputDir) throws IOException {
+        File metadataFile = new File(outputDir, Constants.OUTPUT_FILE_RELATIVE_PATH);
+        FileInputStream in = new FileInputStream(metadataFile);
+        return OBJECT_READER.readValue(in);
     }
     
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final ObjectReader OBJECT_READER = OBJECT_MAPPER.readerFor(OutputMedata.class);
+    private static final ObjectReader OBJECT_READER = OBJECT_MAPPER.readerFor(CallOutput.class);
 }

@@ -6,9 +6,9 @@ public class AppCallResult {
     public final CallStatus callStatus;
     public final long elapsedSeconds;
     public final String output;
-    public final List<CallOutput> outputs;
+    public final List<CallOutputEntry> outputs;
 
-    public AppCallResult(CallStatus callStatus, long elapsedSeconds, String output, List<CallOutput> outputs) {
+    public AppCallResult(CallStatus callStatus, long elapsedSeconds, String output, List<CallOutputEntry> outputs) {
         this.callStatus = callStatus;
         this.elapsedSeconds = elapsedSeconds;
         this.output = output;

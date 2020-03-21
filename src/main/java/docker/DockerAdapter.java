@@ -195,7 +195,7 @@ public class DockerAdapter {
         }
     }
     
-    public void copyDirectory(String containerId, String containerDirPath, String hostPath) throws IOException {
+    public void copyDirectory(String containerId, String containerDirPath, File hostPath) throws IOException {
         DockerClient docker = DockerAdapter.newClient();
         try {
             
@@ -210,7 +210,7 @@ public class DockerAdapter {
             
             String untaredRootDirName = Paths.get(containerDirPath).getFileName().toString();
             File untaredRootDir = new File(tempDir, untaredRootDirName);
-            FileUtils.moveDirectory(untaredRootDir, new File(hostPath));
+            FileUtils.moveDirectory(untaredRootDir, hostPath);
             tempDir.delete();
         } finally {
             close(docker);

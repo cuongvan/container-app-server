@@ -60,8 +60,8 @@ def put_file(filename, data: bytes):
 from pprint import pprint
 pprint(get_input_params())
 
-put_key_value('myoutput', 'Hello you')
-put_file('myfile', b'this is the file content')
+# put_key_value('myoutput', 'Hello you')
+# put_file('myfile', b'this is the file content')
 put_text('''
     This is a multiline text,
     looks good!

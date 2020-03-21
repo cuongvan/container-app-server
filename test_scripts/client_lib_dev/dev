@@ -37,10 +37,12 @@ app_info = {
         }
     ]
 }
-code_dir = './env'
 
+test_dir = pathlib.Path(__file__).parent.absolute()
+
+app_dir = test_dir / 'app'
 temp_name = tempfile.mkstemp()[1]
-zip_file = shutil.make_archive(temp_name, 'zip', root_dir=code_dir, base_dir='./')
+zip_file = shutil.make_archive(temp_name, 'zip', root_dir=str(app_dir), base_dir='.')
 
 def show(r):
     print(json.dumps(r.json(), indent=4))
@@ -67,7 +69,6 @@ while True:
 ######################################################################
 # call
 print('Call app')
-test_dir = pathlib.Path(__file__).parent.absolute()
 
 r = requests.post('http://localhost:5001/app/{}/execute'.format(app_id), files={
     'mytext': (None, 'Do anything you like'),
