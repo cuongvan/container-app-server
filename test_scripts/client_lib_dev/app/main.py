@@ -36,22 +36,30 @@ def read_output_meta():
     with open(OUTPUT_INFO_FILE) as f:
         return json.load(f)
 
-def write_output_meta(meta):
+def write_output(meta):
     with open(OUTPUT_INFO_FILE, 'w') as f:
         f.write(json.dumps(meta, indent=4))
 
-write_output_meta({})
+write_output({
+    'fields': []
+})
 
 
-def put_key_value(key, value):
-    meta = read_output_meta()
-    write_output_meta({
-        **read_output_meta(),
-        key: value
+def put_key_value(name, type, value: str):
+    output = read_output_meta()
+    output['fields'].append({
+        'type': type,
+        'name': name,
+        'value': value,
     })
+    print('update:', output)
+    write_output(output)
 
-def put_text(text):
-    put_key_value('TEXT', text)
+def put_text(name, text: str):
+    put_key_value(name, 'TEXT', text)
+
+def put_list(name, val: list):
+    put_key_value(name, 'LIST', str(val))
 
 def put_file(filename, data: bytes):
     with open(OUTPUT_FILES_DIR / filename, 'wb') as f:
@@ -62,7 +70,5 @@ pprint(get_input_params())
 
 # put_key_value('myoutput', 'Hello you')
 # put_file('myfile', b'this is the file content')
-put_text('''
-    This is a multiline text,
-    looks good!
-''')
+put_text('mytext', 'value of text param')
+put_list('mylist', [1, 2, 3])

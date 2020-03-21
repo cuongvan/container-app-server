@@ -85,12 +85,12 @@ print('-------------------------------------------------------------')
 
 # get result
 print('Get result')
-while True:
+for i in range(2):
     r = requests.get('http://localhost:5001/call/{}'.format(call_id))
     t = r.json()
     if r.ok:
         if t['call_detail']['call_status'] == 'STARTED':
-            time.sleep(0.5)
+            time.sleep(1)
             continue
         else:
             print('----------------')

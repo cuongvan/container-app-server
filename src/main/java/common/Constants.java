@@ -14,10 +14,11 @@ public class Constants {
     
     public static final String APP_CODE_FILES_DIR = "../ckanapp/codes";
     public static final String APP_AVATARS_DIR = "../ckanapp/avatars";
-    public static final String APP_INPUT_FILES_DIR = "../ckanapp/inputs";
     public static final String APP_DEFAULT_AVATAR_PATH = "./templates/default_avatar.jpg";
     
     public static final String CONTAINER_ID_LABEL_KEY = "ckan.callid";
+    
+    public static final String APP_INPUT_FILES_DIR = "../ckanapp/inputs";
     public static final String CONTAINER_INPUT_FILES_MOUNT_DIR = "/files";
     
     public static final String APP_OUTPUT_FILES_DIR = "../ckanapp/outputs";

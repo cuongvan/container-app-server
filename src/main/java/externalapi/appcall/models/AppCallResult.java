@@ -1,5 +1,6 @@
 package externalapi.appcall.models;
 
+import watchers.CallOutputEntry;
 import java.util.List;
 
 public class AppCallResult {

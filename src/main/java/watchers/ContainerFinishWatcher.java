@@ -13,6 +13,7 @@ import docker.DockerAdapter;
 import externalapi.appcall.CallDAO;
 import externalapi.appcall.models.AppCallResult;
 import externalapi.appcall.models.CallStatus;
+import static io.netty.util.CharsetUtil.UTF_8;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -24,6 +25,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +86,7 @@ public class ContainerFinishWatcher {
             File outputDir = copyContainerOutput(containerId, callId);
             
             CallOutput callOutput = getCallOutput(outputDir);
-            System.out.println(">>> " + callOutput.freeTextOuput);
+            System.out.println(">>> " + callOutput);
             
             appCallDAO.updateFinishedAppCall(callId, r);
             LOG.info("App call {} finished: {}", callId, r);
@@ -124,6 +126,8 @@ public class ContainerFinishWatcher {
     
     private CallOutput getCallOutput(File outputDir) throws IOException {
         File metadataFile = new File(outputDir, Constants.OUTPUT_FILE_RELATIVE_PATH);
+        //System.out.println(FileUtils.readFileToString(metadataFile, UTF_8));
+        
         FileInputStream in = new FileInputStream(metadataFile);
         return OBJECT_READER.readValue(in);
     }
