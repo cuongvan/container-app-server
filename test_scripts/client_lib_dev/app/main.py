@@ -69,6 +69,9 @@ def put_boolean(name, val: bool):
 
     put_key_value_(name, 'BOOLEAN', text)
 
+def put_number(name, number):
+    put_key_value_(name, 'NUMBER', str(number))
+
 def put_file(filename, data: bytes):
     with open(OUTPUT_FILES_DIR / filename, 'wb') as f:
         f.write(data)
@@ -80,3 +83,5 @@ put_file('myfile', b'this is the file content')
 put_text('mytext', 'value of text param')
 put_list('mylist', [1, 2, 3])
 put_boolean('myboolean', True)
+put_number('mynumber1', 100)
+put_number('mynumber2', 999.999)

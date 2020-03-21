@@ -104,7 +104,7 @@ public class ContainerFinishWatcher {
             LOG.info("Failed to insert result to DB, callID = {}", callId);
             ex.printStackTrace();
         } finally {
-            docker.deleteContainer(containerId);
+            //docker.deleteContainer(containerId);
         }
     }
 
