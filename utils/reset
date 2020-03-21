@@ -9,10 +9,10 @@ def main():
     delete_data_dir()
 
 def delete_data_dir():
-    import shutil, os
-    dir = '../../ckanapp'
-    if os.path.isdir(dir):
-        shutil.rmtree(dir)
+    import shutil, pathlib
+    dir = pathlib.Path(__file__).parent.absolute() / '../../ckanapp'
+    if dir.is_dir():
+        shutil.rmtree(str(dir))
 
 def drop():
     db.execute('DROP TABLE IF EXISTS app_info, app_param, app_call, call_param')
@@ -31,7 +31,8 @@ def create():
             owner TEXT,
             description TEXT,
             language TEXT,
-            app_status TEXT
+            app_status TEXT,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
     ''')
 

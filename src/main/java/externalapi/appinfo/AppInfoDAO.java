@@ -71,7 +71,7 @@ public class AppInfoDAO {
 
     public AppInfo getById(String appId) {
         String selectAppInfo = "SELECT app_id, app_name, avatar_path, type, slug_name, code_path, image, image_id, "
-            + "owner, description, language, app_status\n" 
+            + "owner, description, language, app_status, created_at\n" 
             + "FROM app_info WHERE app_id = ?";
         
         String selectAppParams = "SELECT name, type, label, description\n" +
@@ -99,6 +99,7 @@ public class AppInfoDAO {
                         .withDescription(rs.getString("description"))
                         .withLanguage(SupportLanguage.valueOf(rs.getString("language")))
                         .setAppStatus(AppStatus.valueOf(rs.getString("app_status")))
+                        .setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime())
                         ;
                 }
             }

@@ -2,6 +2,8 @@ package externalapi.appinfo.models;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -20,6 +22,7 @@ public class AppInfo {
     private String description;
     private SupportLanguage language;
     private AppStatus appStatus;
+    private LocalDateTime createdAt;
     private List<AppParam> params = new ArrayList<>();
 
     public String getAppId() {
@@ -68,6 +71,10 @@ public class AppInfo {
 
     public AppStatus getAppStatus() {
         return appStatus;
+    }
+
+    public String getCreatedAt() {
+        return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(createdAt);
     }
     
     public List<AppParam> getParams() {
@@ -195,6 +202,11 @@ public class AppInfo {
 
     public AppInfo addParam(AppParam param) {
         this.params.add(param);
+        return this;
+    }
+
+    public AppInfo setCreatedAt(LocalDateTime time) {
+        this.createdAt = time;
         return this;
     }
 }
