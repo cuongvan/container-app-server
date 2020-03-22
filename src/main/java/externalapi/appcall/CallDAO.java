@@ -129,6 +129,7 @@ public class CallDAO {
         Connection connection = dbPool.getNonAutoCommitConnection();
         try {
             CallDetail callDetail = new CallDetail();
+            callDetail.callId = callId;
             
             try (PreparedStatement stmt = connection.prepareStatement(
                 "SELECT * FROM app_call WHERE call_id = ?")) {
