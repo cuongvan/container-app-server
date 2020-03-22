@@ -71,6 +71,7 @@ public class CreateApp {
             .setSlugName(request.slugName)
             .setImage(request.image)
             .setOwner(request.owner)
+            .setOrganization(request.organization)
             .setDescription(request.description)
             .setLanguage(request.language)
             .setType(AppType.BATCH)//EXTRA: remove field
@@ -90,6 +91,7 @@ public class CreateApp {
         public String slugName;
         public String image;
         public String owner;
+        public String organization;
         public String description;
         public SupportLanguage language;
         public List<AppParam_> params;

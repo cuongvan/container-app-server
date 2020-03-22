@@ -46,7 +46,7 @@ public class ExecuteHandler {
         
         if (appInfo.getAppStatus() == AppStatus.BUILDING)
             throw new AppNotDoneBuilding();
-        if (appInfo.getAppStatus() == AppStatus.BUILD_FAILED)
+        else if (appInfo.getAppStatus() == AppStatus.BUILD_FAILED)
             throw new AppBuildFailed();
         
         String callId = MiscHelper.newId();

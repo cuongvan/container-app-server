@@ -27,8 +27,8 @@ public class AppDAO {
 
     public void insertApp(String appId, AppDetail app) throws SQLException {
         String insertAppInfo = "INSERT INTO app_info(" +
-            "app_id, app_name, avatar_path, type, slug_name, code_path, image, owner, description, language, app_status, sys_status) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            "app_id, app_name, avatar_path, type, slug_name, code_path, image, owner, organization, description, language, app_status, sys_status) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         String insertAppParams = "INSERT INTO app_param(app_id, name, type, label, description) " +
             " VALUES (?, ?, ?, ?, ?);";
@@ -45,10 +45,11 @@ public class AppDAO {
                 stmt.setString(6, app.getCodePath());
                 stmt.setString(7, app.getImage());
                 stmt.setString(8, app.getOwner());
-                stmt.setString(9, app.getDescription());
-                stmt.setString(10, app.getLanguage().name());
-                stmt.setString(11, app.getAppStatus().name());
-                stmt.setString(12, app.getSysStatus().name());
+                stmt.setString(9, app.getOrganization());
+                stmt.setString(10, app.getDescription());
+                stmt.setString(11, app.getLanguage().name());
+                stmt.setString(12, app.getAppStatus().name());
+                stmt.setString(13, app.getSysStatus().name());
                 stmt.executeUpdate();
             }
             
@@ -74,16 +75,12 @@ public class AppDAO {
     }
 
     public AppDetail getById(String appId) throws SQLException {
-        String selectAppInfo = "SELECT * FROM app_info WHERE app_id = ?";
-        
-        String selectAppParams = "SELECT name, type, label, description\n" +
-                       "FROM app_param WHERE app_id = ?";
-        
         Connection connection = null;
         AppDetail app = new AppDetail();
         try {
             connection = dbPool.getNonAutoCommitConnection();
-            try (PreparedStatement stmt = connection.prepareStatement(selectAppInfo)) {
+            try (PreparedStatement stmt = connection.prepareStatement(
+                    "SELECT * FROM app_info WHERE app_id = ?")) {
                 stmt.setString(1, appId);
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (!rs.next())
@@ -98,6 +95,7 @@ public class AppDAO {
                         .setImage(rs.getString("image"))
                         .setImageId(rs.getString("image_id"))
                         .setOwner(rs.getString("owner"))
+                        .setOrganization(rs.getString("organization"))
                         .setDescription(rs.getString("description"))
                         .setLanguage(SupportLanguage.valueOf(rs.getString("language")))
                         .setAppStatus(AppStatus.valueOf(rs.getString("app_status")))
@@ -107,7 +105,8 @@ public class AppDAO {
                 }
             }
             
-            try (PreparedStatement stmt = connection.prepareStatement(selectAppParams)) {
+            try (PreparedStatement stmt = connection.prepareStatement(
+                "SELECT * FROM app_param WHERE app_id = ?")) {
                 stmt.setString(1, appId);
                 try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {

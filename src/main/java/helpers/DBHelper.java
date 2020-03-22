@@ -1,6 +1,5 @@
 package helpers;
 
-import externalapi.DBConnectionPool;
 import java.sql.Connection;
 import java.sql.SQLException;
 

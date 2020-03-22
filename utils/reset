@@ -29,6 +29,7 @@ def create():
             image TEXT,
             image_id TEXT,
             owner TEXT,
+            organization TEXT,
             description TEXT,
             language TEXT,
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

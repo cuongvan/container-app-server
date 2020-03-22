@@ -4,6 +4,8 @@ import requests, sys, shutil, tempfile, json, pathlib
 app_info = {
     "app_name": "Anonymize data file",
     "language": "PYTHON",
+    "owner": "1212121",
+    "organization": "123456",
     "params": [
         {
             "name": "algorithm",

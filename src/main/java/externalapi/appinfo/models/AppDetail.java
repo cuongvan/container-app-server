@@ -18,6 +18,7 @@ public class AppDetail {
     private String image;
     private String imageId;
     private String owner;
+    private String organization;
     private String description;
     private SupportLanguage language;
     private LocalDateTime createdAt;
@@ -61,6 +62,10 @@ public class AppDetail {
         return owner;
     }
 
+    public String getOrganization() {
+        return organization;
+    }
+    
     public String getDescription() {
         return description;
     }
@@ -129,6 +134,11 @@ public class AppDetail {
 
     public AppDetail setOwner(String owner) {
         this.owner = owner;
+        return this;
+    }
+
+    public AppDetail setOrganization(String organization) {
+        this.organization = organization;
         return this;
     }
 
