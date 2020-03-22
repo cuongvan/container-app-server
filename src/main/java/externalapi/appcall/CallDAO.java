@@ -147,7 +147,7 @@ public class CallDAO {
                 }
             }
             
-            List<CallInputEntry> inputs = new ArrayList<>();
+            callDetail.inputs = new ArrayList<>();
             try (PreparedStatement stmt2 = connection.prepareStatement(
                 "SELECT name, type, value FROM call_input WHERE call_id = ?")) {
                 stmt2.setString(1, callId);
@@ -157,7 +157,7 @@ public class CallDAO {
                         InputFieldType type = InputFieldType.valueOf(rs.getString("type"));
                         String value = rs.getString("value");
                         CallInputEntry input = new CallInputEntry(type, name, value);
-                        inputs.add(input);
+                        callDetail.inputs.add(input);
                     }
                 }
             }
