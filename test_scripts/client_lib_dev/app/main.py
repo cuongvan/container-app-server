@@ -10,3 +10,5 @@ ckanapplib.put_list('mylist', [1, 2, 3])
 ckanapplib.put_boolean('myboolean', True)
 ckanapplib.put_number('mynumber1', 100)
 ckanapplib.put_number('mynumber2', 999.999)
+
+raise Exception("faaaaaa")

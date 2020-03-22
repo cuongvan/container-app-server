@@ -18,6 +18,7 @@ import externalapi.appcall.models.CallStatus;
 import externalapi.appcall.models.OutputFieldType;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.SQLException;
@@ -88,7 +89,7 @@ public class ContainerFinishWatcher {
         
         String callId = getAppCallId(inspect);
         
-        List<CallOutputEntry> callOutputs;
+        List<CallOutputEntry> callOutputs = Collections.emptyList();
         try {
             try {
                 File outputDir = copyContainerOutput(containerId, callId);
@@ -101,24 +102,29 @@ public class ContainerFinishWatcher {
                 
             } catch (DockerAdapter.DockerOutputPathNotFound ex) {
                 LOG.info("Cannot initialize /outputs in app container. Client code failed before initialization. Check docker logs!");
-                callOutputs = Collections.emptyList();
+                LOG.info("Docker logs:" + docker.getContainerLog(containerId));
+                ex.printStackTrace();
+            } catch (FileNotFoundException ex) {
+                LOG.info("Client code failed before initialization. Check docker logs!");
+                LOG.info("Docker logs:" + docker.getContainerLog(containerId));
                 ex.printStackTrace();
             }
-            
-            CallResult r = gatherCallResultInfo(inspect);
-            appCallDAO.updateCallResult(callId, r, callOutputs);
-            LOG.info("App call {} finished: {}", callId, r);
         } catch (IOException ex) {
             LOG.info("Failed copy output data out of container, callID = {}", callId);
             String containerLog = docker.getContainerLog(containerId);
             System.out.println("Failed container logs: ");
             System.out.println(containerLog);
             ex.printStackTrace();
-        } catch (SQLException ex) {
-            LOG.info("Failed to insert result to DB, callID = {}", callId);
-            ex.printStackTrace();
         } finally {
-            docker.deleteContainer(containerId);
+            try {
+                CallResult callResult = gatherCallResultInfo(inspect);
+                appCallDAO.updateCallResult(callId, callResult, callOutputs);
+                LOG.info("App call {} finished: {}", callId, callResult);
+                docker.deleteContainer(containerId);
+            } catch (SQLException ex) {
+                LOG.info("Failed to insert result to DB, callID = {}", callId);
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -134,7 +140,7 @@ public class ContainerFinishWatcher {
         return dest;
     }
     
-    private List<CallOutputEntry> getNormalOutputFields(File outputDir) throws IOException {
+    private List<CallOutputEntry> getNormalOutputFields(File outputDir) throws IOException, FileNotFoundException {
         File metadataFile = new File(outputDir, Constants.CONTAINER_OUTPUT_FILE_RELATIVE_PATH);
         FileInputStream in = new FileInputStream(metadataFile);
         return OBJECT_READER.readValue(in);
