@@ -76,7 +76,8 @@ public class ExecuteHandler {
         environments.put("CKAN_HOST", "http://localhost:5000");
         
         Map<String, String> labels = new HashMap<String, String>() {{
-            put(Constants.CONTAINER_ID_LABEL_KEY, callId);
+            put(Constants.CONTAINER_LABEL_CALL_ID, callId);
+            put(Constants.CONTAINER_LABEL_APP_ID, appId);
         }};
         
         docker.createAndStartContainer(appInfo.getImageId(), environments, mounts, labels);

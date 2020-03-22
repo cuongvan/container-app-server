@@ -16,6 +16,9 @@ import externalapi.appcall.models.CallOutputEntry;
 import externalapi.appcall.models.CallResult;
 import externalapi.appcall.models.CallStatus;
 import externalapi.appcall.models.OutputFieldType;
+import externalapi.appinfo.AppDAO;
+import externalapi.appinfo.models.AppDetail;
+import externalapi.appinfo.models.SysStatus;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -41,17 +44,17 @@ public class ContainerFinishWatcher {
     
     private final Logger LOG = LoggerFactory.getLogger(ContainerFinishWatcher.class);
     
+    @Inject
     private DockerAdapter docker;
-    private CallDAO appCallDAO;
-    private ExecutorService executor;
     
     @Inject
-    public ContainerFinishWatcher(DockerAdapter dockerAdapter, CallDAO appCallDAO) {
-        this.docker = dockerAdapter;
-        this.appCallDAO = appCallDAO;
-        executor = Executors.newSingleThreadExecutor();
-    }
+    private AppDAO appDAO;
+    @Inject
+    private CallDAO callDAO;
     
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
+    
+
     public void runForever() {
         executor.submit(() -> loopTask());
     }
@@ -82,43 +85,55 @@ public class ContainerFinishWatcher {
     private void handleFinishedContainer(String containerId) {
         InspectContainerResponse inspect = docker.inspectContainer(containerId);
         Map<String, String> labels = inspect.getConfig().getLabels();
-        if (!labels.containsKey(Constants.CONTAINER_ID_LABEL_KEY)) {
+        if (!labels.containsKey(Constants.CONTAINER_LABEL_CALL_ID)) {
             // container not belong to ckan
             return;
         }
         
-        String callId = getAppCallId(inspect);
-        
+        CallResult callResult = gatherCallResultInfo(inspect);
+        String callId = getCallId(inspect);
+        String appId = getAppId(inspect);
         List<CallOutputEntry> callOutputs = Collections.emptyList();
         try {
-            try {
-                File outputDir = copyContainerOutput(containerId, callId);
-                callOutputs = getNormalOutputFields(outputDir);
-
-                getFileOutputs(outputDir)
-                    .map(outputFile -> 
-                        new CallOutputEntry(OutputFieldType.FILE, outputFile.getName(), outputFile.getAbsolutePath()))
-                    .forEach(callOutputs::add);
-                
-            } catch (DockerAdapter.DockerOutputPathNotFound ex) {
-                LOG.info("Cannot initialize /outputs in app container. Client code failed before initialization. Check docker logs!");
-                LOG.info("Docker logs:" + docker.getContainerLog(containerId));
-                ex.printStackTrace();
-            } catch (FileNotFoundException ex) {
-                LOG.info("Client code failed before initialization. Check docker logs!");
-                LOG.info("Docker logs:" + docker.getContainerLog(containerId));
-                ex.printStackTrace();
+            AppDetail appDetail = appDAO.getById(appId);
+            
+            // app deleted?
+            if (appDetail == null)
+                return;
+            
+            if (appDetail.getSysStatus() == SysStatus.DEBUG) {
+                callResult.logs = docker.getContainerLog(containerId);
             }
+            
+            File outputDir = copyContainerOutput(containerId, callId);
+            callOutputs = getNormalOutputFields(outputDir);
+
+            getFileOutputs(outputDir)
+                .map(outputFile -> 
+                    new CallOutputEntry(OutputFieldType.FILE, outputFile.getName(), outputFile.getAbsolutePath()))
+                .forEach(callOutputs::add);
+            
+            
+        } catch (DockerAdapter.DockerOutputPathNotFound ex) {
+            LOG.info("Cannot initialize /outputs in app container. Client code failed before initialization. Check docker logs!");
+            LOG.info("Docker logs:" + docker.getContainerLog(containerId));
+            ex.printStackTrace();
+        } catch (FileNotFoundException ex) {
+            LOG.info("Client code failed before initialization. Check docker logs!");
+            LOG.info("Docker logs:" + docker.getContainerLog(containerId));
+            ex.printStackTrace();
         } catch (IOException ex) {
             LOG.info("Failed copy output data out of container, callID = {}", callId);
             String containerLog = docker.getContainerLog(containerId);
             System.out.println("Failed container logs: ");
             System.out.println(containerLog);
             ex.printStackTrace();
+        } catch (SQLException ex) {
+            LOG.info("Failed to retrive app detail of appId = {}", appId);
+            ex.printStackTrace();
         } finally {
             try {
-                CallResult callResult = gatherCallResultInfo(inspect);
-                appCallDAO.updateCallResult(callId, callResult, callOutputs);
+                callDAO.updateCallResult(callId, callResult, callOutputs);
                 LOG.info("App call {} finished: {}", callId, callResult);
                 docker.deleteContainer(containerId);
             } catch (SQLException ex) {
@@ -128,10 +143,16 @@ public class ContainerFinishWatcher {
         }
     }
 
-    private String getAppCallId(InspectContainerResponse inspect) {
+    private String getCallId(InspectContainerResponse inspect) {
         Map<String, String> labels = inspect.getConfig().getLabels();
-        String callId = labels.get(Constants.CONTAINER_ID_LABEL_KEY);
+        String callId = labels.get(Constants.CONTAINER_LABEL_CALL_ID);
         return callId;
+    }
+    
+    private String getAppId(InspectContainerResponse inspect) {
+        Map<String, String> labels = inspect.getConfig().getLabels();
+        String appId = labels.get(Constants.CONTAINER_LABEL_APP_ID);
+        return appId;
     }
     
     private File copyContainerOutput(String containerId, String callId) throws IOException, DockerAdapter.DockerOutputPathNotFound {

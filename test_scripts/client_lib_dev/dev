@@ -101,10 +101,14 @@ for i in range(2):
             continue
 
         print('----------------')
-        show(data['outputs'])
+        show(data)
         print('-------------------------------------------------------------')
         r = requests.get('http://localhost:5001/call/{}/output/myfile'.format(call_id))
-        print('Download "myfile":', r.text)
+        print('>>>> myfile')
+        print(r.text)
+        print('-------------------------------------------------------------')
+        print('>>>> Logs')
+        print(data['logs'])
         print('-------------------------------------------------------------')
         break
 

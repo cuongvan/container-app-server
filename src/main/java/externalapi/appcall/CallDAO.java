@@ -68,10 +68,11 @@ public class CallDAO {
         Connection conn = dbPool.getNonAutoCommitConnection();
         try {
             try (PreparedStatement stmt = conn.prepareStatement(
-                "UPDATE app_call SET elapsed_seconds = ?, call_status = ? WHERE call_id = ?")) {
+                "UPDATE app_call SET elapsed_seconds = ?, call_status = ?, logs = ? WHERE call_id = ?")) {
                 stmt.setLong(1, callResult.elapsedSeconds);
                 stmt.setString(2, callResult.callStatus.name());
-                stmt.setString(3, callId);
+                stmt.setString(3, callResult.logs);
+                stmt.setString(4, callId);
                 stmt.executeUpdate();
             }
             
@@ -127,25 +128,22 @@ public class CallDAO {
     public CallDetail getById(String callId) throws SQLException {
         Connection connection = dbPool.getNonAutoCommitConnection();
         try {
-            String appId;
-            String userId;
-            long elapsed;
-            CallStatus callStatus;
-            String createdAt;
+            CallDetail callDetail = new CallDetail();
             
             try (PreparedStatement stmt = connection.prepareStatement(
                 "SELECT * FROM app_call WHERE call_id = ?")) {
                 stmt.setString(1, callId);
-                try (ResultSet callRs = stmt.executeQuery()) {
-                    if (!callRs.next())
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (!rs.next())
                         return null;
                     
-                    appId = callRs.getString("app_id");
-                    userId = callRs.getString("user_id");
-                    elapsed = callRs.getLong("elapsed_seconds");
-                    callStatus = CallStatus.valueOf(callRs.getString("call_status"));
-                    Timestamp time = callRs.getTimestamp("created_at");
-                    createdAt = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(time.toLocalDateTime());
+                    callDetail.appId = rs.getString("app_id");
+                    callDetail.userId = rs.getString("user_id");
+                    callDetail.elapsedSeconds = rs.getLong("elapsed_seconds");
+                    callDetail.callStatus = CallStatus.valueOf(rs.getString("call_status"));
+                    callDetail.logs = rs.getString("logs");
+                    Timestamp time = rs.getTimestamp("created_at");
+                    callDetail.createdAt = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(time.toLocalDateTime());
                 }
             }
             
@@ -164,7 +162,7 @@ public class CallDAO {
                 }
             }
             
-            List<CallOutputEntry> outputs = new ArrayList<>();
+            callDetail.outputs = new ArrayList<>();
             try (PreparedStatement stmt2 = connection.prepareStatement(
                 "SELECT name, type, value FROM call_output WHERE call_id = ?")) {
                 stmt2.setString(1, callId);
@@ -175,13 +173,13 @@ public class CallDAO {
                         String value = rs.getString("value");
                         
                         CallOutputEntry output = new CallOutputEntry(type, name, value);
-                        outputs.add(output);
+                        callDetail.outputs.add(output);
                     }
                 }
             }
             
             connection.commit();
-            return new CallDetail(callId, appId, userId, elapsed, callStatus, createdAt, inputs, outputs);
+            return callDetail;
         } catch (SQLException ex) {
             DBHelper.rollback(connection);
             throw ex;

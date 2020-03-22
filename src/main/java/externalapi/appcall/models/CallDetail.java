@@ -6,23 +6,13 @@ import java.util.List;
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class CallDetail {
-    public final String callId;
-    public final String appId;
-    public final String userId;
-    public final long elapsedSeconds;
-    public final CallStatus callStatus;
-    public final String createdAt;
-    public final List<CallInputEntry> inputs;
-    public final List<CallOutputEntry> outputs;
-
-    public CallDetail(String callId, String appId, String userId, long elapsedSeconds, CallStatus callStatus, String createdAt, List<CallInputEntry> inputs, List<CallOutputEntry> outputs) {
-        this.callId = callId;
-        this.appId = appId;
-        this.userId = userId;
-        this.elapsedSeconds = elapsedSeconds;
-        this.callStatus = callStatus;
-        this.createdAt = createdAt;
-        this.inputs = inputs;
-        this.outputs = outputs;
-    }
+    public String callId;
+    public String appId;
+    public String userId;
+    public long elapsedSeconds;
+    public CallStatus callStatus;
+    public String logs;
+    public String createdAt;
+    public List<CallInputEntry> inputs;
+    public List<CallOutputEntry> outputs;
 }

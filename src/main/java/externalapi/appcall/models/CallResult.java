@@ -1,8 +1,9 @@
 package externalapi.appcall.models;
 
 public class CallResult {
-    public final CallStatus callStatus;
-    public final long elapsedSeconds;
+    public CallStatus callStatus;
+    public long elapsedSeconds;
+    public String logs;
 
     public CallResult(CallStatus callStatus, long elapsedSeconds) {
         this.callStatus = callStatus;
