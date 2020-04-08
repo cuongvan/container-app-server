@@ -8,6 +8,9 @@ OUTPUT_FILES_DIR = OUTPUT_ROOT / "files"
 OUTPUT_ROOT.mkdir(exist_ok=True)
 OUTPUT_FILES_DIR.mkdir(exist_ok=True)
 
+with open(OUTPUT_INFO_FILE, 'w') as f:
+    json.dump([], f, indent=4)
+
 def get_input_params():
     params = {}
     for env_key, env_val in os.environ.items():

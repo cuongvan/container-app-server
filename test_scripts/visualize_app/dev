@@ -1,0 +1,84 @@
+#! /usr/bin/env python3
+import requests, sys, shutil, tempfile, json, time, pathlib
+
+app_info = {
+    "app_name": "Anonymize data file",
+    "language": "PYTHON",
+    "params": [
+        {
+            "name": "mytext",
+            "type": "TEXT",
+            "label": "",
+        },
+    ]
+}
+
+test_dir = pathlib.Path(__file__).parent.absolute()
+
+app_dir = test_dir / 'app'
+temp_name = tempfile.mkstemp()[1]
+zip_file = shutil.make_archive(temp_name, 'zip', root_dir=str(app_dir), base_dir='.')
+
+def show(r):
+    if type(r) is requests.Response:
+        print(json.dumps(r.json(), indent=4))
+    elif type(r) in [dict, list]:
+        print(json.dumps(r, indent=4))
+    else:
+        print('??? type', type(r))
+        print(r)
+
+######################################################################
+# make app
+print('Create app')
+r = requests.post('http://localhost:5001/app/create', files={
+    'app_info': (None, json.dumps(app_info)),
+    'code_file': ('code.zip', open(zip_file, 'rb'))
+})
+
+app_id = r.json()['app_id']
+show(r)
+print('-------------------------------------------------------------')
+######################################################################
+# wait for build
+while True:
+    r = requests.get('http://localhost:5001/app/{}'.format(app_id))
+    t = r.json()
+    if t['app_detail']['app_status'] == 'BUILDING':
+        time.sleep(0.5)
+    else:
+        break
+######################################################################
+# call
+print('Call app')
+
+r = requests.post('http://localhost:5001/app/{}/execute'.format(app_id), files={
+    'mytext': (None, 'Do anything you like'),
+})
+
+call_id = r.json()['call_id']
+show(r)
+print('-------------------------------------------------------------')
+
+# get result
+print('Get result')
+while True:
+    r = requests.get('http://localhost:5001/call/{}'.format(call_id))
+    data = r.json()['call_detail']
+    if r.ok:
+        if data['call_status'] == 'STARTED':
+            time.sleep(4)
+            continue
+
+        print('----------------')
+        show(r.json())
+        print('-------------------------------------------------------------')
+        r = requests.get('http://localhost:5001/call/{}/output/values.png'.format(call_id))
+        print('>>>> values.png')
+        print(r.text)
+        print('-------------------------------------------------------------')
+        print('>>>> Logs')
+        print(data['logs'])
+        print('-------------------------------------------------------------')
+        break
+

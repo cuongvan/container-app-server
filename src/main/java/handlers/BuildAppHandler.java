@@ -34,15 +34,12 @@ public class BuildAppHandler {
             AppDetail appInfo = appInfoDAO.getById(appId);
             String templateDir = Paths.get(Constants.DOCKER_BUILD_TEMPLATE_DIR, appInfo.getLanguage().name().toLowerCase()).toString();
             Path buildDir = createRandomDirAt(Constants.DOCKER_BUILD_DIR);
-            try {
-                MyFileUtils.unzipBytesToDir(codeZipFile, buildDir.resolve(Constants.DOCKER_BUILD_EXTRACE_CODE_DIR).toString());
-                MyFileUtils.copyDirectory(templateDir, buildDir.toString());
-                String imageId = docker.buildImage(buildDir.toString(), appInfo.getImage());
-                updateAppBuildDone(appId, imageId);
-                LOG.info("Image built: " + imageId);
-            } finally {
-                FileUtils.forceDelete(buildDir.toFile());
-            }
+            MyFileUtils.unzipBytesToDir(codeZipFile, buildDir.resolve(Constants.DOCKER_BUILD_EXTRACE_CODE_DIR).toString());
+            MyFileUtils.copyDirectory(templateDir, buildDir.toString());
+            String imageId = docker.buildImage(buildDir.toString(), appInfo.getImage());
+            updateAppBuildDone(appId, imageId);
+            LOG.info("Image built: " + imageId);
+            FileUtils.forceDelete(buildDir.toFile());
         } catch (Exception ex) {
             LOG.info("Build app image failed, appId = {}, {}", appId, ex);
             ex.printStackTrace();

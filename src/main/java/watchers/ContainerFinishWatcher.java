@@ -119,9 +119,9 @@ public class ContainerFinishWatcher {
             LOG.info("Docker logs:" + docker.getContainerLog(containerId));
             ex.printStackTrace();
         } catch (FileNotFoundException ex) {
-            LOG.info("Client code failed before initialization. Check docker logs!");
-            LOG.info("Docker logs:" + docker.getContainerLog(containerId));
-            ex.printStackTrace();
+            LOG.warn("Client code failed before initialization. Check docker logs!");
+            LOG.warn("Docker logs:" + docker.getContainerLog(containerId));
+            //ex.printStackTrace();
         } catch (IOException ex) {
             LOG.info("Failed copy output data out of container, callID = {}", callId);
             String containerLog = docker.getContainerLog(containerId);
