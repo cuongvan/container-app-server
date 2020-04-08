@@ -26,10 +26,10 @@ public class UnknownExceptionHandler implements ExceptionMapper<Throwable> {
     
     @Override
     public Response toResponse(Throwable e) {
-        e.printStackTrace();
         int status;
         if (e instanceof SQLException) {
             status = 500;
+            e.printStackTrace();
         }
         else if (e instanceof NotFoundException) {
             status = 404;
@@ -39,9 +39,11 @@ public class UnknownExceptionHandler implements ExceptionMapper<Throwable> {
         }
         else if (e instanceof IOException) {
             status = 500;
+            e.printStackTrace();
         }
         else {
             status = 500;
+            e.printStackTrace();
         }
         
         return Response

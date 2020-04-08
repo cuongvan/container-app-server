@@ -1,4 +1,4 @@
-FROM python:3.8-buster
+FROM ckanapp-python:3.8-v1
 
 WORKDIR /app
 
