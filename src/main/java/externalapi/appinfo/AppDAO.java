@@ -167,4 +167,17 @@ public class AppDAO {
             return ids;
         }
     }
+
+    public void updateSysStatus(String appId, SysStatus status) throws SQLException, AppNotFound {
+        String query = "UPDATE app_info SET sys_status = ? WHERE app_id = ?";
+        try (Connection connection = dbPool.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(query);
+        ) {
+            stmt.setString(1, status.name());
+            stmt.setString(2, appId);
+            int n = stmt.executeUpdate();
+            if (n == 0)
+                throw new AppNotFound();
+        }
+    }
 }

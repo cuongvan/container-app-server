@@ -1,7 +1,10 @@
 package httpserver.endpoints;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import externalapi.appinfo.AppDAO;
 import externalapi.appinfo.models.AppDetail;
+import externalapi.appinfo.models.SysStatus;
 import handlers.exceptions.AppNotFound;
 import httpserver.common.FailedResponse;
 import httpserver.common.SuccessResponse;
@@ -111,5 +114,26 @@ public class App {
                 .entity(new FailedResponse("App not found"))
                 .build();
         }
+    }
+    
+    
+    @Path("/{appId}")
+    @PUT
+    public Response updateAppStatus(@PathParam("appId") String appId, UpdateStatusRequest request) throws SQLException {
+        try {
+            appDAO.updateSysStatus(appId, request.newStatus);
+            return Response.ok(new SuccessResponse(), "application/json").build();
+        } catch (AppNotFound ex) {
+            return Response
+                .status(Status.NOT_FOUND)
+                .type("application/json")
+                .entity(new FailedResponse("App not found"))
+                .build();
+        }
+    }
+    
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+    private static class UpdateStatusRequest {
+        public SysStatus newStatus;
     }
 }
