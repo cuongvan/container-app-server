@@ -24,7 +24,6 @@ dependencies {
     implementation 'org.slf4j:slf4j-api:1.7.30'
     implementation 'org.slf4j:slf4j-simple:1.7.30'
     implementation 'com.spotify:docker-client:8.16.0'
-    implementation 'com.rabbitmq:amqp-client:5.8.0'
     implementation 'com.github.slugify:slugify:2.4'
     
     implementation 'commons-io:commons-io:2.6'
@@ -35,6 +34,8 @@ dependencies {
     implementation 'com.google.inject:guice:4.2.2'
     implementation 'com.fasterxml.uuid:java-uuid-generator:4.0.1'
     implementation 'org.apache.httpcomponents:httpclient:4.5.12'
+    
+    implementation 'com.rabbitmq:amqp-client:5.8.0'
 }
 
 //tasks.withType(JavaCompile).each {
