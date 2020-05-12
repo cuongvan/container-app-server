@@ -19,7 +19,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
 @Path("/call")
-public class AppCallEndpoint {
+public class Call {
     @Inject
     private CallDAO appCallDAO;
     

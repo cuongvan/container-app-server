@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 @Path("/app")
-public class AppEndpoint {
+public class App {
     @Inject
     private AppDAO appDAO;
     
