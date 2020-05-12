@@ -37,7 +37,8 @@ public class Receiver {
 
                 }
             };
-
+            
+            System.out.println("receiving");
             channel.basicConsume(QUEUE, true, deliverCallback, cancelCallback);
             System.in.read();
         }

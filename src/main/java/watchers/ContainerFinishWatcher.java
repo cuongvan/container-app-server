@@ -36,6 +36,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import notify.RabbitMQNotifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +52,8 @@ public class ContainerFinishWatcher {
     private AppDAO appDAO;
     @Inject
     private CallDAO callDAO;
+    
+    @Inject private RabbitMQNotifier notifier;
     
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     
@@ -136,8 +139,12 @@ public class ContainerFinishWatcher {
                 callDAO.updateCallResult(callId, callResult, callOutputs);
                 LOG.info("App call {} finished: {}", callId, callResult);
                 docker.deleteContainer(containerId);
+                notifier.notifyExecuteDone(callId);
             } catch (SQLException ex) {
                 LOG.info("Failed to insert result to DB, callID = {}", callId);
+                ex.printStackTrace();
+            } catch (Exception ex) {
+                LOG.info("Failed to notify rabbitmq queue");
                 ex.printStackTrace();
             }
         }
