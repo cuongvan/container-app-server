@@ -57,3 +57,13 @@ test {
 
 //run.jvmArgs(['--enable-preview'])
 //run.single.jvmArgs(['--enable-preview'])
+
+jar {
+    manifest {
+        attributes(
+            'Class-Path': configurations.runtimeClasspath.collect { it.getName() }.join(' '),
+            'Main-Class': mainClassName
+        )
+    }
+    archiveName 'Main.jar'
+}
