@@ -5,6 +5,7 @@ import docker.DockerAdapter;
 import externalapi.appinfo.AppDAO;
 import externalapi.appinfo.models.AppDetail;
 import externalapi.appinfo.models.AppStatus;
+import externalapi.appinfo.models.SupportLanguage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,7 +30,7 @@ public class BuildAppHandler {
     
     private final Logger LOG = LoggerFactory.getLogger(BuildAppHandler.class);
     
-    public void buildApp(String appId, byte[] codeZipFile) {
+    public void buildApp(String appId, SupportLanguage language, byte[] codeZipFile) {
         try {
             AppDetail appInfo = appInfoDAO.getById(appId);
             String templateDir = Paths.get(Constants.DOCKER_BUILD_TEMPLATE_DIR, appInfo.getLanguage().name().toLowerCase()).toString();

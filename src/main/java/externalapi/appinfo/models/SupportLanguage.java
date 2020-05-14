@@ -10,5 +10,7 @@ package externalapi.appinfo.models;
  * @author cuong
  */
 public enum SupportLanguage {
-    PYTHON, JAVA;
+    PYTHON,
+    JAVA,
+    JAVA_8;
 }

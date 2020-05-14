@@ -57,7 +57,7 @@ public class CreateApp {
         String appId = createAppHandler.createApp(app, codeFile, avatarFile);
         
         CompletableFuture
-            .runAsync(() -> buildAppHandler.buildApp(appId, codeFile));
+            .runAsync(() -> buildAppHandler.buildApp(appId, app.getLanguage(), codeFile));
         
         return Response
             .status(Response.Status.CREATED)
