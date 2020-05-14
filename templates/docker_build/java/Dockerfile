@@ -1,16 +1,10 @@
-FROM gradle:6.0-jdk8
-COPY extract.sh /
-RUN chmod +x /extract.sh
-WORKDIR /app
-COPY code/build.gradle .
-RUN gradle --no-daemon dependencies
+FROM openjdk:8-jre-slim
 
-COPY code/ /app/
-RUN gradle --no-daemon distTar
-WORKDIR /app/build/distributions
-RUN /extract.sh
+RUN useradd --create-home ckanapp
+USER ckanapp
+WORKDIR /home/ckanapp/app
 
-# mv project dist directory to to /dist
-# and change run script to "run.sh"
-RUN rm /extract.sh
-CMD ["/dist/bin/run.sh"]
+# copy contents of code/ into app/
+ADD code .
+
+CMD ["java", "-jar", "Main.jar"]
