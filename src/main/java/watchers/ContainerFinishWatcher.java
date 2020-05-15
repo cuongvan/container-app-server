@@ -53,7 +53,7 @@ public class ContainerFinishWatcher {
     @Inject
     private CallDAO callDAO;
     
-    @Inject private RabbitMQNotifier notifier;
+//    @Inject private RabbitMQNotifier notifier;
     
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     
@@ -139,7 +139,7 @@ public class ContainerFinishWatcher {
                 callDAO.updateCallResult(callId, callResult, callOutputs);
                 LOG.info("App call {} finished: {}", callId, callResult);
                 docker.deleteContainer(containerId);
-                notifier.notifyExecuteDone(callId);
+//                notifier.notifyExecuteDone(callId);
             } catch (SQLException ex) {
                 LOG.info("Failed to insert result to DB, callID = {}", callId);
                 ex.printStackTrace();
