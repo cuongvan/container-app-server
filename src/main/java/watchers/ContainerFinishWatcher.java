@@ -18,7 +18,7 @@ import externalapi.appcall.models.CallStatus;
 import externalapi.appcall.models.OutputFieldType;
 import externalapi.appinfo.AppDAO;
 import externalapi.appinfo.models.AppDetail;
-import externalapi.appinfo.models.SysStatus;
+import externalapi.appinfo.models.AppStatus;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -36,7 +36,6 @@ import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import notify.RabbitMQNotifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,7 +103,7 @@ public class ContainerFinishWatcher {
             if (appDetail == null)
                 return;
             
-            if (appDetail.getSysStatus() == SysStatus.DEBUG) {
+            if (appDetail.status == AppStatus.DEBUG) {
                 callResult.logs = docker.getContainerLog(containerId);
             }
             

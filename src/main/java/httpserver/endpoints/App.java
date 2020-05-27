@@ -1,16 +1,10 @@
 package httpserver.endpoints;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import externalapi.appinfo.AppDAO;
 import externalapi.appinfo.models.AppDetail;
-import externalapi.appinfo.models.SysStatus;
 import handlers.exceptions.AppNotFound;
 import httpserver.common.FailedResponse;
 import httpserver.common.SuccessResponse;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.List;
 import javax.inject.Inject;
@@ -62,43 +56,6 @@ public class App {
             this.appDetail = appDetail;
         }
     }
-    
-    @Path("/{appId}/codefile")
-    @GET
-    public Response getCodeFile(@PathParam("appId") String appId) throws IOException, SQLException {
-        AppDetail appInfo = appDAO.getById(appId);
-        if (appInfo != null) {
-            String codePath = appInfo.getCodePath();
-            byte[] codeFile = Files.readAllBytes(Paths.get(codePath));
-            return Response.ok(codeFile).type("application/octet-stream").build();
-        } else {
-            return Response
-                .status(Status.NOT_FOUND)
-                .type("application/json")
-                .entity(new FailedResponse("App not found"))
-                .build();
-        }
-    }
-    
-    @Path("/{appId}/avatar")
-    @GET
-    public Response getAvatarFile(@PathParam("appId") String appId) throws IOException, SQLException {
-        AppDetail appInfo = appDAO.getById(appId);
-        if (appInfo != null) {
-            String avatarPath = appInfo.getAvatarPath();
-            byte[] file = Files.readAllBytes(Paths.get(avatarPath));
-            return Response
-                .ok(file, "application/octet-stream")
-                .build();
-        } else {
-            return Response
-                .status(Status.NOT_FOUND)
-                .type("application/json")
-                .entity(new FailedResponse("App not found"))
-                .build();
-        }
-    }
-    
     @Path("/{appId}")
     @DELETE
     public Response deleteApp(@PathParam("appId") String appId) throws SQLException {
@@ -114,26 +71,5 @@ public class App {
                 .entity(new FailedResponse("App not found"))
                 .build();
         }
-    }
-    
-    
-    @Path("/{appId}")
-    @PUT
-    public Response updateAppStatus(@PathParam("appId") String appId, UpdateStatusRequest request) throws SQLException {
-        try {
-            appDAO.updateSysStatus(appId, request.newStatus);
-            return Response.ok(new SuccessResponse(), "application/json").build();
-        } catch (AppNotFound ex) {
-            return Response
-                .status(Status.NOT_FOUND)
-                .type("application/json")
-                .entity(new FailedResponse("App not found"))
-                .build();
-        }
-    }
-    
-    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-    private static class UpdateStatusRequest {
-        public SysStatus newStatus;
     }
 }

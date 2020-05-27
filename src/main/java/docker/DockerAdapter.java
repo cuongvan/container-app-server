@@ -146,7 +146,7 @@ public class DockerAdapter {
         try {
             BuildImageResultCallback callback = docker
                 .buildImageCmd(new File(path))
-                //.withTag(imageName)//TODO: tag
+                .withTag(imageName)
                 .exec(new BuildImageResultCallback() {
                     // DEBUG
                     @Override
@@ -169,7 +169,6 @@ public class DockerAdapter {
             close(docker);
         }
     }
-    
     public InspectContainerResponse inspectContainer(String containerId) {
         DockerClient docker = DockerAdapter.newClient();
         try {
