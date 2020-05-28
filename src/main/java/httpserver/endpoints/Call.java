@@ -2,7 +2,7 @@ package httpserver.endpoints;
 
 import externalapi.appcall.models.CallDetail;
 import externalapi.appcall.CallDAO;
-import externalapi.appcall.models.CallInputEntry;
+import externalapi.callparam.CallParam;
 import externalapi.appcall.models.CallOutputEntry;
 import externalapi.appcall.models.OutputFieldType;
 import externalapi.appinfo.models.InputFieldType;
@@ -81,7 +81,7 @@ public class Call {
                 .build();
         }
         
-        Optional<CallInputEntry> paramOpt = callDetail.inputs.stream()
+        Optional<CallParam> paramOpt = callDetail.inputs.stream()
             .filter(p -> p.name.equals(fieldName))
             .findFirst();
         
@@ -93,7 +93,7 @@ public class Call {
                 .build();
         }
         
-        CallInputEntry param = paramOpt.get();
+        CallParam param = paramOpt.get();
         if (!(param.type == InputFieldType.FILE)) {
             return Response
                 .status(Response.Status.BAD_REQUEST)

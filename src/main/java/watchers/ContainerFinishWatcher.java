@@ -19,6 +19,7 @@ import externalapi.appcall.models.OutputFieldType;
 import externalapi.appinfo.AppDAO;
 import externalapi.appinfo.models.AppDetail;
 import externalapi.appinfo.models.AppStatus;
+import httpserver.endpoints.execute.ExecuteApp;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -87,7 +88,7 @@ public class ContainerFinishWatcher {
     private void handleFinishedContainer(String containerId) {
         InspectContainerResponse inspect = docker.inspectContainer(containerId);
         Map<String, String> labels = inspect.getConfig().getLabels();
-        if (!labels.containsKey(Constants.CONTAINER_LABEL_CALL_ID)) {
+        if (!labels.containsKey(ExecuteApp.CONTAINER_LABEL_CALL_ID)) {
             // container not belong to ckan
             return;
         }
@@ -151,13 +152,13 @@ public class ContainerFinishWatcher {
 
     private String getCallId(InspectContainerResponse inspect) {
         Map<String, String> labels = inspect.getConfig().getLabels();
-        String callId = labels.get(Constants.CONTAINER_LABEL_CALL_ID);
+        String callId = labels.get(ExecuteApp.CONTAINER_LABEL_CALL_ID);
         return callId;
     }
     
     private String getAppId(InspectContainerResponse inspect) {
         Map<String, String> labels = inspect.getConfig().getLabels();
-        String appId = labels.get(Constants.CONTAINER_LABEL_APP_ID);
+        String appId = labels.get(ExecuteApp.CONTAINER_LABEL_APP_ID);
         return appId;
     }
     

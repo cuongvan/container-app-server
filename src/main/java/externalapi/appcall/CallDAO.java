@@ -3,7 +3,7 @@ package externalapi.appcall;
 import externalapi.appcall.models.CallResult;
 import externalapi.DBConnectionPool;
 import externalapi.appcall.models.CallDetail;
-import externalapi.appcall.models.CallInputEntry;
+import externalapi.callparam.CallParam;
 import externalapi.appcall.models.CallStatus;
 import externalapi.appinfo.models.InputFieldType;
 import helpers.DBHelper;
@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import externalapi.appcall.models.CallOutputEntry;
 import externalapi.appcall.models.OutputFieldType;
+import java.time.Instant;
 
 @Singleton
 public class CallDAO {
@@ -31,39 +32,19 @@ public class CallDAO {
         this.dbPool = dbPool;
     }
 
-    public void createNewCall(String callId, String appId, String userId, List<CallInputEntry> callParams) throws SQLException {
-        try (Connection conn = dbPool.getNonAutoCommitConnection()) {
-            
-            insertAppCallRow(conn, callId, appId, userId);
-            
-            try (PreparedStatement stmt = conn.prepareStatement(
-                "INSERT INTO call_input (call_id, name, type, value) VALUES (?, ?, ?, ?)")) {
-
-                for (CallInputEntry p : callParams) {
-                    stmt.setString(1, callId);
-                    stmt.setString(2, p.name);
-                    stmt.setString(3, p.type.name());
-                    stmt.setString(4, p.value);
-                    stmt.addBatch();
-                }
-                stmt.executeBatch();
-            }
-            
-            conn.commit();
-        }
-    }
-
-    private void insertAppCallRow(Connection conn, String callId, String appId, String userId) throws SQLException {
-        try (PreparedStatement stmt = conn.prepareStatement (
-            "INSERT INTO app_call (call_id, app_id, user_id, call_status) VALUES (?, ?, ?, ?)")) {
+    public void insertCall(String callId, String appId, String userId) throws SQLException {
+        try (Connection conn = dbPool.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(
+                "INSERT INTO app_call (call_id, app_id, user_id, call_status, created_at) VALUES (?, ?, ?, ?, ?)")) {
             stmt.setString(1, callId);
             stmt.setString(2, appId);
             stmt.setString(3, userId);
             stmt.setString(4, CallStatus.STARTED.name());
+            stmt.setTimestamp(5, java.sql.Timestamp.from(Instant.now()));
             stmt.executeUpdate();
         }
     }
-    
+
     public void updateCallResult(String callId, CallResult callResult, List<CallOutputEntry> fields) throws SQLException {
         Connection conn = dbPool.getNonAutoCommitConnection();
         try {
@@ -154,10 +135,10 @@ public class CallDAO {
                 stmt2.setString(1, callId);
                 try (ResultSet rs = stmt2.executeQuery()) {
                     while (rs.next()) {
-                        String name = rs.getString("name");
-                        InputFieldType type = InputFieldType.valueOf(rs.getString("type"));
-                        String value = rs.getString("value");
-                        CallInputEntry input = new CallInputEntry(type, name, value);
+                        CallParam input = new CallParam();
+                        input.name = rs.getString("name");
+                        input.type = InputFieldType.valueOf(rs.getString("type"));
+                        input.value = rs.getString("value");
                         callDetail.inputs.add(input);
                     }
                 }

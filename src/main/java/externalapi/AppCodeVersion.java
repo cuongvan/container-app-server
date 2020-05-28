@@ -5,5 +5,5 @@ public class AppCodeVersion {
     public String codePath;
     public String image;
     public String imageId;
-    public BuildStatus buildStatus;
+    //public BuildStatus buildStatus;
 }

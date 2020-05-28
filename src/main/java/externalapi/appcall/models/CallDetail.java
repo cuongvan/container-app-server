@@ -1,5 +1,6 @@
 package externalapi.appcall.models;
 
+import externalapi.callparam.CallParam;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.util.List;
@@ -13,6 +14,6 @@ public class CallDetail {
     public CallStatus callStatus;
     public String logs;
     public String createdAt;
-    public List<CallInputEntry> inputs;
+    public List<CallParam> inputs;
     public List<CallOutputEntry> outputs;
 }

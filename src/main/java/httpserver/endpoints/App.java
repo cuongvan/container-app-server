@@ -56,20 +56,4 @@ public class App {
             this.appDetail = appDetail;
         }
     }
-    @Path("/{appId}")
-    @DELETE
-    public Response deleteApp(@PathParam("appId") String appId) throws SQLException {
-        try {
-            appDAO.deleteById(appId);
-            return Response
-                .ok(new SuccessResponse(), "application/json")
-                .build();
-        } catch (AppNotFound ex) {
-            return Response
-                .status(Status.NOT_FOUND)
-                .type("application/json")
-                .entity(new FailedResponse("App not found"))
-                .build();
-        }
-    }
 }

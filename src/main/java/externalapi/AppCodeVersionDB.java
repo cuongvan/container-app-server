@@ -17,13 +17,15 @@ public class AppCodeVersionDB {
         try (
             Connection connection = dbConnPool.getConnection();
             PreparedStatement stmt = connection.prepareStatement(
-                "SELECT code_path FROM app_code_version WHERE code_id = ?"))
+                "SELECT * FROM app_code_version WHERE code_id = ?"))
         {
             stmt.setString(1, codeId);
             try (ResultSet rs = stmt.executeQuery()) {
                 rs.next();
                 AppCodeVersion result = new AppCodeVersion();
                 result.codeId = codeId;
+                result.image = rs.getString("image");
+                result.imageId = rs.getString("image_id");
                 result.codePath = rs.getString("code_path");
                 return result;
             }
