@@ -54,8 +54,6 @@ public class ExecuteApp {
         FormDataMultiPart body
     ) throws IOException, SQLException {
         String callId = MiscHelper.newId();
-        System.out.println("app id " + appId);
-        System.out.println("code id " + codeId);
         execute(appId, codeId, userId, callId, body);
         return new ExecuteResponseSuccess(callId);
     }
