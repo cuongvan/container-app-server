@@ -80,8 +80,12 @@ public class ExecuteApp {
                 
                 if (callParam.type != InputFieldType.FILE)
                     callParam.value = IOUtils.toString(paramValue, UTF_8);
-                else
+                else {
                     FileUtils.copyInputStreamToFile(paramValue, inputFilePath(callId, param));
+                    callParam.value = inputFilePath(callId, param).toString();
+                }
+                
+                actualParams.add(callParam);
             }
         }
         
