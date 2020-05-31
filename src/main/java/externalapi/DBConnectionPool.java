@@ -15,7 +15,7 @@ public class DBConnectionPool {
     
     private BasicDataSource dataSource;
     
-    public void init() {
+    public void init() throws SQLException {
         if (dataSource != null)
             return;
         dataSource = new BasicDataSource();
@@ -27,6 +27,11 @@ public class DBConnectionPool {
         dataSource.setMaxOpenPreparedStatements(10);
         dataSource.setDefaultAutoCommit(true);
         dataSource.setAutoCommitOnReturn(true);
+        
+        // try opening connection to avoid invalid username/password/db at start
+        try (Connection connection = getConnection()) {
+            
+        }
     }
     
     public Connection getConnection() throws SQLException {
