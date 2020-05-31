@@ -1,38 +1,27 @@
 package externalapi;
 
 
-import common.Constants;
+import common.Config;
 import java.sql.Connection;
 import java.sql.SQLException;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.dbcp2.BasicDataSource;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/**
- *
- * @author cuong
- */
 @Singleton
 public class DBConnectionPool {
     
-    private static final DBConnectionPool instance = new DBConnectionPool();
-    
-    public static DBConnectionPool getInstance() {
-        return instance;
-    }
+    @Inject private Config config;
     
     private BasicDataSource dataSource;
     
-    private DBConnectionPool() {
+    public void init() {
+        if (dataSource != null)
+            return;
         dataSource = new BasicDataSource();
-        dataSource.setUrl(Constants.JDBC_CONNECTION_STRING);
-        dataSource.setUsername(Constants.DB_USER);
-        dataSource.setPassword(Constants.DB_PASSWORD);
+        dataSource.setUrl(config.JDBC_CONNECTION_STRING);
+        dataSource.setUsername(config.DB_USER);
+        dataSource.setPassword(config.DB_PASSWORD);
         dataSource.setMinIdle(1);
         dataSource.setMaxIdle(5); // only 1 thread do the insert
         dataSource.setMaxOpenPreparedStatements(10);

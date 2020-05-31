@@ -1,7 +1,7 @@
 package common;
 
 public class Constants {
-    public static final int SERVER_PORT = 5001;
+//    public static final int SERVER_PORT = 5001;
     public static final String DB_HOST = "localhost:5432";
     public static final String DB_USER = "ckan_default";
     public static final String DB_PASSWORD = "ckan_default";

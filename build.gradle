@@ -67,3 +67,13 @@ test {
 //    }
 //    archiveName 'Main.jar'
 //}
+
+
+// pass system properties to application when using "gradle run"
+// https://dzone.com/articles/passing-system-properties-with-gradle
+// example: gradle run -Dport=6000; gradle -Dport=6000 run
+run {
+    configure() {
+        systemProperties System.properties
+    }
+}
