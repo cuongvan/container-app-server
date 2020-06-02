@@ -48,15 +48,12 @@ public class BuildAppVersion {
         @PathParam("appId") String appId,
         @PathParam("codeVersionId") String codeVersionId) throws IOException, Exception {
         
-        System.out.println("code version: " + codeVersionId);
         buildApp(appId, codeVersionId);
         return SuccessResponse.OK;
     }
     
     private java.nio.file.Path createRandomDirAt(String root) throws IOException {
-        java.nio.file.Path parentPath = Paths.get(root).toAbsolutePath().normalize();
-        System.out.println("==== " + parentPath);
-        java.nio.file.Path tempDir = Files.createTempDirectory(parentPath, "");
+        java.nio.file.Path tempDir = Files.createTempDirectory(Paths.get(root), "");
         {
             File codeDir = tempDir.resolve("code").toFile().getCanonicalFile();
             codeDir.mkdir();
@@ -80,12 +77,12 @@ public class BuildAppVersion {
             }
             String imageName = imageName(appInfo.appName, codeId);
             
-            LOG.info("build started");
+            long started = System.currentTimeMillis();
             String imageId = docker.buildImage(buildDir.toString(), imageName);
-            LOG.info("build done, imageId = {}", imageId);
+            long buildTime = System.currentTimeMillis() - started;
             
             appCodeVersionDB.updateBuildSuccess(codeId, imageId, imageName);
-            LOG.info("Build app image failed success, appId = {}, version = {}", appId, codeId);
+            LOG.info("Build app image success, appId = {}, version = {}, time = {} seconds", appId, codeId, buildTime / 1_000);
             FileUtils.forceDelete(buildDir.toFile());
         } catch (IOException | SQLException ex) {
             LOG.warn("Build app image failed, appId = {}, {}", appId, ex);
