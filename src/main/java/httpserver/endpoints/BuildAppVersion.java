@@ -15,6 +15,8 @@ import externalapi.BuildStatus;
 import externalapi.appinfo.AppDAO;
 import externalapi.appinfo.models.AppDetail;
 import helpers.MyFileUtils;
+import httpserver.common.BaseResponse;
+import httpserver.common.FailedResponse;
 import httpserver.common.SuccessResponse;
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,12 +46,17 @@ public class BuildAppVersion {
     @POST
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    public SuccessResponse createApp(
+    public BaseResponse createApp(
         @PathParam("appId") String appId,
         @PathParam("codeVersionId") String codeVersionId) throws IOException, Exception {
         
-        buildApp(appId, codeVersionId);
-        return SuccessResponse.OK;
+        try {
+            buildApp(appId, codeVersionId);
+            return SuccessResponse.OK;
+        } catch (Exception e) {
+            System.out.println("message " + e.getMessage());
+            return new FailedResponse(e.getMessage());
+        }
     }
     
     private java.nio.file.Path createRandomDirAt(String root) throws IOException {
@@ -78,8 +85,16 @@ public class BuildAppVersion {
             String imageName = imageName(appInfo.appName, codeId);
             
             long started = System.currentTimeMillis();
-            String imageId = docker.buildImage(buildDir.toString(), imageName);
+            StringBuilder buildLog = new StringBuilder();
+            String imageId = null;
+            try {
+                imageId = docker.buildImage(buildDir.toString(), imageName, buildLog);
+            } catch (Exception e) {
+                LOG.warn("build failed, build log:\n{}", buildLog.toString());
+                throw new BuildAppFailedException(e.getMessage(), e);
+            }
             long buildTime = System.currentTimeMillis() - started;
+            
             
             appCodeVersionDB.updateBuildSuccess(codeId, imageId, imageName);
             LOG.info("Build app image success, appId = {}, version = {}, time = {} seconds", appId, codeId, buildTime / 1_000);
@@ -93,7 +108,7 @@ public class BuildAppVersion {
                 LOG.info("Failed to update image build status to {}, appId = {}, {}", BuildStatus.BUILD_FAILED, appId, ex);
             }
             
-            throw new BuildAppFailedException(ex);
+            throw new BuildAppFailedException(ex.getMessage(), ex);
         }
     }
     
@@ -102,6 +117,10 @@ public class BuildAppVersion {
     }
 
     private static class BuildAppFailedException extends RuntimeException {
+
+        public BuildAppFailedException(String string, Throwable thrwbl) {
+            super(string, thrwbl);
+        }
 
         public BuildAppFailedException(Throwable thrwbl) {
             super(thrwbl);

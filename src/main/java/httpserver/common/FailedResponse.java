@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
  * @author cuong
  */
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class FailedResponse {
+public class FailedResponse extends BaseResponse {
     public final String error;
 
     public FailedResponse(String error) {

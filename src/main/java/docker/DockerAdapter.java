@@ -141,7 +141,7 @@ public class DockerAdapter {
         }
     }
 
-    public String buildImage(String path, String imageName) {
+    public String buildImage(String path, String imageName, StringBuilder buildLog) {
         DockerClient docker = newClient();
         try {
             BuildImageResultCallback callback = docker
@@ -151,9 +151,9 @@ public class DockerAdapter {
                     // DEBUG
                     @Override
                     public void onNext(BuildResponseItem item) {
-//                        if (item.getStream() != null) {
-//                            System.out.println(item.getStream().trim());
-//                        }
+                        if (item.getStream() != null) {
+                            buildLog.append(item.getStream());
+                        }
                         super.onNext(item);
                     }
 
