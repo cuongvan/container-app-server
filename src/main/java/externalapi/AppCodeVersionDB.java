@@ -14,20 +14,24 @@ public class AppCodeVersionDB {
     private DBConnectionPool dbConnPool;
 
     public AppCodeVersion getById(String codeId) throws SQLException {
+        System.out.printf(">>> getById(%s)\n", codeId);
         try (
             Connection connection = dbConnPool.getConnection();
             PreparedStatement stmt = connection.prepareStatement(
-                "SELECT * FROM app_code_version WHERE code_id = ?"))
+                "SELECT image, image_id, code_path FROM app_code_version WHERE code_id = ?"))
         {
             stmt.setString(1, codeId);
             try (ResultSet rs = stmt.executeQuery()) {
-                rs.next();
-                AppCodeVersion result = new AppCodeVersion();
-                result.codeId = codeId;
-                result.image = rs.getString("image");
-                result.imageId = rs.getString("image_id");
-                result.codePath = rs.getString("code_path");
-                return result;
+                if (rs.next()) {
+                    AppCodeVersion result = new AppCodeVersion();
+                    result.codeId = codeId;
+                    result.image = rs.getString("image");
+                    result.imageId = rs.getString("image_id");
+                    result.codePath = rs.getString("code_path");
+                    return result;
+                } else {
+                    throw new NotFoundException();
+                }
             }
         }
     }

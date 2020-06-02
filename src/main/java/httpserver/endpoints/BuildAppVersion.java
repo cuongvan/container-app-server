@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.*;
@@ -47,26 +46,28 @@ public class BuildAppVersion {
         @PathParam("appId") String appId,
         @PathParam("codeVersionId") String codeVersionId) throws IOException, Exception {
         
-        CompletableFuture.runAsync(() -> buildApp(appId, codeVersionId));
-
+        System.out.println("code version: " + codeVersionId);
+        buildApp(appId, codeVersionId);
         return SuccessResponse.OK;
     }
     
     private java.nio.file.Path createRandomDirAt(String root) throws IOException {
-        java.nio.file.Path tempDir = Files.createTempDirectory(Paths.get(root), "");
+        System.out.println("===== cwd " + Paths.get(".").toAbsolutePath());
+        System.out.println("=======================" + Paths.get(root).toAbsolutePath());
+        java.nio.file.Path parentPath = Paths.get(root).toAbsolutePath().normalize();
+        java.nio.file.Path tempDir = Files.createTempDirectory(parentPath, "");
         {
-            File codeDir = tempDir.resolve("code").toFile();
+            File codeDir = tempDir.resolve("code").toFile().getCanonicalFile();
             codeDir.mkdir();
         }
         return tempDir;
     }
 
     public void buildApp(String appId, String codeId) {
-        LOG.debug("Request received");
         try {
             AppDetail appInfo = appInfoDAO.getById(appId);
             AppCodeVersion codeVersion = appCodeVersionDB.getById(codeId);
-
+            
             java.nio.file.Path buildDir = createRandomDirAt(Constants.DOCKER_BUILD_DIR);
             {
                 // unzip code file
@@ -77,22 +78,35 @@ public class BuildAppVersion {
                 MyFileUtils.copyDirectory(templateDir, buildDir.toString());
             }
             String imageName = imageName(appInfo.appName, codeId);
+            
+            LOG.info("build started");
             String imageId = docker.buildImage(buildDir.toString(), imageName);
+            LOG.info("build done, imageId = {}", imageId);
+            
             appCodeVersionDB.updateBuildSuccess(codeId, imageId, imageName);
-            LOG.info("Image built: " + imageId);
+            LOG.info("Build app image failed success, appId = {}, version = {}", appId, codeId);
             FileUtils.forceDelete(buildDir.toFile());
         } catch (IOException | SQLException ex) {
-            LOG.info("Build app image failed, appId = {}, {}", appId, ex);
+            LOG.warn("Build app image failed, appId = {}, {}", appId, ex);
             ex.printStackTrace();
             try {
                 appCodeVersionDB.updateBuildFailure(codeId);
             } catch (SQLException ex1) {
                 LOG.info("Failed to update image build status to {}, appId = {}, {}", BuildStatus.BUILD_FAILED, appId, ex);
             }
+            
+            throw new BuildAppFailedException(ex);
         }
     }
     
     private static String imageName(String appName, String codeId) {
         return new Slugify().slugify(appName) + ":" + codeId;
+    }
+
+    private static class BuildAppFailedException extends RuntimeException {
+
+        public BuildAppFailedException(Throwable thrwbl) {
+            super(thrwbl);
+        }
     }
 }
