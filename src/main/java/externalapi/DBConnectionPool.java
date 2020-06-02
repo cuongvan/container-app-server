@@ -11,11 +11,10 @@ import org.apache.commons.dbcp2.BasicDataSource;
 @Singleton
 public class DBConnectionPool {
     
-    @Inject private Config config;
-    
     private BasicDataSource dataSource;
-    
-    public void init() throws SQLException {
+
+    @Inject
+    public DBConnectionPool(Config config) throws SQLException {
         if (dataSource != null)
             return;
         dataSource = new BasicDataSource();
@@ -29,7 +28,7 @@ public class DBConnectionPool {
         dataSource.setAutoCommitOnReturn(true);
         
         // try opening connection to avoid invalid username/password/db at start
-        try (Connection connection = getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             
         }
     }

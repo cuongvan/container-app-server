@@ -6,6 +6,7 @@
 package httpserver.endpoints;
 
 import com.github.slugify.Slugify;
+import common.Config;
 import common.Constants;
 import docker.DockerAdapter;
 import externalapi.AppCodeVersion;
@@ -35,6 +36,7 @@ public class BuildAppVersion {
 
     private static final Logger LOG = LoggerFactory.getLogger(BuildAppVersion.class);
     
+    @Inject private Config config;
     @Inject private DockerAdapter docker;
     @Inject private AppDAO appInfoDAO;
     @Inject private AppCodeVersionDB appCodeVersionDB;
@@ -52,9 +54,8 @@ public class BuildAppVersion {
     }
     
     private java.nio.file.Path createRandomDirAt(String root) throws IOException {
-        System.out.println("===== cwd " + Paths.get(".").toAbsolutePath());
-        System.out.println("=======================" + Paths.get(root).toAbsolutePath());
         java.nio.file.Path parentPath = Paths.get(root).toAbsolutePath().normalize();
+        System.out.println("==== " + parentPath);
         java.nio.file.Path tempDir = Files.createTempDirectory(parentPath, "");
         {
             File codeDir = tempDir.resolve("code").toFile().getCanonicalFile();
@@ -68,10 +69,10 @@ public class BuildAppVersion {
             AppDetail appInfo = appInfoDAO.getById(appId);
             AppCodeVersion codeVersion = appCodeVersionDB.getById(codeId);
             
-            java.nio.file.Path buildDir = createRandomDirAt(Constants.DOCKER_BUILD_DIR);
+            java.nio.file.Path buildDir = createRandomDirAt(config.dockerBuildDir);
             {
                 // unzip code file
-                MyFileUtils.unzipStreamToDir(new FileInputStream(codeVersion.codePath), buildDir.resolve(Constants.DOCKER_BUILD_EXTRACE_CODE_DIR).toString());
+                MyFileUtils.unzipStreamToDir(new FileInputStream(codeVersion.codePath), buildDir.resolve("code").toString());
                 
                 // copy Dockerfile & more
                 String templateDir = Paths.get(Constants.DOCKER_BUILD_TEMPLATE_DIR, appInfo.language.name().toLowerCase()).toString();

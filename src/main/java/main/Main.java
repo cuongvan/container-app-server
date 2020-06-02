@@ -2,38 +2,31 @@ package main;
 
 import com.google.inject.*;
 import common.Config;
-import externalapi.AppCodeVersion;
-import externalapi.AppCodeVersionDB;
 import httpserver.WebServiceServer;
 import org.slf4j.*;
 import watchers.ContainerFinishWatcher;
 import externalapi.DBConnectionPool;
-import helpers.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
+import org.apache.commons.io.FileUtils;
 
 public class Main {
     static Logger logger = LoggerFactory.getLogger(Main.class);
     private static Injector injector;
     
     public static void main(String... args) throws Exception {
-        MyFileUtils.createRequiredDirs();
-        injector = initialize();
-        injector.getInstance(DBConnectionPool.class).init();
-//        System.out.println(Paths.get(".").toAbsolutePath());
-//        if (true) return;
-        AppCodeVersionDB db = injector.getInstance(AppCodeVersionDB.class);
-//        AppCodeVersion r = db.getById("2a4a617b-2302-446f-816e-08645e4e50d2");
-//        System.out.println(r.codePath);
-        {
-            ContainerFinishWatcher watchingContainerWorker = injector.getInstance(ContainerFinishWatcher.class);
-            watchingContainerWorker.runForever();
-        }
+        injector = createInjector();
+        
+        initSystem(injector.getInstance(Config.class));
+
+        injector.getInstance(ContainerFinishWatcher.class).runForever();
         
         WebServiceServer server = injector.getInstance(WebServiceServer.class);
         server.start();
     }
     
-    public static Injector initialize() {
+    private static Injector createInjector() {
         return Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
@@ -41,5 +34,17 @@ public class Main {
                 bind(Config.class).toProvider(Config::loadConfig).asEagerSingleton(); // already covers in(Singleton.class)
             }
         });
+    }
+    
+    private static void initSystem(Config config) throws IOException {
+        createDirectory(new File(config.dataDir), "data directory");
+        createDirectory(new File(config.dockerBuildDir), "Docker build directory");
+    }
+    
+    private static void createDirectory(File directory, String logging) throws IOException {
+        if (!directory.isDirectory()) {
+            logger.info("Create " + logging + " at " + directory);
+            FileUtils.forceMkdir(directory);
+        }
     }
 }

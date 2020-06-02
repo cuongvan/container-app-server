@@ -14,7 +14,6 @@ public class AppCodeVersionDB {
     private DBConnectionPool dbConnPool;
 
     public AppCodeVersion getById(String codeId) throws SQLException {
-        System.out.printf(">>> getById(%s)\n", codeId);
         try (
             Connection connection = dbConnPool.getConnection();
             PreparedStatement stmt = connection.prepareStatement(
