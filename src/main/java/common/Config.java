@@ -12,11 +12,11 @@ public class Config {
     public final String dataDir;
     public final String dockerBuildDir;
     public final String dockerBuildTemplateDir;
-    public final String DB_HOST;
-    public final String DB_USER;
-    public final String DB_PASSWORD;
-    public final String DB_DATABASE;
-    public final String JDBC_CONNECTION_STRING;
+    public final String databaseHost;
+    public final String databaseUser;
+    public final String databasePassword;
+    public final String databaseSchema;
+    public final String jdbcConnectionString;
     
     public Config(Properties props) {
         port = Integer.parseInt(props.getProperty("port"));
@@ -24,11 +24,11 @@ public class Config {
         dockerBuildDir = Paths.get(dataDir, "docker-builds").toString();
         dockerBuildTemplateDir = Paths.get("templates", "docker_build").toAbsolutePath().toString();
         
-        DB_HOST = props.getProperty("database.hostport");
-        DB_USER = props.getProperty("database.username");
-        DB_PASSWORD = props.getProperty("database.password");
-        DB_DATABASE = props.getProperty("database.schema");
-        JDBC_CONNECTION_STRING = String.format("jdbc:postgresql://%s/%s", DB_HOST, DB_DATABASE);
+        databaseHost = props.getProperty("database.hostport");
+        databaseUser = props.getProperty("database.username");
+        databasePassword = props.getProperty("database.password");
+        databaseSchema = props.getProperty("database.schema");
+        jdbcConnectionString = String.format("jdbc:postgresql://%s/%s", databaseHost, databaseSchema);
     }
     
     public static Config loadConfig() {

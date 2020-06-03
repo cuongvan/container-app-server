@@ -18,9 +18,9 @@ public class DBConnectionPool {
         if (dataSource != null)
             return;
         dataSource = new BasicDataSource();
-        dataSource.setUrl(config.JDBC_CONNECTION_STRING);
-        dataSource.setUsername(config.DB_USER);
-        dataSource.setPassword(config.DB_PASSWORD);
+        dataSource.setUrl(config.jdbcConnectionString);
+        dataSource.setUsername(config.databaseUser);
+        dataSource.setPassword(config.databasePassword);
         dataSource.setMinIdle(1);
         dataSource.setMaxIdle(5); // only 1 thread do the insert
         dataSource.setMaxOpenPreparedStatements(10);
