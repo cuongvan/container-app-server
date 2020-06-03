@@ -1,8 +1,6 @@
 package common;
 
 public class Constants {
-    public static final String DOCKER_BUILD_TEMPLATE_DIR = "./templates/docker_build";
-    
     public static final String CONTAINER_INPUT_FILES_MOUNT_DIR = "/files";
     
     public static final String CONTAINER_OUTPUT_FILES_DIR = "/outputs";

@@ -7,7 +7,6 @@ package httpserver.endpoints;
 
 import com.github.slugify.Slugify;
 import common.Config;
-import common.Constants;
 import docker.DockerAdapter;
 import externalapi.AppCodeVersion;
 import externalapi.AppCodeVersionDB;
@@ -79,7 +78,7 @@ public class BuildAppVersion {
                 MyFileUtils.unzipStreamToDir(new FileInputStream(codeVersion.codePath), buildDir.resolve("code").toString());
                 
                 // copy Dockerfile & more
-                String templateDir = Paths.get(Constants.DOCKER_BUILD_TEMPLATE_DIR, appInfo.language.name().toLowerCase()).toString();
+                String templateDir = Paths.get(config.dockerBuildTemplateDir, appInfo.language.name().toLowerCase()).toString();
                 MyFileUtils.copyDirectory(templateDir, buildDir.toString());
             }
             String imageName = imageName(appInfo.appName, codeId);
