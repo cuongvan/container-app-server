@@ -34,11 +34,14 @@ public class Config {
     public static Config loadConfig() {
         try {
             Properties defaultConfig = new Properties();
-            InputStream defaultConfigFile = Config.class.getResourceAsStream("/config.properties");
-            defaultConfig.load(defaultConfigFile);
+            try (InputStream is = Config.class.getResourceAsStream("/config.properties")) {
+                defaultConfig.load(is);
+            }
             Properties customConfig = new Properties();
             if (System.getProperty("config.file") != null) {
-                customConfig.load(new FileInputStream(System.getProperty("config.file")));
+                try (InputStream is = new FileInputStream(System.getProperty("config.file"))) {
+                    customConfig.load(is);
+                }
             }
             
             Properties finalProperties = new Properties();
