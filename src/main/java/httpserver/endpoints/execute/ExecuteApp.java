@@ -3,8 +3,8 @@ package httpserver.endpoints.execute;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import common.Config;
 import common.Constants;
-import static common.Constants.*;
 import docker.DockerAdapter;
 import externalapi.AppCodeVersion;
 import externalapi.AppCodeVersionDB;
@@ -43,6 +43,7 @@ public class ExecuteApp {
     public static final String CONTAINER_LABEL_APP_ID = "ckan.appid";
     public static final String CONTAINER_LABEL_CODE_VERSION = "ckan.codeversion";
     
+    @Inject private Config config;
     
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -120,9 +121,9 @@ public class ExecuteApp {
         return mounts;
     }
 
-    private static File inputFilePath(String callId, String param) throws IOException {
+    private File inputFilePath(String callId, String param) throws IOException {
         String filename = format("%s-%s", callId, param);
-        File writtenFile = new File(APP_INPUT_FILES_DIR, filename).getCanonicalFile();
+        File writtenFile = new File(config.appInputFilesDir, filename).getCanonicalFile();
         return writtenFile;
     }
     

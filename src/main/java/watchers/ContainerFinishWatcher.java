@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.github.dockerjava.api.command.InspectContainerResponse;
+import common.Config;
 import common.Constants;
 import docker.DockerAdapter;
 import externalapi.appcall.CallDAO;
@@ -52,6 +53,7 @@ public class ContainerFinishWatcher {
     private AppDAO appDAO;
     @Inject
     private CallDAO callDAO;
+    @Inject private Config config;
     
 //    @Inject private RabbitMQNotifier notifier;
     
@@ -163,7 +165,7 @@ public class ContainerFinishWatcher {
     }
     
     private File copyContainerOutput(String containerId, String callId) throws IOException, DockerAdapter.DockerOutputPathNotFound {
-        File dest = new File(Constants.APP_OUTPUT_FILES_DIR, callId);
+        File dest = new File(config.appOutputFilesDir, callId);
         docker.copyDirectory(containerId, Constants.CONTAINER_OUTPUT_FILES_DIR, dest);
         return dest;
     }

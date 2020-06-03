@@ -8,7 +8,6 @@ import watchers.ContainerFinishWatcher;
 import externalapi.DBConnectionPool;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import org.apache.commons.io.FileUtils;
 
 public class Main {
@@ -39,6 +38,8 @@ public class Main {
     private static void initSystem(Config config) throws IOException {
         createDirectory(new File(config.dataDir), "data directory");
         createDirectory(new File(config.dockerBuildDir), "Docker build directory");
+        createDirectory(new File(config.appInputFilesDir), "app call input files directory");
+        createDirectory(new File(config.appOutputFilesDir), "app call output files directory");
     }
     
     private static void createDirectory(File directory, String logging) throws IOException {
