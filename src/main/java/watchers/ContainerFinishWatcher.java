@@ -118,7 +118,6 @@ public class ContainerFinishWatcher {
                     new CallOutputEntry(OutputFieldType.FILE, outputFile.getName(), outputFile.getAbsolutePath()))
                 .forEach(callOutputs::add);
             
-            
         } catch (DockerAdapter.DockerOutputPathNotFound ex) {
             LOG.info("Cannot initialize /outputs in app container. Client code failed before initialization. Check docker logs!");
             LOG.info("Docker logs:" + docker.getContainerLog(containerId));
@@ -140,8 +139,8 @@ public class ContainerFinishWatcher {
             try {
                 callDAO.updateCallResult(callId, callResult, callOutputs);
                 LOG.info("App call {} finished: {}", callId, callResult);
-                docker.deleteContainer(containerId);
-//                notifier.notifyExecuteDone(callId);
+                //docker.deleteContainer(containerId);
+                //notifier.notifyExecuteDone(callId);
             } catch (SQLException ex) {
                 LOG.info("Failed to insert result to DB, callID = {}", callId);
                 ex.printStackTrace();
@@ -171,7 +170,7 @@ public class ContainerFinishWatcher {
     }
     
     private List<CallOutputEntry> getNormalOutputFields(File outputDir) throws IOException, FileNotFoundException {
-        File metadataFile = new File(outputDir, Constants.CONTAINER_OUTPUT_FILE_RELATIVE_PATH);
+        File metadataFile = new File(outputDir, Constants.CONTAINER_OUTPUT_FIELDS_FILE_RELATIVE_PATH);
         FileInputStream in = new FileInputStream(metadataFile);
         return OBJECT_READER.readValue(in);
     }

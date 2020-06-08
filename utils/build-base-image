@@ -1,0 +1,6 @@
+#! /usr/bin/env python3
+
+import shutil, pathlib, subprocess
+
+print('Build base docker images')
+subprocess.run('docker build . -t ckanapp-python:3.8-v1', shell=True, cwd=pathlib.Path(__file__).parent.absolute() / 'python_image')
