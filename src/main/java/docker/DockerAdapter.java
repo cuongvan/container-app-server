@@ -11,6 +11,8 @@ import java.util.function.Consumer;
 import javax.inject.Singleton;
 import com.github.dockerjava.api.command.BuildImageResultCallback;
 import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.core.DefaultDockerClientConfig;
+import com.github.dockerjava.core.DockerClientConfig;
 import helpers.MyFileUtils;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -21,6 +23,11 @@ import org.apache.commons.io.FileUtils;
 public class DockerAdapter {
     
     public static DockerClient newClient() {
+        DockerClientConfig custom = DefaultDockerClientConfig.createDefaultConfigBuilder()
+            .withDockerHost("tcp://docker.somewhere.tld:2375")
+            .withDockerTlsVerify(false)
+            .build();
+
         return DockerClientBuilder.getInstance().build();
     }
     

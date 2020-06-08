@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Properties;
 
 public class Config {
@@ -24,12 +25,12 @@ public class Config {
     public final String jdbcConnectionString;
     
     public Config(Properties props) {
+        Map<String, String> env = System.getenv();
         port = Integer.parseInt(props.getProperty("port"));
         
-        dataDir= props.getProperty("data.dir");
+        dataDir = env.getOrDefault("DATA_DIR", props.getProperty("data.dir"));
         dockerBuildDir = Paths.get(dataDir, "docker-builds").toString();
         dockerBuildTemplateDir = Paths.get("templates", "docker_build").toAbsolutePath().toString();
-        System.out.println("config: " + Paths.get(".").toAbsolutePath());
 //        System.out.println("template " + dockerBuildTemplateDir);
         appInputFilesDir = Paths.get(dataDir, "input-files").toString();
         appOutputFilesDir = Paths.get(dataDir, "output-files").toString();
@@ -43,22 +44,20 @@ public class Config {
     
     public static Config loadConfig() {
         try {
-            Properties defaultConfig = new Properties();
+            Properties props = new Properties();
             try (InputStream is = Config.class.getResourceAsStream("/config.properties")) {
-                defaultConfig.load(is);
+                props.load(is);
             }
-            Properties customConfig = new Properties();
+            
             if (System.getProperty("config.file") != null) {
                 try (InputStream is = new FileInputStream(System.getProperty("config.file"))) {
-                    customConfig.load(is);
+                    props.load(is);
                 }
             }
             
-            Properties finalProperties = new Properties();
-            finalProperties.putAll(defaultConfig);
-            finalProperties.putAll(customConfig);
-            finalProperties.putAll(System.getProperties());
-            return new Config(finalProperties);
+            props.putAll(System.getProperties());
+            
+            return new Config(props);
         } catch (IOException ex) {
             throw new RuntimeException("Failed to load config", ex);
         }

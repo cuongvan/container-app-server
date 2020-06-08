@@ -81,3 +81,10 @@ run {
         systemProperties System.properties
     }
 }
+
+distTar {
+    into(project.name) {
+        from '.'
+        include 'templates/**'
+    }
+}
