@@ -220,7 +220,6 @@ public class DockerAdapter {
             FileUtils.moveDirectory(untaredRootDir, hostPath);
             tempDir.delete();
         } catch(NotFoundException ex) {
-            ex.printStackTrace();
             throw new DockerOutputPathNotFound(ex);
         } finally {
             close(docker);

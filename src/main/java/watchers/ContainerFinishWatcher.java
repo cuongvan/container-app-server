@@ -110,28 +110,29 @@ public class ContainerFinishWatcher {
                 callResult.logs = docker.getContainerLog(containerId);
             }
             
-            File outputDir = copyContainerOutput(containerId, callId);
-            callOutputs = getNormalOutputFields(outputDir);
-
-            getFileOutputs(outputDir)
-                .map(outputFile -> 
-                    new CallOutputEntry(OutputFieldType.FILE, outputFile.getName(), outputFile.getAbsolutePath()))
-                .forEach(callOutputs::add);
             
-        } catch (DockerAdapter.DockerOutputPathNotFound ex) {
-            LOG.info("Cannot initialize /outputs in app container. Client code failed before initialization. Check docker logs!");
-            LOG.info("Docker logs:" + docker.getContainerLog(containerId));
-            ex.printStackTrace();
-        } catch (FileNotFoundException ex) {
-            LOG.warn("Client code failed before initialization. Check docker logs!");
-            LOG.warn("Docker logs:" + docker.getContainerLog(containerId));
-            //ex.printStackTrace();
-        } catch (IOException ex) {
-            LOG.info("Failed copy output data out of container, callID = {}", callId);
-            String containerLog = docker.getContainerLog(containerId);
-            System.out.println("Failed container logs: ");
-            System.out.println(containerLog);
-            ex.printStackTrace();
+            try {
+                File outputDir = copyContainerOutput(containerId, callId);
+                callOutputs = getNormalOutputFields(outputDir);
+                
+                getFileOutputs(outputDir)
+                    .map(outputFile -> 
+                        new CallOutputEntry(OutputFieldType.FILE, outputFile.getName(), outputFile.getAbsolutePath()))
+                    .forEach(callOutputs::add);
+            } catch (DockerAdapter.DockerOutputPathNotFound ex) {
+                LOG.info("Cannot initialize /outputs in app container. Client code failed before initialization. Check docker logs!");
+                LOG.info("Docker logs:" + docker.getContainerLog(containerId));
+                ex.printStackTrace();
+            } catch (FileNotFoundException ex) {
+                LOG.warn(Constants.CONTAINER_OUTPUT_FILES_DIR + "/" + callId + "/output.json not found!");
+                LOG.warn("Docker logs:" + docker.getContainerLog(containerId));
+            } catch (IOException ex) {
+                LOG.info("Failed copy output data out of container, callID = {}", callId);
+                String containerLog = docker.getContainerLog(containerId);
+                System.out.println("Failed container logs: ");
+                System.out.println(containerLog);
+                ex.printStackTrace();
+            }
         } catch (SQLException ex) {
             LOG.info("Failed to retrive app detail of appId = {}", appId);
             ex.printStackTrace();
@@ -165,7 +166,11 @@ public class ContainerFinishWatcher {
     
     private File copyContainerOutput(String containerId, String callId) throws IOException, DockerAdapter.DockerOutputPathNotFound {
         File dest = new File(config.appOutputFilesDir, callId);
-        docker.copyDirectory(containerId, Constants.CONTAINER_OUTPUT_FILES_DIR, dest);
+        dest.mkdir();
+        try {
+            docker.copyDirectory(containerId, Constants.CONTAINER_OUTPUT_FILES_DIR, dest);
+        } catch (DockerAdapter.DockerOutputPathNotFound ex) {
+        }
         return dest;
     }
     

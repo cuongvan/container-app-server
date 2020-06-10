@@ -24,6 +24,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.*;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -45,10 +47,34 @@ public class ExecuteApp {
     
     @Inject private Config config;
     
+    @Path("/empty")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    public ExecuteResponseSuccess executeNoParams(
+        @PathParam("appId") String appId,
+        @PathParam("codeId") String codeId,
+        @QueryParam("userId") String userId
+    ) throws IOException, SQLException {
+        String callId = MiscHelper.newId();
+        AppCodeVersion codeVersion = appCodeVersionDB.getById(codeId);
+        
+        appCallDAO.insertCall(callId, appId, userId);
+        
+        String ckanData = new ObjectMapper().writeValueAsString(containerEnvs(emptyList()));
+        
+        docker.createAndStartContainer(
+            codeVersion.imageId,
+            singletonMap("CKANAPP_DATA", ckanData),
+            emptyMap(),
+            labels(callId, appId, codeId));
+        
+        return new ExecuteResponseSuccess(callId);
+    }
+    
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
-    public ExecuteResponseSuccess execute(
+    public ExecuteResponseSuccess executeWithParams(
         @PathParam("appId") String appId,
         @PathParam("codeId") String codeId,
         @QueryParam("userId") String userId,
