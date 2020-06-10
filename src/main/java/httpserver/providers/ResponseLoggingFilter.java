@@ -27,10 +27,9 @@ public class ResponseLoggingFilter implements ContainerResponseFilter {
         ContainerRequestContext req, 
         ContainerResponseContext res) throws IOException
     {
-        logger.info("{} /{} {} - {}",
+        logger.info("{} /{} - {}",
             req.getMethod(),
             req.getUriInfo().getPath(),
-            req.getHeaders().get("Content-Type"),
             res.getStatus());
     }
 }
