@@ -13,6 +13,7 @@ import externalapi.AppCodeVersionDB;
 import externalapi.BuildStatus;
 import externalapi.appinfo.AppDAO;
 import externalapi.appinfo.models.AppDetail;
+import externalapi.appinfo.models.AppLanguage;
 import helpers.MyFileUtils;
 import httpserver.common.BaseResponse;
 import httpserver.common.FailedResponse;
@@ -58,6 +59,7 @@ public class BuildAppVersion {
         }
     }
     
+    //TODO remove this
     private java.nio.file.Path createRandomDirAt(String root) throws IOException {
         java.nio.file.Path tempDir = Files.createTempDirectory(Paths.get(root), "");
         {
@@ -72,15 +74,14 @@ public class BuildAppVersion {
             AppDetail appInfo = appInfoDAO.getById(appId);
             AppCodeVersion codeVersion = appCodeVersionDB.getById(codeId);
             
-            java.nio.file.Path buildDir = createRandomDirAt(config.dockerBuildDir);
-            {
-                // unzip code file
-                MyFileUtils.unzipStreamToDir(new FileInputStream(codeVersion.codePath), buildDir.resolve("code").toString());
-                
-                // copy Dockerfile & more
-                String templateDir = Paths.get(config.dockerBuildTemplateDir, appInfo.language.name().toLowerCase()).toString();
-                MyFileUtils.copyDirectory(templateDir, buildDir.toString());
-            }
+            File buildDir = new File(config.dockerBuildDir, codeVersion.codeId);
+            buildDir.mkdir();
+            
+            // unzip code file
+            MyFileUtils.unzipStreamToDir(new FileInputStream(codeVersion.codePath), buildDir);
+
+            // copy Dockerfile & template files
+            FileUtils.copyDirectory(templateDirNameFor(appInfo.language), buildDir);
             String imageName = imageName(appInfo.appName, codeId);
             
             long started = System.currentTimeMillis();
@@ -97,7 +98,7 @@ public class BuildAppVersion {
             
             appCodeVersionDB.updateBuildSuccess(codeId, imageId, imageName);
             LOG.info("Build app image success, appId = {}, version = {}, time = {} seconds", appId, codeId, buildTime / 1_000);
-            FileUtils.forceDelete(buildDir.toFile());
+            FileUtils.forceDelete(buildDir);
         } catch (IOException | SQLException ex) {
             LOG.warn("Build app image failed, appId = {}, {}", appId, ex);
             ex.printStackTrace();
@@ -109,6 +110,11 @@ public class BuildAppVersion {
             
             throw new BuildAppFailedException(ex.getMessage(), ex);
         }
+    }
+    
+    
+    private File templateDirNameFor(AppLanguage language) {
+        return new File(config.dockerBuildTemplateDir, language.name().toLowerCase());
     }
     
     private static String imageName(String appName, String codeId) {

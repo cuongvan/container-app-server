@@ -5,7 +5,6 @@
  */
 package helpers;
 
-import common.Constants;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -47,7 +46,10 @@ public class MyFileUtils {
     }
     
     public static void unzipStreamToDir(InputStream input, String dest) throws IOException {
-        File destDir = new File(dest);
+        unzipStreamToDir(input, new File(dest));
+    }
+    
+    public static void unzipStreamToDir(InputStream input, File destDir) throws IOException {
         try (ZipInputStream zipStream = new ZipInputStream(input)) {
             ZipEntry entry = zipStream.getNextEntry();
             while (entry != null) {

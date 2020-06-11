@@ -5,9 +5,7 @@
  */
 package watchers;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import common.Config;
 import common.Constants;
@@ -29,6 +27,7 @@ import java.nio.file.Path;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -113,19 +112,23 @@ public class ContainerFinishWatcher {
             
             try {
                 File outputDir = copyContainerOutput(containerId, callId);
-                callOutputs = getNormalOutputFields(outputDir);
+                ContainerOutputFile normalOutputParams = readOutputFile(outputDir);
                 
+                callOutputs = new ArrayList<>(normalOutputParams.params);
+                
+                // populate with file params
                 getFileOutputs(outputDir)
                     .map(outputFile -> 
                         new CallOutputEntry(OutputFieldType.FILE, outputFile.getName(), outputFile.getAbsolutePath()))
                     .forEach(callOutputs::add);
             } catch (DockerAdapter.DockerOutputPathNotFound ex) {
                 LOG.info("Cannot initialize /outputs in app container. Client code failed before initialization. Check docker logs!");
-                LOG.info("Docker logs:" + docker.getContainerLog(containerId));
+                LOG.info("Docker logs: " + docker.getContainerLog(containerId));
                 ex.printStackTrace();
             } catch (FileNotFoundException ex) {
                 LOG.warn(Constants.CONTAINER_OUTPUT_FILES_DIR + "/" + callId + "/output.json not found!");
-                LOG.warn("Docker logs:" + docker.getContainerLog(containerId));
+                LOG.warn("Docker logs: " + docker.getContainerLog(containerId));
+                ex.printStackTrace();
             } catch (IOException ex) {
                 LOG.info("Failed copy output data out of container, callID = {}", callId);
                 String containerLog = docker.getContainerLog(containerId);
@@ -166,7 +169,7 @@ public class ContainerFinishWatcher {
     
     private File copyContainerOutput(String containerId, String callId) throws IOException, DockerAdapter.DockerOutputPathNotFound {
         File dest = new File(config.appOutputFilesDir, callId);
-        dest.mkdir();
+        //dest.mkdir(); // do not create!
         try {
             docker.copyDirectory(containerId, Constants.CONTAINER_OUTPUT_FILES_DIR, dest);
         } catch (DockerAdapter.DockerOutputPathNotFound ex) {
@@ -174,10 +177,10 @@ public class ContainerFinishWatcher {
         return dest;
     }
     
-    private List<CallOutputEntry> getNormalOutputFields(File outputDir) throws IOException, FileNotFoundException {
+    private ContainerOutputFile readOutputFile(File outputDir) throws IOException, FileNotFoundException {
         File metadataFile = new File(outputDir, Constants.CONTAINER_OUTPUT_FIELDS_FILE_RELATIVE_PATH);
         FileInputStream in = new FileInputStream(metadataFile);
-        return OBJECT_READER.readValue(in);
+        return OBJECT_MAPPER.readValue(in, ContainerOutputFile.class);
     }
     
     
@@ -203,5 +206,4 @@ public class ContainerFinishWatcher {
     }
     
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final ObjectReader OBJECT_READER = OBJECT_MAPPER.readerFor(new TypeReference<List<CallOutputEntry>>() {});
 }
