@@ -208,10 +208,9 @@ public class DockerAdapter {
             
             File tempDir = Files.createTempDirectory("").toFile();
             
-            {
-                InputStream tarStream = docker
-                    .copyArchiveFromContainerCmd(containerId, containerDirPath)
-                    .exec();
+            try (InputStream tarStream = docker
+                .copyArchiveFromContainerCmd(containerId, containerDirPath)
+                .exec()) {
                 MyFileUtils.untar(tarStream, tempDir);
             }
             
