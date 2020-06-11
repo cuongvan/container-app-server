@@ -21,8 +21,6 @@ import httpserver.common.SuccessResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.SQLException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -59,15 +57,6 @@ public class BuildAppVersion {
         }
     }
     
-    //TODO remove this
-    private java.nio.file.Path createRandomDirAt(String root) throws IOException {
-        java.nio.file.Path tempDir = Files.createTempDirectory(Paths.get(root), "");
-        {
-            File codeDir = tempDir.resolve("code").toFile().getCanonicalFile();
-            codeDir.mkdir();
-        }
-        return tempDir;
-    }
 
     public void buildApp(String appId, String codeId) {
         try {
