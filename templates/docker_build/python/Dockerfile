@@ -24,12 +24,12 @@ WORKDIR /app
 
 
 # install app's requirements, add main.py to avoid no source files
-COPY main.py ./requirements.txt* .
+COPY main.py ./requirements.txt* ./
 RUN if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
 
 # copy app code
-COPY ./ .
+COPY ./ ./
 RUN chown -R ckanapp:ckanapp /app
 
 
