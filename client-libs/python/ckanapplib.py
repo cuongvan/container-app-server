@@ -3,10 +3,14 @@ import json
 
 
 # input
-_input_params = json.loads(os.getenv('CKANAPP_DATA', '[]'))
+_input_params = json.loads(os.getenv('CKANAPP_DATA', '{"params": []}'))
 
-def input_params:
-    return _input_params
+def get_input_param(field_name):
+    params = _input_params.get('params')
+    for param in params:
+        if param['name'] == field_name:
+            return param['value']
+    return None
 
 ## output
 # param: {type, name, value: str}

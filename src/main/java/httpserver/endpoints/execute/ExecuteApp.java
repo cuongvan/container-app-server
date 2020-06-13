@@ -176,18 +176,19 @@ public class ExecuteApp {
     
     // value has real type, not just strings
     private static class ContainerParam {
+        public final String name;
         public final String type;
         public final Object value;
 
-        public ContainerParam(InputFieldType type, Object value) {
-            super();
+        public ContainerParam(String name, InputFieldType type, Object value) {
+            this.name = name;
             this.type = type.name().toLowerCase();
             this.value = value;
         }
 
         public static ContainerParam fromInputEntry(CallParam entry) {
             try {
-                return new ContainerParam(entry.type, parseValue(entry.type, entry.value));
+                return new ContainerParam(entry.name, entry.type, parseValue(entry.type, entry.value));
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
