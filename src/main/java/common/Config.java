@@ -31,7 +31,6 @@ public class Config {
         dataDir = env.getOrDefault("DATA_DIR", props.getProperty("data.dir"));
         dockerBuildDir = Paths.get(dataDir, "docker-builds").toString();
         dockerBuildTemplateDir = Paths.get("templates", "docker_build").toAbsolutePath().toString();
-//        System.out.println("template " + dockerBuildTemplateDir);
         appInputFilesDir = Paths.get(dataDir, "input-files").toString();
         appOutputFilesDir = Paths.get(dataDir, "output-files").toString();
         

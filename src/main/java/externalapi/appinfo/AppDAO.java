@@ -27,7 +27,7 @@ public class AppDAO {
                 AppDetail result = new AppDetail();
                 result.appId = appId;
                 result.appName = rs.getString("app_name");
-                result.language = AppLanguage.valueOf(rs.getString("language"));
+                result.language = AppLanguage.fromString(rs.getString("language"));
                 result.status = AppStatus.valueOf(rs.getString("app_status"));
                 return result;
             }

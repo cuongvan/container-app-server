@@ -16,7 +16,6 @@ public class Main {
     private static Injector injector;
     
     public static void main(String... args) throws Exception {
-        System.out.println(Paths.get(".").toAbsolutePath().normalize());
         injector = createInjector();
         
         initSystem(injector.getInstance(Config.class));

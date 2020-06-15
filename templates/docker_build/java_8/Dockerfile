@@ -1,10 +1,25 @@
 FROM openjdk:8-jre-slim
 
-RUN useradd --create-home ckanapp
-USER ckanapp
-WORKDIR /home/ckanapp/app
 
-# copy contents of code/ into app/
-ADD code .
+# create user to run app
+RUN useradd --create-home ckanapp
+
+
+# initialize output dirs & files
+RUN mkdir /outputs /outputs/files && \
+    echo '{"params": []}' > /outputs/output.json && \
+    chown -R ckanapp:ckanapp /outputs && \
+    mkdir /app && chown -R ckanapp:ckanapp /app
+
+
+WORKDIR /app
+
+
+# copy app code
+COPY ./ ./
+
+
+# container execution config
+USER ckanapp
 
 CMD ["java", "-jar", "Main.jar"]
