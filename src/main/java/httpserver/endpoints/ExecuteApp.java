@@ -1,10 +1,9 @@
-package httpserver.endpoints.execute;
+package httpserver.endpoints;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import common.Config;
-import common.Constants;
 import docker.DockerAdapter;
 import externalapi.AppCodeVersion;
 import externalapi.AppCodeVersionDB;
@@ -154,8 +153,8 @@ public class ExecuteApp {
     }
     
 
-    private String fileParamMountPath(String paramName) {
-        return Paths.get(Constants.CONTAINER_INPUT_FILES_MOUNT_DIR, paramName).toString();
+    private String fileParamMountPath(String fileParamName) {
+        return Paths.get(ContainerPaths.INPUT_FILES_MOUNT_DIR, fileParamName).toString();
     }
     
     private static class ExecuteResponseSuccess extends SuccessResponse {
@@ -170,7 +169,7 @@ public class ExecuteApp {
         Map<String, Object> envs = new HashMap<>();
         List<ContainerParam> containerParams = callParams.stream().map(ContainerParam::fromInputEntry).collect(toList());
         envs.put("params", containerParams);
-        envs.put("ckan_site", "http://192.168.100.10:5000");
+        envs.put("ckan_host", "http://192.168.100.10:5000");
         return envs;
     }
     

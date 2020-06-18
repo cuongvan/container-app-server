@@ -8,7 +8,6 @@ import watchers.ContainerFinishWatcher;
 import externalapi.DBConnectionPool;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import org.apache.commons.io.FileUtils;
 
 public class Main {

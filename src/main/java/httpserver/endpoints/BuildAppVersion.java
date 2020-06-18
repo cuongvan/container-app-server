@@ -70,7 +70,7 @@ public class BuildAppVersion {
             MyFileUtils.unzipStreamToDir(new FileInputStream(codeVersion.codePath), buildDir);
 
             // copy Dockerfile & template files
-            FileUtils.copyDirectory(templateDirNameFor(appInfo.language), buildDir);
+            FileUtils.copyDirectory(templateDirFor(appInfo.language), buildDir);
             String imageName = imageName(appInfo.appName, codeId);
             
             long started = System.currentTimeMillis();
@@ -102,8 +102,8 @@ public class BuildAppVersion {
     }
     
     
-    private File templateDirNameFor(AppLanguage language) {
-        return new File(config.dockerBuildTemplateDir, language.name().toLowerCase());
+    private File templateDirFor(AppLanguage language) {
+        return new File(config.dockerBuildTemplateDir, language.templateDir);
     }
     
     private static String imageName(String appName, String codeId) {

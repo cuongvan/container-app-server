@@ -8,7 +8,7 @@ package watchers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import common.Config;
-import common.Constants;
+import httpserver.endpoints.ContainerPaths;
 import docker.DockerAdapter;
 import externalapi.appcall.CallDAO;
 import externalapi.appcall.models.CallOutputEntry;
@@ -18,7 +18,7 @@ import externalapi.appcall.models.OutputFieldType;
 import externalapi.appinfo.AppDAO;
 import externalapi.appinfo.models.AppDetail;
 import externalapi.appinfo.models.AppStatus;
-import httpserver.endpoints.execute.ExecuteApp;
+import httpserver.endpoints.ExecuteApp;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -126,7 +126,7 @@ public class ContainerFinishWatcher {
                 LOG.info("Docker logs: " + docker.getContainerLog(containerId));
                 ex.printStackTrace();
             } catch (FileNotFoundException ex) {
-                LOG.warn(Constants.CONTAINER_OUTPUT_FILES_DIR + "/" + callId + "/output.json not found!");
+                LOG.warn(ContainerPaths.OUTPUT_FILES_DIR + "/" + callId + "/output.json not found!");
                 LOG.warn("Docker logs: " + docker.getContainerLog(containerId));
                 ex.printStackTrace();
             } catch (IOException ex) {
@@ -171,21 +171,21 @@ public class ContainerFinishWatcher {
         File dest = new File(config.appOutputFilesDir, callId);
         //dest.mkdir(); // do not create!
         try {
-            docker.copyDirectory(containerId, Constants.CONTAINER_OUTPUT_FILES_DIR, dest);
+            docker.copyDirectory(containerId, ContainerPaths.OUTPUT_FILES_DIR, dest);
         } catch (DockerAdapter.DockerOutputPathNotFound ex) {
         }
         return dest;
     }
     
     private ContainerOutputFile readOutputFile(File outputDir) throws IOException, FileNotFoundException {
-        File metadataFile = new File(outputDir, Constants.CONTAINER_OUTPUT_FIELDS_FILE_RELATIVE_PATH);
+        File metadataFile = new File(outputDir, ContainerPaths.OUTPUT_FIELDS_FILE_RELATIVE_PATH);
         FileInputStream in = new FileInputStream(metadataFile);
         return OBJECT_MAPPER.readValue(in, ContainerOutputFile.class);
     }
     
     
     private Stream<File> getFileOutputs(File outputDir) {
-        File binaryFilesDir = new File(outputDir, Constants.CONTAINER_OUTPUT_BINARY_FILES_RELATIVE_PATH);
+        File binaryFilesDir = new File(outputDir, ContainerPaths.OUTPUT_BINARY_FILES_RELATIVE_PATH);
         
         return Arrays.stream(binaryFilesDir.listFiles())
             .map(File::toPath)

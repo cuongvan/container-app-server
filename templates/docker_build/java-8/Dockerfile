@@ -6,7 +6,8 @@ RUN useradd --create-home ckanapp
 
 
 # initialize output dirs & files
-RUN mkdir /outputs /outputs/files && \
+RUN mkdir /input-files && chown ckanapp:ckanapp /input-files && \
+    mkdir /outputs /outputs/files && \
     echo '{"params": []}' > /outputs/output.json && \
     chown -R ckanapp:ckanapp /outputs && \
     mkdir /app && chown -R ckanapp:ckanapp /app
@@ -16,7 +17,7 @@ WORKDIR /app
 
 
 # copy app code
-COPY ./ ./
+COPY . .
 
 
 # container execution config
