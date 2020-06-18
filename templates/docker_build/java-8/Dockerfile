@@ -13,14 +13,12 @@ RUN mkdir /input-files && chown ckanapp:ckanapp /input-files && \
     mkdir /app && chown -R ckanapp:ckanapp /app
 
 
-WORKDIR /app
+USER ckanapp
 
+WORKDIR /app
 
 # copy app code
 COPY . .
 
-
 # container execution config
-USER ckanapp
-
 CMD ["java", "-jar", "Main.jar"]

@@ -17,7 +17,7 @@ RUN mkdir /input-files && chown ckanapp:ckanapp /input-files && \
     mkdir /outputs /outputs/files && \
     echo '{"params": []}' > /outputs/output.json && \
     chown -R ckanapp:ckanapp /outputs && \
-    mkdir /app && chown -R ckanapp:ckanapp /app
+    mkdir /app
 
 
 # work dir
@@ -31,8 +31,8 @@ RUN if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
 # copy app code
 COPY . .
-RUN chown -R ckanapp:ckanapp /app
 
+RUN chown -R ckanapp:ckanapp /app
 
 # container execution config
 USER ckanapp
