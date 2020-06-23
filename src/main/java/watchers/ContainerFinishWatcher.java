@@ -60,6 +60,7 @@ public class ContainerFinishWatcher {
     
 
     public void runForever() {
+        LOG.info("started");
         executor.submit(() -> loopTask());
     }
     

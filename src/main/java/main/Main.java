@@ -6,6 +6,7 @@ import httpserver.WebServiceServer;
 import org.slf4j.*;
 import watchers.ContainerFinishWatcher;
 import externalapi.DBConnectionPool;
+import httpserver.endpoints.CheckAndStartDockerContainerThread;
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
@@ -18,8 +19,8 @@ public class Main {
         injector = createInjector();
         
         initSystem(injector.getInstance(Config.class));
-
         injector.getInstance(ContainerFinishWatcher.class).runForever();
+        injector.getInstance(CheckAndStartDockerContainerThread.class).start();
         
         WebServiceServer server = injector.getInstance(WebServiceServer.class);
         server.start();

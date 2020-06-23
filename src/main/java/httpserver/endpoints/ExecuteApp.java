@@ -45,6 +45,7 @@ public class ExecuteApp {
     public static final String CONTAINER_LABEL_CODE_VERSION = "ckan.codeversion";
     
     @Inject private Config config;
+    @Inject private CheckAndStartDockerContainerThread startContainerThread;
     
     @Path("/empty")
     @POST
@@ -61,12 +62,13 @@ public class ExecuteApp {
         
         String ckanData = new ObjectMapper().writeValueAsString(containerEnvs(emptyList()));
         
-        docker.createAndStartContainer(
-            codeVersion.imageId,
-            singletonMap("CKANAPP_DATA", ckanData),
-            emptyMap(),
-            labels(callId, appId, codeId));
-        
+        startContainerThread.submitTask(() ->
+            docker.createAndStartContainer(
+                codeVersion.imageId,
+                singletonMap("CKANAPP_DATA", ckanData),
+                emptyMap(),
+                labels(callId, appId, codeId)));
+
         return new ExecuteResponseSuccess(callId);
     }
     
@@ -120,11 +122,17 @@ public class ExecuteApp {
         
         String ckanData = new ObjectMapper().writeValueAsString(containerEnvs(actualParams));
         
-        docker.createAndStartContainer(
+        
+//        docker.createAndStartContainer(
+//            codeVersion.imageId,
+//            singletonMap("CKANAPP_DATA", ckanData),
+//            mounts(actualParams),
+//            labels(callId, appId, codeId));
+        startContainerThread.submitTask(()-> docker.createAndStartContainer(
             codeVersion.imageId,
             singletonMap("CKANAPP_DATA", ckanData),
             mounts(actualParams),
-            labels(callId, appId, codeId));
+            labels(callId, appId, codeId)));
     }
 
     private Map<String, String> labels(String callId, String appId, String codeId) {
@@ -209,4 +217,6 @@ public class ExecuteApp {
             }
         }
     }
+    
+    
 }
