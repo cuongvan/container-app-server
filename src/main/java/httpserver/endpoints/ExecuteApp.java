@@ -153,7 +153,7 @@ public class ExecuteApp {
     }
     
 
-    private String fileParamMountPath(String fileParamName) {
+    private static String fileParamMountPath(String fileParamName) {
         return Paths.get(ContainerPaths.INPUT_FILES_MOUNT_DIR, fileParamName).toString();
     }
     
@@ -187,7 +187,10 @@ public class ExecuteApp {
 
         public static ContainerParam fromInputEntry(CallParam entry) {
             try {
-                return new ContainerParam(entry.name, entry.type, parseValue(entry.type, entry.value));
+                if (entry.type == InputFieldType.FILE)
+                    return new ContainerParam(entry.name, entry.type, fileParamMountPath(entry.name));
+                else
+                    return new ContainerParam(entry.name, entry.type, parseValue(entry.type, entry.value));
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -202,7 +205,6 @@ public class ExecuteApp {
                 case NUMBER: return Double.parseDouble(value);
                 case NUMBER_LIST: return mapper.readValue(value, new TypeReference<List<Double>>() {});
                 case BOOLEAN: return Boolean.parseBoolean(value);
-                case FILE: return value;
                 default: throw new AssertionError(type.name());
             }
         }

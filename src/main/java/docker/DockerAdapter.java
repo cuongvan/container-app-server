@@ -100,7 +100,7 @@ public class DockerAdapter {
         List<Bind> binds = new ArrayList<>();
         mounts.forEach((localPath, containerPath) -> {
             Volume vol = new Volume(containerPath);
-            Bind bind = new Bind(localPath, vol);
+            Bind bind = new Bind(localPath, vol, AccessMode.ro);
             volumes.add(vol);
             binds.add(bind);
         });
