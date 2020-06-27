@@ -108,9 +108,6 @@ public class ContainerFinishWatcher {
             try {
                 File outputDir = copyContainerOutput(containerId, callId);
                 
-                for (File f : outputDir.listFiles()) {
-                    System.out.println(f.getName());
-                }
                 // populate with file params
                 callOutputs = Arrays.stream(outputDir.listFiles())
                     .map(this::outputParamOf)
