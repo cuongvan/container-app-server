@@ -13,28 +13,20 @@ RUN pip install --upgrade pip && \
 
 
 # initialize output dirs & files
-RUN mkdir /inputs && chown ckanapp:ckanapp /inputs && \
-    mkdir /outputs /outputs/files && \
-    echo '{"params": []}' > /outputs/output.json && \
-    chown -R ckanapp:ckanapp /outputs && \
-    mkdir /app
-
-
+RUN mkdir /inputs /outputs /app &&\
+    chown -R ckanapp:ckanapp /inputs /outputs /app
+    
 # work dir
 WORKDIR /app
 
-
 # install app's requirements, add main.py to avoid no source files
-COPY requirements.txt .
+COPY --chown=ckanapp:ckanapp requirements.txt .
 RUN pip install -r requirements.txt
 
 
 # copy app code
-COPY . .
+COPY --chown=ckanapp:ckanapp . .
 
-RUN chown -R ckanapp:ckanapp /app
-
-# container execution config
 USER ckanapp
 
 CMD ["python", "main.py"]

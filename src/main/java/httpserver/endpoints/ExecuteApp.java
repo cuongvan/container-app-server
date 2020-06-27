@@ -1,8 +1,5 @@
 package httpserver.endpoints;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import common.Config;
 import docker.DockerAdapter;
 import externalapi.AppCodeVersion;
@@ -122,7 +119,6 @@ public class ExecuteApp {
         String imageId, List<CallParam> inputParams) throws IOException
     {
         Map<String, String> mounts = mounts(callId, inputParams);
-        System.out.println(mounts);
         startContainerThread.submitTask(()-> docker.createAndStartContainer(
             imageId,
             containerEnvs(),
