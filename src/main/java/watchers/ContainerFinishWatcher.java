@@ -90,7 +90,7 @@ public class ContainerFinishWatcher {
     private void handleFinishedContainer(String containerId) {
         InspectContainerResponse inspect = docker.inspectContainer(containerId);
         Map<String, String> labels = inspect.getConfig().getLabels();
-        if (!labels.containsKey(ExecuteApp.CONTAINER_LABEL_CALL_ID)) {
+        if (!labels.containsKey(ExecuteApp.CALL_ID_LABEL)) {
             // container not belong to ckan
             return;
         }
@@ -158,13 +158,13 @@ public class ContainerFinishWatcher {
 
     private String getCallId(InspectContainerResponse inspect) {
         Map<String, String> labels = inspect.getConfig().getLabels();
-        String callId = labels.get(ExecuteApp.CONTAINER_LABEL_CALL_ID);
+        String callId = labels.get(ExecuteApp.CALL_ID_LABEL);
         return callId;
     }
     
     private String getAppId(InspectContainerResponse inspect) {
         Map<String, String> labels = inspect.getConfig().getLabels();
-        String appId = labels.get(ExecuteApp.CONTAINER_LABEL_APP_ID);
+        String appId = labels.get(ExecuteApp.APP_ID_LABEL);
         return appId;
     }
     

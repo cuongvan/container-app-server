@@ -24,6 +24,8 @@ public class Config {
     public final String databaseSchema;
     public final String jdbcConnectionString;
     
+    public final String ckanHost;
+    
     public Config(Properties props) {
         Map<String, String> env = System.getenv();
         port = Integer.parseInt(props.getProperty("port"));
@@ -39,6 +41,9 @@ public class Config {
         databasePassword = props.getProperty("database.password");
         databaseSchema = props.getProperty("database.schema");
         jdbcConnectionString = String.format("jdbc:postgresql://%s/%s", databaseHost, databaseSchema);
+        
+        // input to app container
+        ckanHost = props.getProperty("ckan.host");
     }
     
     public static Config loadConfig() {

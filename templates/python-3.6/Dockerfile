@@ -13,7 +13,7 @@ RUN pip install --upgrade pip && \
 
 
 # initialize output dirs & files
-RUN mkdir /input-files && chown ckanapp:ckanapp /input-files && \
+RUN mkdir /inputs && chown ckanapp:ckanapp /inputs && \
     mkdir /outputs /outputs/files && \
     echo '{"params": []}' > /outputs/output.json && \
     chown -R ckanapp:ckanapp /outputs && \
