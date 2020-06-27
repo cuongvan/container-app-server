@@ -37,9 +37,13 @@ RUN cd /app/build/distributions &&\
 
 # final image
 FROM openjdk:8-jre-slim
-RUN useradd --create-home ckanapp && mkdir -p /app && chown ckanapp:ckanapp /app
+RUN useradd ckanapp
+# RUN useradd --create-home ckanapp && mkdir -p /app && chown ckanapp:ckanapp /app
 COPY --from=builder --chown=ckanapp:ckanapp /app/build/distributions/app /app
 ENV JAVA_OPTS "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=2"
+
+RUN mkdir /inputs /outputs &&\
+    chown -R ckanapp:ckanapp /inputs /outputs
 
 USER ckanapp
 WORKDIR /app

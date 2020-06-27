@@ -2,7 +2,7 @@ FROM python:3.8-slim
 
 
 # create user to run app
-RUN useradd --create-home ckanapp
+RUN useradd ckanapp
 
 
 # install defaults requirements
