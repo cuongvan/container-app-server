@@ -25,8 +25,8 @@ WORKDIR /app
 
 
 # install app's requirements, add main.py to avoid no source files
-COPY main.py ./requirements.txt* ./
-RUN if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
 
 # copy app code

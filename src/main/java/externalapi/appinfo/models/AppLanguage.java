@@ -2,7 +2,8 @@ package externalapi.appinfo.models;
 
 public enum AppLanguage {
     PYTHON_36("python-3.6"),
-    JAVA_8("java-8"),
+    JAVA_8_JAR("java-8-jar"),
+    JAVA_8_GRADLE("java-8-gradle"),
     NODEJS_14("nodejs-14");
     
     // name of the template directory
