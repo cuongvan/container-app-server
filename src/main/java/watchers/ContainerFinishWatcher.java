@@ -198,8 +198,8 @@ public class ContainerFinishWatcher {
                 case "json": return new CallOutputEntry(OutputFieldType.JSON, param, path);
                 case "xslx": return new CallOutputEntry(OutputFieldType.XSLX, param, path);
                 
-                default:
-                    return null;
+                // unknown
+                default: return new CallOutputEntry(OutputFieldType.FILE, param, path);
             }
         } catch (IOException ex) {
             return null;

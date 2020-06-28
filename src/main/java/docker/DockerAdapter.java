@@ -89,7 +89,6 @@ public class DockerAdapter {
         }
     }
 
-    //TODO environment variables map
     public String createAndStartContainer(
         String imageName,
         Map<String/*env*/, String /*value*/> envs,
@@ -118,6 +117,7 @@ public class DockerAdapter {
                 .withEnv(envList)
                 .withVolumes(volumes)
                 .withLabels(labels)
+                .withMemory((long) 500 * 1024 * 1024)
                 //@SuppressWarnings("deprecation")
                 .withBinds(binds)
                 .exec();
