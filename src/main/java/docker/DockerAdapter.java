@@ -117,7 +117,10 @@ public class DockerAdapter {
                 .withEnv(envList)
                 .withVolumes(volumes)
                 .withLabels(labels)
-                .withMemory((long) 500 * 1024 * 1024)
+                .withCpuShares(1024)
+                .withCpusetCpus("2-7")
+                .withCapDrop(Capability.ALL)
+                .withMemory((long) 256 * 1024 * 1024)
                 //@SuppressWarnings("deprecation")
                 .withBinds(binds)
                 .exec();
