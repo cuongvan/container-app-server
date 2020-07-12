@@ -7,9 +7,7 @@ RUN useradd ckanapp
 
 # install defaults requirements
 RUN pip install --upgrade pip && \
-    pip install requests
-
-# matplotlib numpy
+    pip install requests matplotlib numpy pandas ckanapi
 
 
 # initialize output dirs & files
