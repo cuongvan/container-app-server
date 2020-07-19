@@ -86,6 +86,7 @@ public class ExecuteApp {
     
 
     private void execute(String appId, String codeId, String userId, String callId, FormDataMultiPart body) throws SQLException, IOException {
+        logger.info("Processing inputs");
         AppCodeVersion codeVersion = appCodeVersionDB.getById(codeId);
         Map<String, AppParam> declaredParams = appParamDB.getParamsByAppIdAsMap(appId);
         
@@ -111,6 +112,7 @@ public class ExecuteApp {
             }
         }
         
+        logger.info("Putting app call to DB");
         appCallDAO.insertCall(callId, appId, userId);
         callParamDB.insertParams(callId, inputParams);
         logger.info("Put app call to DB done");
