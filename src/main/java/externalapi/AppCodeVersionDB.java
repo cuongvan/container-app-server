@@ -19,6 +19,7 @@ public class AppCodeVersionDB {
             PreparedStatement stmt = connection.prepareStatement(
                 "SELECT image, image_id, code_path FROM app_code_version WHERE code_id = ?"))
         {
+            System.out.println("get connection success");
             stmt.setString(1, codeId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
