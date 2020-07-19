@@ -23,7 +23,7 @@ public class RequestLoggingFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext req) throws IOException {
-        logger.info("{} /{} - {}",
+        logger.info("{} /{}",
             req.getMethod(),
             req.getUriInfo().getPath());
     }

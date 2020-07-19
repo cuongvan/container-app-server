@@ -29,6 +29,8 @@ import javax.inject.Singleton;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Path("/app/{appId}/{codeId}/execute")
 @Singleton
@@ -46,6 +48,8 @@ public class ExecuteApp {
     @Inject private CallParamDB callParamDB;
     @Inject private AppCodeVersionDB appCodeVersionDB;
     @Inject private CallDAO appCallDAO;
+    
+    private final Logger logger = LoggerFactory.getLogger(ExecuteApp.class);
     
     @Path("/empty")
     @POST
@@ -109,8 +113,7 @@ public class ExecuteApp {
         
         appCallDAO.insertCall(callId, appId, userId);
         callParamDB.insertParams(callId, inputParams);
-        
-        
+        logger.info("Put app call to DB done");
         submitTaskToScheduler(appId, codeId, callId, codeVersion.imageId, inputParams);
     }
     
@@ -124,6 +127,7 @@ public class ExecuteApp {
             containerEnvs(),
             mounts,
             labels(callId, appId, codeId)));
+        logger.info("Submitted app to scheduler");
     }
 
     private Map<String, String> labels(String callId, String appId, String codeId) {

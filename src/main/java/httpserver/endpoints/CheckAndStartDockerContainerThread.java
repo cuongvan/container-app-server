@@ -19,14 +19,14 @@ public class CheckAndStartDockerContainerThread extends Thread {
 
     @Override
     public void run() {
-        logger.info("thead started");
+        logger.info("thread started");
         for(;;) {
             try {
                 Runnable task = tasks.takeFirst();
                 
                 double freeMemMB = systemStats.getFreePhysicalMemoryMB();
                     
-                if (freeMemMB >= 500.0) {
+                if (freeMemMB >= 256.0) {
                     task.run();
                 } else {
                     logger.info("Memory is low: " + freeMemMB + ". Resubmit a Docker run task");
@@ -34,6 +34,7 @@ public class CheckAndStartDockerContainerThread extends Thread {
                     Thread.sleep(5000);   // wait for other tasks to complete then run this
                 }
             } catch (InterruptedException ignore) {
+                ignore.printStackTrace();
             }
         }
     }
