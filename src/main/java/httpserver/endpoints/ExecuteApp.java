@@ -88,6 +88,7 @@ public class ExecuteApp {
     private void execute(String appId, String codeId, String userId, String callId, FormDataMultiPart body) throws SQLException, IOException {
         logger.info("Processing inputs");
         AppCodeVersion codeVersion = appCodeVersionDB.getById(codeId);
+        logger.info("Processing inputs: get app code version success");
         Map<String, AppParam> declaredParams = appParamDB.getParamsByAppIdAsMap(appId);
         logger.info("Processing inputs: get DB");
         List<CallParam> inputParams = new ArrayList<>();
