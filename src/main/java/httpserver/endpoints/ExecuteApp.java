@@ -89,11 +89,12 @@ public class ExecuteApp {
         logger.info("Processing inputs");
         AppCodeVersion codeVersion = appCodeVersionDB.getById(codeId);
         Map<String, AppParam> declaredParams = appParamDB.getParamsByAppIdAsMap(appId);
-        
+        logger.info("Processing inputs: get DB");
         List<CallParam> inputParams = new ArrayList<>();
         
         Set<String> submittedParams = body.getFields().keySet();
         for (String param : submittedParams) {
+            logger.info("Processing inputs: param: " + param);
             try (InputStream paramValue = body.getField(param).getEntityAs(InputStream.class)) {
                 CallParam callParam = new CallParam();
                 callParam.name = param;
