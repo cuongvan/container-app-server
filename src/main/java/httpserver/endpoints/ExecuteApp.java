@@ -86,17 +86,17 @@ public class ExecuteApp {
     
 
     private void execute(String appId, String codeId, String userId, String callId, FormDataMultiPart body) throws SQLException, IOException {
-        logger.info("Processing inputs");
-        logger.info("Processing inputs: calling DB: get app code version");
+        //logger.info("Processing inputs");
+        //logger.info("Processing inputs: calling DB: get app code version");
         AppCodeVersion codeVersion = appCodeVersionDB.getById(codeId);
-        logger.info("Processing inputs: get app code version success");
+        //logger.info("Processing inputs: get app code version success");
         Map<String, AppParam> declaredParams = appParamDB.getParamsByAppIdAsMap(appId);
-        logger.info("Processing inputs: get DB");
+        //logger.info("Processing inputs: get DB");
         List<CallParam> inputParams = new ArrayList<>();
         
         Set<String> submittedParams = body.getFields().keySet();
         for (String param : submittedParams) {
-            logger.info("Processing inputs: param: " + param);
+            //logger.info("Processing inputs: param: " + param);
             try (InputStream paramValue = body.getField(param).getEntityAs(InputStream.class)) {
                 CallParam callParam = new CallParam();
                 callParam.name = param;
@@ -115,10 +115,10 @@ public class ExecuteApp {
             }
         }
         
-        logger.info("Putting app call to DB");
+        //logger.info("Putting app call to DB");
         appCallDAO.insertCall(callId, appId, userId);
         callParamDB.insertParams(callId, inputParams);
-        logger.info("Put app call to DB done");
+        //logger.info("Put app call to DB done");
         submitTaskToScheduler(appId, codeId, callId, codeVersion.imageId, inputParams);
     }
     
