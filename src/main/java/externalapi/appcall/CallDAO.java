@@ -35,7 +35,8 @@ public class CallDAO {
     public void insertCall(String callId, String appId, String userId) throws SQLException {
         try (Connection conn = dbPool.getConnection();
             PreparedStatement stmt = conn.prepareStatement(
-                "INSERT INTO app_call (call_id, app_id, user_id, call_status, created_at) VALUES (?, ?, ?, ?, ?)")) {
+                "INSERT INTO app_call (call_id, app_id, user_id, call_status, created_at) VALUES (?, ?, ?, ?, ?)"))
+        {
             stmt.setString(1, callId);
             stmt.setString(2, appId);
             stmt.setString(3, userId);
@@ -47,7 +48,8 @@ public class CallDAO {
 
     public void updateCallResult(String callId, CallResult callResult, List<CallOutputEntry> fields) throws SQLException {
         Connection conn = dbPool.getNonAutoCommitConnection();
-        try {
+        try
+        {
             try (PreparedStatement stmt = conn.prepareStatement(
                 "UPDATE app_call SET elapsed_seconds = ?, call_status = ?, logs = ? WHERE call_id = ?")) {
                 stmt.setLong(1, callResult.elapsedSeconds);
@@ -73,6 +75,8 @@ public class CallDAO {
         } catch (SQLException ex) {
             conn.rollback();
             throw ex;
+        } finally {
+            conn.close();
         }
     }
 
