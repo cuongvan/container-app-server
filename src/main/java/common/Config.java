@@ -26,6 +26,8 @@ public class Config {
     
     public final String ckanHost;
     
+    public final long minFreeRamExecMB;
+    
     public Config(Properties props) {
         Map<String, String> env = System.getenv();
         port = Integer.parseInt(props.getProperty("port"));
@@ -44,6 +46,7 @@ public class Config {
         
         // input to app container
         ckanHost = props.getProperty("ckan.host");
+        minFreeRamExecMB = Long.parseLong(props.getProperty("app.execute.min_free_ram.mb"));
     }
     
     public static Config loadConfig() {

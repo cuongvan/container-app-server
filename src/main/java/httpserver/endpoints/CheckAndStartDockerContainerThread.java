@@ -1,5 +1,6 @@
 package httpserver.endpoints;
 
+import common.Config;
 import helpers.SystemStats;
 import java.util.concurrent.LinkedBlockingDeque;
 import javax.inject.Inject;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class CheckAndStartDockerContainerThread extends Thread {
+    @Inject private Config config;
     @Inject private SystemStats systemStats;
     private final LinkedBlockingDeque<Runnable> tasks = new LinkedBlockingDeque<>();
     private final Logger logger = LoggerFactory.getLogger(CheckAndStartDockerContainerThread.class);
@@ -26,7 +28,7 @@ public class CheckAndStartDockerContainerThread extends Thread {
                 
                 double freeMemMB = systemStats.getFreePhysicalMemoryMB();
                     
-                if (freeMemMB >= 256.0) {
+                if (freeMemMB >= config.minFreeRamExecMB) {
                     task.run();
                 } else {
                     logger.info("Memory is low: " + freeMemMB + ". Resubmit a Docker run task");

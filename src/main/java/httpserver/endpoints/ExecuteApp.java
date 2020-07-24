@@ -132,7 +132,7 @@ public class ExecuteApp {
             containerEnvs(),
             mounts,
             labels(callId, appId, codeId)));
-        logger.info("Submitted app to scheduler");
+        //logger.info("Submitted app to scheduler");
     }
 
     private Map<String, String> labels(String callId, String appId, String codeId) {
