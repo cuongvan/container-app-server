@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class CheckAndStartDockerContainerThread extends Thread {
+public class CheckAndStartDockerContainerThread implements Runnable {
     @Inject private Config config;
     @Inject private SystemStats systemStats;
     private final LinkedBlockingDeque<Runnable> tasks = new LinkedBlockingDeque<>();
@@ -38,6 +38,14 @@ public class CheckAndStartDockerContainerThread extends Thread {
             } catch (InterruptedException ignore) {
                 ignore.printStackTrace();
             }
+        }
+    }
+
+    public void start() {
+        for (int i = 0; i < config.numDockerRunThreads; i++) {
+            Thread t = new Thread(this);
+            t.setName("dockerrun-" + i);
+            t.start();
         }
     }
 }
