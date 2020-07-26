@@ -181,6 +181,7 @@ public class ExecuteApp {
     private Map<String, String> containerEnvs() {
         Map<String, String> envs = new HashMap<>();
         envs.put("CKAN_HOST", config.ckanHost);
+        envs.put("TIMEOUT", String.valueOf(config.appExecTimeoutSec));
         return envs;
     }
 }

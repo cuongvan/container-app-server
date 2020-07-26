@@ -172,7 +172,12 @@ public class ContainerFinishWatcher {
             status = CallStatus.OUT_OF_MEMORY;
         } else {
             int exitCode = inspect.getState().getExitCode();
-            status = (exitCode == 0) ? CallStatus.SUCCESS : CallStatus.FAILED;
+            if (exitCode == 0)
+                status = CallStatus.SUCCESS;
+            else if (exitCode == 124)
+                status = CallStatus.TIMEOUT;
+            else 
+                status = CallStatus.FAILED;
         }
 
         Instant t1 = Instant.parse(inspect.getState().getStartedAt());

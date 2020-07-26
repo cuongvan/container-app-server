@@ -27,5 +27,8 @@ COPY --chown=ckanapp:ckanapp . .
 
 USER ckanapp
 
-CMD ["python", "main.py"]
-#CMD ["timeout", $TIMEOUT, "python", "main.py"]
+# CMD ["python", "main.py"]
+# CMD ["timeout", $TIMEOUT, "python", "main.py"]
+ENV TIMEOUT 60
+
+CMD ["sh", "-c", "/usr/bin/timeout $TIMEOUT python main.py"]

@@ -29,6 +29,7 @@ public class Config {
     public final long minFreeRamExecMB;
     public final long maxContainerRamMB;
     public final int numDockerRunThreads;
+    public final int appExecTimeoutSec;
     
     public Config(Properties props) {
         Map<String, String> env = System.getenv();
@@ -45,12 +46,13 @@ public class Config {
         databasePassword = props.getProperty("database.password");
         databaseSchema = props.getProperty("database.schema");
         jdbcConnectionString = String.format("jdbc:postgresql://%s/%s", databaseHost, databaseSchema);
+        numDockerRunThreads = Integer.parseInt(props.getProperty("num_dockerrun_threads"));
         
         // input to app container
         ckanHost = props.getProperty("ckan.host");
         minFreeRamExecMB = Long.parseLong(props.getProperty("app.execute.min_free_ram.mb"));
         maxContainerRamMB = Long.parseLong(props.getProperty("app.container.max_ram.mb"));
-        numDockerRunThreads = Integer.parseInt(props.getProperty("num_dockerrun_threads"));
+        appExecTimeoutSec = Integer.parseInt(props.getProperty("app.execute.timeout.sec"));
     }
     
     public static Config loadConfig() {
