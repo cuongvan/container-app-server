@@ -93,7 +93,8 @@ public class DockerAdapter {
         String imageName,
         Map<String/*env*/, String /*value*/> envs,
         Map<String /*local path*/, String /*container path*/> mounts,
-        Map<String, String> labels
+        Map<String, String> labels,
+        long maxMemoryBytes
     ) {
         List<Volume> volumes = new ArrayList<>();
         List<Bind> binds = new ArrayList<>();
@@ -120,8 +121,8 @@ public class DockerAdapter {
                 .withCpuShares(1024)
                 .withCpusetCpus("2-7")
                 .withCapDrop(Capability.ALL)
-                .withMemory((long) 256 * 1024 * 1024)
-                //@SuppressWarnings("deprecation")
+                .withMemory(maxMemoryBytes)
+                .withMemorySwap(maxMemoryBytes)
                 .withBinds(binds)
                 .exec();
                 
@@ -162,6 +163,8 @@ public class DockerAdapter {
                     @Override
                     public void onNext(BuildResponseItem item) {
                         if (item.getStream() != null) {
+                            if (true)
+                                System.out.println(item.getStream());
                             buildLog.append(item.getStream());
                         }
                         super.onNext(item);

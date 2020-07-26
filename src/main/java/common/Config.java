@@ -27,6 +27,7 @@ public class Config {
     public final String ckanHost;
     
     public final long minFreeRamExecMB;
+    public final long maxContainerRamMB;
     public final int numDockerRunThreads;
     
     public Config(Properties props) {
@@ -48,6 +49,7 @@ public class Config {
         // input to app container
         ckanHost = props.getProperty("ckan.host");
         minFreeRamExecMB = Long.parseLong(props.getProperty("app.execute.min_free_ram.mb"));
+        maxContainerRamMB = Long.parseLong(props.getProperty("app.container.max_ram.mb"));
         numDockerRunThreads = Integer.parseInt(props.getProperty("num_dockerrun_threads"));
     }
     
