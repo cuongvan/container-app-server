@@ -166,8 +166,14 @@ public class ContainerFinishWatcher {
     }
 
     private CallResult gatherCallResultInfo(InspectContainerResponse inspect) {
-        int exitCode = inspect.getState().getExitCode();
-        CallStatus status = (exitCode == 0) ? CallStatus.SUCCESS : CallStatus.FAILED;
+        CallStatus status;
+        boolean oom = inspect.getState().getOOMKilled();
+        if (oom) {
+            status = CallStatus.OUT_OF_MEMORY;
+        } else {
+            int exitCode = inspect.getState().getExitCode();
+            status = (exitCode == 0) ? CallStatus.SUCCESS : CallStatus.FAILED;
+        }
 
         Instant t1 = Instant.parse(inspect.getState().getStartedAt());
         Instant t2 = Instant.parse(inspect.getState().getFinishedAt());

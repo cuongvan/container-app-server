@@ -28,3 +28,4 @@ COPY --chown=ckanapp:ckanapp . .
 USER ckanapp
 
 CMD ["python", "main.py"]
+#CMD ["timeout", $TIMEOUT, "python", "main.py"]
