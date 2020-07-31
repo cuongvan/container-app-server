@@ -16,6 +16,8 @@ RUN pip install --upgrade pip && \
 RUN mkdir /inputs /outputs /app &&\
     chown -R ckanapp:ckanapp /inputs /outputs /app
     
+USER ckanapp
+
 # work dir
 WORKDIR /app
 
@@ -24,10 +26,9 @@ COPY --chown=ckanapp:ckanapp requirements.txt .
 RUN pip install --user -r requirements.txt
 
 
+
 # copy app code
 COPY --chown=ckanapp:ckanapp . .
-
-USER ckanapp
 
 ENV TIMEOUT 60
 

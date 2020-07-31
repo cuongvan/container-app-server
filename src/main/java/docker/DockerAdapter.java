@@ -113,11 +113,14 @@ public class DockerAdapter {
         
         DockerClient docker = newClient();
         try {
+//            docker.createContainerCmd("")
+//                .withcpu
             CreateContainerResponse container = docker
                 .createContainerCmd(imageName)
                 .withEnv(envList)
                 .withVolumes(volumes)
                 .withLabels(labels)
+                .withCpuPeriod(Integer.SIZE)
                 .withCpuShares(1024)
                 .withCpusetCpus("2-7")
                 .withCapDrop(Capability.ALL)
@@ -125,6 +128,13 @@ public class DockerAdapter {
                 .withMemorySwap(maxMemoryBytes)
                 .withBinds(binds)
                 .exec();
+            
+            UpdateContainerResponse r = docker.updateContainerCmd(container.getId())
+                .withCpuQuota(1_000_000)
+                .withCpuPeriod(1_000_000)
+                .exec();
+            
+            System.out.println("update container status: " + r.isErrorIndicated());
                 
             docker.startContainerCmd(container.getId()).exec();
             return container.getId();
