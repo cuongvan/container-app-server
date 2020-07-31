@@ -27,6 +27,7 @@ public class Config {
     public final String ckanHost;
     
     public final long minFreeRamExecMB;
+    public final String appExecCpuset;
     public final long maxContainerRamMB;
     public final int numDockerRunThreads;
     public final int appExecTimeoutSec;
@@ -51,6 +52,7 @@ public class Config {
         // input to app container
         ckanHost = props.getProperty("ckan.host");
         minFreeRamExecMB = Long.parseLong(props.getProperty("app.execute.min_free_ram.mb"));
+        appExecCpuset = props.getProperty("app.execute.cpuset");
         maxContainerRamMB = Long.parseLong(props.getProperty("app.container.max_ram.mb"));
         appExecTimeoutSec = Integer.parseInt(props.getProperty("app.execute.timeout.sec"));
     }

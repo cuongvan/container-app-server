@@ -13,14 +13,18 @@ import com.github.dockerjava.api.command.BuildImageResultCallback;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
+import common.Config;
 import helpers.MyFileUtils;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import static java.util.stream.Collectors.toList;
+import javax.inject.Inject;
 import org.apache.commons.io.FileUtils;
 
 @Singleton
 public class DockerAdapter {
+    
+    @Inject private Config config;
     
     public static DockerClient newClient() {
         DockerClientConfig custom = DefaultDockerClientConfig.createDefaultConfigBuilder()
@@ -113,28 +117,25 @@ public class DockerAdapter {
         
         DockerClient docker = newClient();
         try {
-//            docker.createContainerCmd("")
-//                .withcpu
             CreateContainerResponse container = docker
                 .createContainerCmd(imageName)
                 .withEnv(envList)
                 .withVolumes(volumes)
                 .withLabels(labels)
                 .withCpuShares(1024)
-                .withCpusetCpus("2-7")
+                .withCpusetCpus(config.appExecCpuset)
                 .withCapDrop(Capability.ALL)
                 .withMemory(maxMemoryBytes)
                 .withMemorySwap(maxMemoryBytes)
                 .withBinds(binds)
                 .exec();
             
+            // ~ --cpus=1
             UpdateContainerResponse r = docker.updateContainerCmd(container.getId())
                 .withCpuQuota(1_000_000)
                 .withCpuPeriod(1_000_000)
                 .exec();
             
-            //System.out.println("update container status: " + r.isErrorIndicated());
-                
             docker.startContainerCmd(container.getId()).exec();
             return container.getId();
         } finally {
