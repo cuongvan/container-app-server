@@ -133,7 +133,7 @@ public class DockerAdapter {
                 .withCpuPeriod(1_000_000)
                 .exec();
             
-            System.out.println("update container status: " + r.isErrorIndicated());
+            //System.out.println("update container status: " + r.isErrorIndicated());
                 
             docker.startContainerCmd(container.getId()).exec();
             return container.getId();
