@@ -127,14 +127,12 @@ public class ExecuteApp {
         String imageId, List<CallParam> inputParams) throws IOException
     {
         Map<String, String> mounts = mounts(callId, inputParams);
-        long maxRamBytes = config.maxContainerRamMB * 1024 * 1024;
-        startContainerThread.submitTask(()-> docker.createAndStartContainer(
-            imageId,
-            containerEnvs(),
-            mounts,
-            labels(callId, appId, codeId),
-            maxRamBytes));
-        //logger.info("Submitted app to scheduler");
+        startContainerThread.submitTask(()->
+            docker.createAndStartContainer(
+                imageId,
+                containerEnvs(),
+                mounts,
+                labels(callId, appId, codeId)));
     }
 
     private Map<String, String> labels(String callId, String appId, String codeId) {

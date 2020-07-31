@@ -97,8 +97,7 @@ public class DockerAdapter {
         String imageName,
         Map<String/*env*/, String /*value*/> envs,
         Map<String /*local path*/, String /*container path*/> mounts,
-        Map<String, String> labels,
-        long maxMemoryBytes
+        Map<String, String> labels
     ) {
         List<Volume> volumes = new ArrayList<>();
         List<Bind> binds = new ArrayList<>();
@@ -117,6 +116,7 @@ public class DockerAdapter {
         
         DockerClient docker = newClient();
         try {
+            long maxRamBytes = config.maxContainerRamMB * 1024 * 1024;
             CreateContainerResponse container = docker
                 .createContainerCmd(imageName)
                 .withEnv(envList)
@@ -125,8 +125,8 @@ public class DockerAdapter {
                 .withCpuShares(1024)
                 .withCpusetCpus(config.appExecCpuset)
                 .withCapDrop(Capability.ALL)
-                .withMemory(maxMemoryBytes)
-                .withMemorySwap(maxMemoryBytes)
+                .withMemory(maxRamBytes)
+                .withMemorySwap(maxRamBytes)
                 .withBinds(binds)
                 .exec();
             
