@@ -120,7 +120,6 @@ public class DockerAdapter {
                 .withEnv(envList)
                 .withVolumes(volumes)
                 .withLabels(labels)
-                .withCpuPeriod(Integer.SIZE)
                 .withCpuShares(1024)
                 .withCpusetCpus("2-7")
                 .withCapDrop(Capability.ALL)
