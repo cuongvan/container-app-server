@@ -1,15 +1,11 @@
 FROM python:2.7.18
 
 
-# create user to run app
-RUN groupadd -g 20000 ckanapp && \
-    useradd --create-home -u 20000 -g ckanapp ckanapp
-
-
 # install defaults requirements
 RUN pip install --upgrade pip && \
     pip install requests matplotlib pandas ckanapi
 
+RUN groupadd -g 20000 ckanapp && useradd --create-home -u 20000 -g ckanapp ckanapp
 
 # initialize output dirs & files
 RUN mkdir /inputs /outputs /app &&\
@@ -29,4 +25,4 @@ COPY --chown=ckanapp:ckanapp . .
 
 ENV TIMEOUT 60
 
-CMD ["sh", "-c", "/usr/bin/timeout $TIMEOUT python main.py"]
+CMD ["sh", "-c", "/usr/bin/timeout --kill-after=5 $TIMEOUT python main.py"]

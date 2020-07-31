@@ -32,4 +32,4 @@ COPY --chown=ckanapp:ckanapp . .
 
 ENV TIMEOUT 60
 
-CMD ["sh", "-c", "/usr/bin/timeout $TIMEOUT python main.py"]
+CMD ["sh", "-c", "/usr/bin/timeout --kill-after=5 $TIMEOUT python main.py"]
